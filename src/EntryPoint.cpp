@@ -2,12 +2,16 @@
 #include <GLFW/glfw3.h>
 #include "Logging/Logger.h"
 #include <string_view>
-
+#include "Core/Window.h"
 
 void APIENTRY OpenGLDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity,
     GLsizei length, const char* message, const void* userParam);
 
 int main() {
+
+    constexpr int kStartWindowWidth = 600;
+    constexpr int kStartWindowHeight = 800;
+    const char * kWindowTittle= "Chess";
 
     Chess_Game::Logger::Init();
 
@@ -23,15 +27,20 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
 
- 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "GLEW + GLFW Window", nullptr, nullptr);
-    if (!window) {
+
+    Chess_Game::WindowCreateInfo window_create_info{};
+    window_create_info.windowHeight = kStartWindowHeight;
+    window_create_info.windowWidth = kStartWindowWidth;
+    window_create_info.windowTittle = kWindowTittle;
+    
+    Chess_Game::Window main_window(window_create_info);
+
+    if (!main_window.IsWindowValid()) {
         CHESS_LOG_FATAL("Failed to create GLFW window");
         glfwTerminate();
         return -1;
     }
 
-    glfwMakeContextCurrent(window);
 
     if (glewInit() != GLEW_OK) {
         CHESS_LOG_FATAL("Failed to initialize GLEW: ");
@@ -54,20 +63,15 @@ int main() {
 
     glViewport(0, 0, 800, 600);
 
-    while (!glfwWindowShouldClose(window)) {
-        // Clear the screen to a dark-grey color
+    while (!main_window.ShouldWindowClose()) {
+   
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Swap front and back buffers
-        glfwSwapBuffers(window);
-
-        // Poll for and process events
-        glfwPollEvents();
+        main_window.OnUpdate();
     }
 
-    // Clean up and exit
-    glfwDestroyWindow(window);
+    main_window.~Window();
     glfwTerminate();
 
     CHESS_LOG_INFO("Application exited successfully.");

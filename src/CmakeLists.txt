@@ -35,6 +35,7 @@ add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/glew/glew/glew-2.2.0/build/cmake"
 add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/spdlog" "${PROJECT_DEPENDENCY_FOLDER}/spdlog/build")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/Logging")
+add_subdirectory("${PROJECT_SOURCE_DIR}/Core")
 
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC
