@@ -1,9 +1,11 @@
 set(INPUT_SOURCES
     ShaderClass.cpp
+	BatchRenderer.cpp
 )
 
 set(INPUT_HEADERS
     ShaderClass.h
+	BatchRenderer.h
 )
 
 target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})
