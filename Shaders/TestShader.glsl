@@ -1,22 +1,22 @@
 #Shader:Vertex
 #version 330 core
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec2 uvCoords;
-layout(location = 2) in vec3 normals;
-layout(location = 3) in vec3 tangent;
+layout(location = 0) in vec2 position;
+layout(location = 1) in vec3 color;
 
+out vec3 VertexColor;
 void main()
 {
-	gl_Position = vec4(position,1);
+	gl_Position = vec4(position,0,1);
+	VertexColor = color;
 }
 
 #Shader:Fragment
 #version 330 core
 
 out vec4 FragColor;
-uniform vec3 u_Color;
+in vec3 VertexColor;
 
 void main()
 {
-	FragColor = vec4(u_Color,1);
+	FragColor = vec4(VertexColor,1);
 }
