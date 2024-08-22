@@ -36,6 +36,7 @@ add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/spdlog" "${PROJECT_DEPENDENCY_FOL
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/Logging")
 add_subdirectory("${PROJECT_SOURCE_DIR}/Core")
+add_subdirectory("${PROJECT_SOURCE_DIR}/GPU-Side")
 
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC
