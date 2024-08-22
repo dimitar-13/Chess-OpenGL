@@ -1,7 +1,7 @@
 #pragma once
 #include<GLFW/glfw3.h>
 #include"Core/ApplicationData.h"
-
+#include<functional>
 namespace Chess_Game
 {
     struct WindowCreateInfo
@@ -9,6 +9,7 @@ namespace Chess_Game
         size_t windowWidth;
         size_t windowHeight;
         const char* windowTittle;
+        std::function<void(int)> windowOnEventCallback;
     };
 
     enum GLFWErrorCode_
@@ -43,10 +44,12 @@ namespace Chess_Game
         void BindWindowClassToCallbackFunctions();
         void WindowResizeCallback(GLFWwindow* window, int new_width,int new_height);
         void WindowMouseInputCallback(GLFWwindow* window, int button, int action, int mod);
+        void WindowShouldCloseCallback(GLFWwindow* window);
         static void WindowErrorCallback(int error, const char* description);
     private:
         Size2D m_windowSize{};
         GLFWwindow* m_glfwWindowHandle = nullptr;
+        std::function<void(int)> m_WindowEventCallback;
     };
 
 }

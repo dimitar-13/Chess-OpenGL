@@ -2,16 +2,14 @@
 #include <GLFW/glfw3.h>
 #include "Logging/Logger.h"
 #include <string_view>
-#include "Core/Window.h"
+#include "Core/Application.h"
 
 void APIENTRY OpenGLDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity,
     GLsizei length, const char* message, const void* userParam);
 
 int main() {
 
-    constexpr int kStartWindowWidth = 600;
-    constexpr int kStartWindowHeight = 800;
-    const char * kWindowTittle= "Chess";
+
 
     Chess_Game::Logger::Init();
 
@@ -26,17 +24,12 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
+    Chess_Game::Application m_mainApplication;
 
 
-    Chess_Game::WindowCreateInfo window_create_info{};
-    window_create_info.windowHeight = kStartWindowHeight;
-    window_create_info.windowWidth = kStartWindowWidth;
-    window_create_info.windowTittle = kWindowTittle;
-    
-    Chess_Game::Window main_window(window_create_info);
 
-    if (!main_window.IsWindowValid()) {
-        CHESS_LOG_FATAL("Failed to create GLFW window");
+    if (!m_mainApplication.IsApplicationUnitizedSuccessfully()) {
+        CHESS_LOG_FATAL("Failed to initialize the application");
         glfwTerminate();
         return -1;
     }
@@ -61,17 +54,11 @@ int main() {
 
     CHESS_LOG_INFO("Application was started successfully.");
 
-    glViewport(0, 0, 800, 600);
-
-    while (!main_window.ShouldWindowClose()) {
    
-        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
 
-        main_window.OnUpdate();
-    }
 
-    main_window.~Window();
+    m_mainApplication.RenderLoop();
+   
     glfwTerminate();
 
     CHESS_LOG_INFO("Application exited successfully.");

@@ -8,6 +8,7 @@ Chess_Game::Window::Window(const WindowCreateInfo& window_create_info)
    if (!this->IsWindowValid())
         return;
 
+   m_WindowEventCallback = window_create_info.windowOnEventCallback;
    glfwMakeContextCurrent(m_glfwWindowHandle);
    BindWindowClassToCallbackFunctions();
 }
@@ -33,6 +34,13 @@ void Chess_Game::Window::BindWindowClassToCallbackFunctions()
         };
     glfwSetMouseButtonCallback(m_glfwWindowHandle, WindowMouseButtonPressCallback);
 
+    auto WindowShouldCloseCallback = [](GLFWwindow* window)
+        {
+            static_cast<Window*>(glfwGetWindowUserPointer(window))->WindowShouldCloseCallback(window);
+        };
+
+    glfwSetWindowCloseCallback(m_glfwWindowHandle, WindowShouldCloseCallback);
+
     glfwSetErrorCallback(WindowErrorCallback);
 
 }
@@ -48,6 +56,11 @@ void Chess_Game::Window::WindowMouseInputCallback(GLFWwindow* window, int button
 {
     CHESS_LOG_INFO("Mouse input detected.");
 
+}
+
+void Chess_Game::Window::WindowShouldCloseCallback(GLFWwindow* window)
+{
+    m_WindowEventCallback(3);
 }
 
 void Chess_Game::Window::WindowErrorCallback(int error, const char* description)
