@@ -1,3 +1,4 @@
+#include "GPU-Side/ShaderClass.h"
 #include "Application.h"
 #include <iostream>
 Chess_Game::Application::Application()
@@ -22,6 +23,9 @@ Chess_Game::Application::Application()
 
 void Chess_Game::Application::RenderLoop()
 {
+    ShaderClass test_shader_class("D:/c++/OpenGl/Chess-OpenGL/Shaders/TestShader.glsl");
+    
+
     while (m_isApplicationRunning) {
         glClear(GL_COLOR_BUFFER_BIT);
 
