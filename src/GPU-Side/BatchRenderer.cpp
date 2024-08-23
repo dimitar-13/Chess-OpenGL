@@ -34,7 +34,7 @@ Chess_Game::BatchRenderer::BatchRenderer()
 
 void Chess_Game::BatchRenderer::Push(const glm::vec2& position, const glm::vec3& object_color)
 {
-    constexpr float kScaleFactor = 50.0f;
+
     GLuint quad_index_data[6] = {
         0,1,2,
         2,3,0
@@ -52,7 +52,6 @@ void Chess_Game::BatchRenderer::Push(const glm::vec2& position, const glm::vec3&
     for (auto & vertex : quad_vertex_data)
     {
         vertex.vertex_position += position;
-        vertex.vertex_position /= kScaleFactor;
         vertex.vertex_color = object_color;
     }
  

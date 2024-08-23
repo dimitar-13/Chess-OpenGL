@@ -2,6 +2,7 @@
 #include "Application.h"
 #include <iostream>
 #include "GPU-Side/BatchRenderer.h"
+#include<glm/gtc/matrix_transform.hpp>
 Chess_Game::Application::Application()
 {
     constexpr int kStartWindowWidth = 600;
@@ -20,6 +21,7 @@ Chess_Game::Application::Application()
         m_ApplicationInitStatus = false;
 
     glViewport(0, 0, kStartWindowWidth, kStartWindowHeight);
+    CalculateOrthoProjection(Size2D{ kStartWindowWidth,kStartWindowHeight });
 }
 
 void Chess_Game::Application::RenderLoop()
@@ -29,24 +31,26 @@ void Chess_Game::Application::RenderLoop()
     BatchRenderer batch_renderer_test{};
    
     //batch_renderer_test.Push({ 3,2 }, { 1.0f,1.0f,0.0f });
+   
 
     while (m_isApplicationRunning) {
         glClear(GL_COLOR_BUFFER_BIT);
 
+        test_shader_class.UseProgram();
+        test_shader_class.SetUniform4x4Matrix("orthographicProjection", m_ApplicationOrthographicProjection);
 
         batch_renderer_test.Push({ -40,0 }, { 1.0f,1.0f,1.0f });
         batch_renderer_test.Push({ -30,0 }, { 1.0f,0.0f,1.0f });
         batch_renderer_test.Push({ -20,0 }, { 2.0f,0.0f,1.0f });
         batch_renderer_test.Push({ -10,0 }, { 0.0f,0.0f,1.0f });
-        batch_renderer_test.Push({ 00,0 }, { 0.0f,0.0f,1.0f });
-        batch_renderer_test.Push({ 10,0 }, { 0.0f,0.0f,1.0f });
-        batch_renderer_test.Push({ 20,0 }, { 0.0f,0.0f,1.0f });
-        batch_renderer_test.Push({ 30,0 }, { 0.0f,0.0f,1.0f });
+        batch_renderer_test.Push({ 00,0 }, { 1.0f,1.0f,1.0f });
+        batch_renderer_test.Push({ 10,0 }, { 1.0f,1.0f,1.0f });
+        batch_renderer_test.Push({ 20,0 }, { 1.0f,1.0f,1.0f });
+        batch_renderer_test.Push({ 30,0 }, { 1.0f,1.0f,1.0f });
 
 
         glClearColor(1.f, 0.f, 0.f, 1.0f);
 
-        test_shader_class.UseProgram();
 
         batch_renderer_test.Flush();
 
@@ -56,7 +60,33 @@ void Chess_Game::Application::RenderLoop()
 
 }
 
-void Chess_Game::Application::OnEvent(int test_value)
+void Chess_Game::Application::OnEvent(const Event& e)
 {
-    m_isApplicationRunning = false;
+    if(e.GetEventType() == EventType_kWindowClosed)
+        m_isApplicationRunning = false;
+    else if (e.GetEventType() == EventType_kWindowResize)
+    {
+        const WindowResizeEvent kWindowResizeEvent = dynamic_cast<const WindowResizeEvent&>(e);
+        Size2D new_window_size = kWindowResizeEvent.GetWindowSize();
+
+        glViewport(0, 0, new_window_size.width, new_window_size.height);
+        CalculateOrthoProjection(new_window_size);
+     }
+}
+
+void Chess_Game::Application::CalculateOrthoProjection(const Size2D& window_size)
+{
+    float orthoAspect = 1.0f / 10.0f;
+    float screen_aspect_ratio = window_size.width / window_size.height;
+
+
+
+    constexpr float orthoScale = 10.f;
+
+    const float kHalfWindowWidth = (window_size.width / 2.0f);
+    const float kHalfWindowHeight = (window_size.height / 2.0f);
+
+    m_ApplicationOrthographicProjection = glm::ortho(-kHalfWindowWidth* orthoAspect,
+        kHalfWindowWidth* orthoAspect, -kHalfWindowHeight* orthoAspect, kHalfWindowHeight* orthoAspect);
+
 }
