@@ -2,7 +2,10 @@
 #include "Application.h"
 #include <iostream>
 #include "GPU-Side/BatchRenderer.h"
-#include<glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include "Gameplay/ChessGame.h"
+
+
 Chess_Game::Application::Application()
 {
     constexpr int kStartWindowWidth = 600;
@@ -22,6 +25,51 @@ Chess_Game::Application::Application()
 
     glViewport(0, 0, kStartWindowWidth, kStartWindowHeight);
     CalculateOrthoProjection(Size2D{ kStartWindowWidth,kStartWindowHeight });
+    ChessGame test_chess_board;
+
+
+    //if (test_chess_board.CanMoveSelectedPiece({ 'c',3 }))
+    //{
+    //    test_chess_board.MoveSelectedPiece({ 'c',3 });
+    //}
+       // Simulate moves for Scholar's Mate
+    test_chess_board.SelectPiece({ 'e', 2 }); // White pawn e2
+    if (test_chess_board.CanMoveSelectedPiece({ 'e', 4 })) {
+        test_chess_board.MoveSelectedPiece({ 'e', 4 });
+    }
+
+    test_chess_board.SelectPiece({ 'e', 7 }); // Black pawn e7
+    if (test_chess_board.CanMoveSelectedPiece({ 'e', 5 })) {
+        test_chess_board.MoveSelectedPiece({ 'e', 5 });
+    }
+
+    test_chess_board.SelectPiece({ 'd', 1 }); // White queen d1
+    if (test_chess_board.CanMoveSelectedPiece({ 'h', 5 })) {
+        test_chess_board.MoveSelectedPiece({ 'h', 5 });
+    }
+
+    test_chess_board.SelectPiece({ 'b', 8 }); // Black knight b8
+    if (test_chess_board.CanMoveSelectedPiece({ 'c', 6 })) {
+        test_chess_board.MoveSelectedPiece({ 'c', 6 });
+    }
+
+    test_chess_board.SelectPiece({ 'f', 1 }); // White bishop f1
+    if (test_chess_board.CanMoveSelectedPiece({ 'c', 4 })) {
+        test_chess_board.MoveSelectedPiece({ 'c', 4 });
+    }
+
+    test_chess_board.SelectPiece({ 'g', 8 }); // Black knight g8
+    if (test_chess_board.CanMoveSelectedPiece({ 'f', 6 })) {
+        test_chess_board.MoveSelectedPiece({ 'f', 6 });
+    }
+
+    // White's queen delivers checkmate
+    test_chess_board.SelectPiece({ 'h', 5 }); // White queen h5
+    if (test_chess_board.CanMoveSelectedPiece({ 'f', 7 })) {
+        test_chess_board.MoveSelectedPiece({ 'f', 7 });
+    }
+
+
 }
 
 void Chess_Game::Application::RenderLoop()
