@@ -1,5 +1,5 @@
 #include "BaseChessPiece.h"
-
+#include "Logging/Logger.h"
 bool Chess_Game::ChessPiece::CanMove(BoardPosition new_piece_position)
 {
     for (auto& movement_rule : m_pieceMovementRules)
@@ -15,8 +15,10 @@ bool Chess_Game::ChessPiece::CanMoveBoardSpecific(BoardPosition new_piece_positi
 {
     for (auto& movement_rule : m_pieceBoardSpecificMovementRule)
     {
-        if (!movement_rule->CanMove(this, new_piece_position, board))
+        if (!movement_rule->CanMove(m_PiecePosition, new_piece_position, board))
+        {
             return false;
+        }
     }
 
     return true;
@@ -40,6 +42,9 @@ Chess_Game::Pawn::Pawn(BoardPosition start_position):ChessPiece(start_position)
     this->m_pieceMovementRules.push_back(std::make_unique<SingleForwardMovementRule>());
     this->m_pieceMovementRules.push_back(std::make_unique<PawnSidewayCaptureRule>());
     this->m_pieceMovementRules.push_back(std::make_unique<PawnStartingMovementRule>());
+    this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<PawnTeamMovementRule>());
+    this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<PawnCaptureBoardSpecificMovementRule>());
+
 }
 
 void Chess_Game::Pawn::OnPositionChanged()

@@ -56,6 +56,10 @@ bool Chess_Game::ChessGame::CanMoveSelectedPiece(BoardPosition new_position)
 {
     if (auto current_player = m_CurrentPlayer.lock())
     {
+        if (!ChessBoard::IsNewPositionInBounds(new_position))
+        {
+            return false;
+        }
 
         if (!current_player->CanSelectedPieceMove(new_position, m_ChessBoardData))
         {
@@ -289,9 +293,6 @@ bool Chess_Game::ChessGame::IsKingCheckMated()
 
             new_position.VerticalPosition += offset.VerticalPosition;
             new_position.horizontalPosition += offset.horizontalPosition;
-
-            if (!ChessBoard::IsNewPositionInBounds(new_position))
-                continue;
 
             if (this->CanMoveSelectedPiece(new_position))
             {

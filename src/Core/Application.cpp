@@ -33,40 +33,58 @@ Chess_Game::Application::Application()
     //    test_chess_board.MoveSelectedPiece({ 'c',3 });
     //}
        // Simulate moves for Scholar's Mate
-    test_chess_board.SelectPiece({ 'e', 2 }); // White pawn e2
+
+    test_chess_board.SelectPiece({ 'e', 2 });
     if (test_chess_board.CanMoveSelectedPiece({ 'e', 4 })) {
         test_chess_board.MoveSelectedPiece({ 'e', 4 });
     }
 
-    test_chess_board.SelectPiece({ 'e', 7 }); // Black pawn e7
+    // Black pawn e7 -> e5
+    test_chess_board.SelectPiece({ 'e', 7 });
     if (test_chess_board.CanMoveSelectedPiece({ 'e', 5 })) {
         test_chess_board.MoveSelectedPiece({ 'e', 5 });
     }
 
-    test_chess_board.SelectPiece({ 'd', 1 }); // White queen d1
-    if (test_chess_board.CanMoveSelectedPiece({ 'h', 5 })) {
-        test_chess_board.MoveSelectedPiece({ 'h', 5 });
+    // White knight g1 -> f3
+    test_chess_board.SelectPiece({ 'g', 1 });
+    if (test_chess_board.CanMoveSelectedPiece({ 'f', 3 })) {
+        test_chess_board.MoveSelectedPiece({ 'f', 3 });
     }
 
-    test_chess_board.SelectPiece({ 'b', 8 }); // Black knight b8
+    // Black knight b8 -> c6
+    test_chess_board.SelectPiece({ 'b', 8 });
     if (test_chess_board.CanMoveSelectedPiece({ 'c', 6 })) {
         test_chess_board.MoveSelectedPiece({ 'c', 6 });
     }
 
-    test_chess_board.SelectPiece({ 'f', 1 }); // White bishop f1
-    if (test_chess_board.CanMoveSelectedPiece({ 'c', 4 })) {
-        test_chess_board.MoveSelectedPiece({ 'c', 4 });
+    // White castles kingside (O-O)
+    test_chess_board.SelectPiece({ 'a', 2 });
+    if (test_chess_board.CanMoveSelectedPiece({ 'a', 3 })) {
+        test_chess_board.MoveSelectedPiece({ 'a', 3 });
     }
 
-    test_chess_board.SelectPiece({ 'g', 8 }); // Black knight g8
-    if (test_chess_board.CanMoveSelectedPiece({ 'f', 6 })) {
-        test_chess_board.MoveSelectedPiece({ 'f', 6 });
+    // Black pawn d7 -> d6
+    test_chess_board.SelectPiece({ 'd', 7 });
+    if (test_chess_board.CanMoveSelectedPiece({ 'd', 6 })) {
+        test_chess_board.MoveSelectedPiece({ 'd', 6 });
     }
 
-    // White's queen delivers checkmate
-    test_chess_board.SelectPiece({ 'h', 5 }); // White queen h5
-    if (test_chess_board.CanMoveSelectedPiece({ 'f', 7 })) {
-        test_chess_board.MoveSelectedPiece({ 'f', 7 });
+    // White pawn d2 -> d4
+    test_chess_board.SelectPiece({ 'd', 2 });
+    if (test_chess_board.CanMoveSelectedPiece({ 'd', 4 })) {
+        test_chess_board.MoveSelectedPiece({ 'd', 4 });
+    }
+
+    // Black captures White's pawn: e5 -> d4
+    test_chess_board.SelectPiece({ 'e', 5 });
+    if (test_chess_board.CanMoveSelectedPiece({ 'd', 4 })) {
+        test_chess_board.MoveSelectedPiece({ 'd', 4 });
+    }
+
+    // White recaptures with knight: f3 -> e4
+    test_chess_board.SelectPiece({ 'f', 3 });
+    if (test_chess_board.CanMoveSelectedPiece({ 'd', 4 })) {
+        test_chess_board.MoveSelectedPiece({ 'd', 4 });
     }
 
 

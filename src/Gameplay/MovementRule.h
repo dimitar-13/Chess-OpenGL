@@ -9,32 +9,32 @@ namespace Chess_Game
     class BoardSpecificMovementRule
     {
     public:
-        virtual bool CanMove(ChessPiece* piece_to_check,
+        virtual bool CanMove(BoardPosition current_position,
             BoardPosition new_position, ChessBoard& board)const = 0;
     };
 
     class PawnCaptureBoardSpecificMovementRule : public BoardSpecificMovementRule
     {
     public:
-         bool CanMove(ChessPiece* piece_to_check,
+         bool CanMove(BoardPosition current_position,
              BoardPosition new_position, ChessBoard& board)const override;
     };
     class PawnTeamMovementRule : public BoardSpecificMovementRule
     {
     public:
-        bool CanMove(ChessPiece* piece_to_check,
+        bool CanMove(BoardPosition current_position,
             BoardPosition new_position, ChessBoard& board)const override;
     };
     class BlockableBoardSpecificMovementRule : public BoardSpecificMovementRule
     {
     public:
-         bool CanMove(ChessPiece* piece_to_check,
+         bool CanMove(BoardPosition current_position,
              BoardPosition new_position, ChessBoard& board)const override;
     };
     class CanMoveToTarget : public BoardSpecificMovementRule
     {
     public:
-        bool CanMove(ChessPiece* piece_to_check,
+        bool CanMove(BoardPosition current_position,
             BoardPosition new_position, ChessBoard& board) const override;
     };
 
