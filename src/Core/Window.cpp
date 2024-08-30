@@ -49,7 +49,9 @@ void Chess_Game::Window::WindowResizeCallback(GLFWwindow* window, int new_width,
 {
     m_windowSize.width = new_width;
     m_windowSize.height = new_height;
-    CHESS_LOG_INFO("Window has resized.");
+
+    WindowResizeEvent e(m_windowSize);
+    m_WindowEventCallback(e);
 }
 
 void Chess_Game::Window::WindowMouseInputCallback(GLFWwindow* window, int button, int action, int mod)
@@ -60,7 +62,8 @@ void Chess_Game::Window::WindowMouseInputCallback(GLFWwindow* window, int button
 
 void Chess_Game::Window::WindowShouldCloseCallback(GLFWwindow* window)
 {
-    m_WindowEventCallback(3);
+    WindowCloseEvent e;
+    m_WindowEventCallback(e);
 }
 
 void Chess_Game::Window::WindowErrorCallback(int error, const char* description)

@@ -2,6 +2,7 @@
 #include<GLFW/glfw3.h>
 #include"Core/ApplicationData.h"
 #include<functional>
+#include"Core/Event/Event.h"
 namespace Chess_Game
 {
     struct WindowCreateInfo
@@ -9,7 +10,7 @@ namespace Chess_Game
         size_t windowWidth;
         size_t windowHeight;
         const char* windowTittle;
-        std::function<void(int)> windowOnEventCallback;
+        std::function<void(const Event&)> windowOnEventCallback;
     };
 
     enum GLFWErrorCode_
@@ -49,7 +50,7 @@ namespace Chess_Game
     private:
         Size2D m_windowSize{};
         GLFWwindow* m_glfwWindowHandle = nullptr;
-        std::function<void(int)> m_WindowEventCallback;
+        std::function<void(const Event&)> m_WindowEventCallback;
     };
 
 }
