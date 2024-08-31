@@ -3,10 +3,14 @@ set(INPUT_SOURCES
     Application.cpp
 )
 
+
 set(INPUT_HEADERS
-    Window.h
-	ApplicationData.h
 	Application.h
+	ApplicationData.h
+	Attachable.h
+	Drawable.h
+	SceneObject.h
+	Window.h
 	Event/Event.h
 )
 

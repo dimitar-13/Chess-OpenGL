@@ -3,8 +3,11 @@
 #include<memory>
 #include<glm/glm.hpp>
 #include<Core/Event/Event.h>
+#include "Core/SceneObject.h"
 namespace Chess_Game
 {
+
+
     class Application 
     {
     public:
@@ -19,6 +22,7 @@ namespace Chess_Game
         bool m_isApplicationRunning = true;
         std::unique_ptr<Window> m_ApplicationWindow;
         glm::mat4 m_ApplicationOrthographicProjection{};
+        std::unique_ptr<SceneObject> m_CurrentApplicationScene{};
     };
 
 

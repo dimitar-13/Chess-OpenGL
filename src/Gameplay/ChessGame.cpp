@@ -2,7 +2,9 @@
 #include "Logging/Logger.h"
 #include "ChessGame.h"
 
-Chess_Game::ChessGame::ChessGame()
+Chess_Game::ChessGame::ChessGame(const std::shared_ptr<ChessPlayer>& white_player,
+    const std::shared_ptr<ChessPlayer>& black_player) :
+    m_WhiteTeamPlayer(white_player), m_BlackTeamPlayer(black_player)
 {
 
     //std::vector<std::shared_ptr<ChessPiece>> black_team_vector =
@@ -33,9 +35,11 @@ Chess_Game::ChessGame::ChessGame()
     //m_WhiteTeamPlayer = std::make_shared<ChessPlayer>(white_team_vector);
 
 
-    InitializeTeamPieces();
+    //InitializeTeamPieces();
+    SetupChessBoardBitMask();
 
     m_CurrentPlayer = m_WhiteTeamPlayer;
+
 }
 
 void Chess_Game::ChessGame::SelectPiece(BoardPosition piece_board_position)
@@ -233,6 +237,24 @@ std::shared_ptr<Chess_Game::ChessPlayer> Chess_Game::ChessGame::GetNonActivePlay
     }
 
     return std::shared_ptr<ChessPlayer>();
+}
+
+void Chess_Game::ChessGame::SetupChessBoardBitMask()
+{
+    for (const auto& piece : m_WhiteTeamPlayer->GetPlayerPieces())
+    {
+        m_ChessBoardData.SetChessboardPositionFlag(piece->GetPiecePosition(), static_cast<BoardPositionFlags_>(
+            BoardPositionFlags_kIsPositionOcupied | BoardPositionFlags_kIsPieceFromWhiteTeam));
+    }
+    for (const auto& piece : m_BlackTeamPlayer->GetPlayerPieces())
+    {
+        m_ChessBoardData.SetChessboardPositionFlag(piece->GetPiecePosition(), static_cast<BoardPositionFlags_>(
+            BoardPositionFlags_kIsPositionOcupied | BoardPositionFlags_kIsPieceFromBlackTeam));
+    }
+
+    m_ChessBoardData.SetChessboardPositionFlag(m_WhiteTeamPlayer->GetPlayerKing().GetPiecePosition(), BoardPositionFlags_kIsPieceImortal);
+    m_ChessBoardData.SetChessboardPositionFlag(m_BlackTeamPlayer->GetPlayerKing().GetPiecePosition(), BoardPositionFlags_kIsPieceImortal);
+
 }
 
 bool Chess_Game::ChessGame::IsKingChecked()

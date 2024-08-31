@@ -13,7 +13,7 @@ namespace Chess_Game
 
     struct BatchRendererData
     {
-        static constexpr size_t kMaxBatchQuadSize = 32;
+        static constexpr size_t kMaxBatchQuadSize = 50;
         static constexpr size_t kSingleQuadIndexCount = 6;
         static constexpr size_t kSingleQuadVertexCount = 4;
         static constexpr size_t kSingleQuadBatch = (kSingleQuadVertexCount * sizeof(Vertex));
