@@ -29,7 +29,7 @@ namespace Chess_Game
         const std::vector<std::shared_ptr<ChessPiece>>& GetPlayerPieces() { return m_PlayerPieces; }
         void SetPlayerKingCheckData(const KingCheckData& data) { m_PlayerKingCheckData = data; }
 
-        const ChessPiece& GetPlayerKing() { return *m_PlayerKing; }
+        const King& GetPlayerKing() { return *m_PlayerKing; }
         const ChessPiece& GetSelectedPiece() { return *m_SelectedPiece.lock(); }
         void IncreaseScore(size_t amount) { m_PlayerScore += amount; }
         bool CanSelectedPieceMove(BoardPosition new_position, ChessBoard& chess_board);

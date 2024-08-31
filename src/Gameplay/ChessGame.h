@@ -7,7 +7,8 @@ namespace Chess_Game
 {
     class ChessGame {
     public:
-        ChessGame();
+        ChessGame(const std::shared_ptr<ChessPlayer>& white_player,
+            const std::shared_ptr<ChessPlayer>& black_player);
         void SelectPiece(BoardPosition piece_board_position);
         bool CanMoveSelectedPiece(BoardPosition new_position);
         void MoveSelectedPiece(BoardPosition new_position);
@@ -19,6 +20,7 @@ namespace Chess_Game
         void InitializeTeamPieces();
         void CapturePiece(BoardPosition position_of_piece_to_capture);
         std::shared_ptr<ChessPlayer> GetNonActivePlayer();
+        void SetupChessBoardBitMask();
     private:
         ChessBoard m_ChessBoardData{};
 

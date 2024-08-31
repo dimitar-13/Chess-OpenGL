@@ -1,14 +1,9 @@
 #pragma once
 #include "BoardPosition.h"
 #include "MovementRule.h"
-
+#include "Core/Attachable.h"
 namespace Chess_Game
 {
-
-    // Specialize std::hash for BoardPosition in std namespace
-
-
-
     enum ChessPieceType_
     {
         ChessPieceType_kUnknown,
@@ -20,7 +15,7 @@ namespace Chess_Game
         ChessPieceType_kKing
     };
 
-    class ChessPiece
+    class ChessPiece : public Attachable
     {
     public:
         ChessPiece(BoardPosition start_position):
@@ -38,7 +33,6 @@ namespace Chess_Game
         BoardPosition m_PiecePosition;
         std::vector<std::unique_ptr<MovementRule>> m_pieceMovementRules{};
         std::vector<std::unique_ptr<BoardSpecificMovementRule>> m_pieceBoardSpecificMovementRule{};
-
     };
 
     class Queen : public ChessPiece

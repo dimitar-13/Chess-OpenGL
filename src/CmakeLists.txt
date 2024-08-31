@@ -38,6 +38,8 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/Logging")
 add_subdirectory("${PROJECT_SOURCE_DIR}/Core")
 add_subdirectory("${PROJECT_SOURCE_DIR}/GPU-Side")
 add_subdirectory("${PROJECT_SOURCE_DIR}/Gameplay")
+add_subdirectory("${PROJECT_SOURCE_DIR}/Scene")
+
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC
 
