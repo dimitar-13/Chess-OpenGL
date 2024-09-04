@@ -5,11 +5,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Gameplay/ChessGame.h"
 #include "Scene/DefaultChessGameScene.h"
+#include "Core/SceneObject.h"
 
 Chess_Game::Application::Application()
 {
-    constexpr int kStartWindowWidth = 600;
-    constexpr int kStartWindowHeight = 800;
+    constexpr int kStartWindowWidth = 1000;
+    constexpr int kStartWindowHeight = 1000;
     const char* kWindowTittle = "Chess";
 
     Chess_Game::WindowCreateInfo window_create_info{};
@@ -24,7 +25,9 @@ Chess_Game::Application::Application()
         m_ApplicationInitStatus = false;
 
     glViewport(0, 0, kStartWindowWidth, kStartWindowHeight);
-    CalculateOrthoProjection(Size2D{ kStartWindowWidth,kStartWindowHeight });
+    m_ApplicationProjection.UpdateMatrix(Size2D{ kStartWindowWidth, kStartWindowHeight});
+
+    CalculateViewportTransform();
     //ChessGame test_chess_board;
 
 
@@ -94,7 +97,7 @@ void Chess_Game::Application::RenderLoop()
     ShaderClass test_shader_class("D:/c++/OpenGl/Chess-OpenGL/Shaders/TestShader.glsl");
     
     BatchRenderer batch_renderer_test{};
-    m_CurrentApplicationScene = std::make_unique<DefaultChessScene>();
+    m_CurrentApplicationScene = std::make_shared<DefaultChessScene>(this->shared_from_this());
     m_CurrentApplicationScene->InitScene();
     //batch_renderer_test.Push({ 3,2 }, { 1.0f,1.0f,0.0f });
    
@@ -106,7 +109,7 @@ void Chess_Game::Application::RenderLoop()
         glClearColor(1.f, 0.f, 0.f, 1.0f);
 
         test_shader_class.UseProgram();
-        test_shader_class.SetUniform4x4Matrix("orthographicProjection", m_ApplicationOrthographicProjection);
+        test_shader_class.SetUniform4x4Matrix("orthographicProjection", m_ApplicationProjection.GetMatrix());
 
         m_CurrentApplicationScene->OnUpdate();
         m_CurrentApplicationScene->DrawScene();
@@ -127,23 +130,35 @@ void Chess_Game::Application::OnEvent(const Event& e)
         Size2D new_window_size = kWindowResizeEvent.GetWindowSize();
 
         glViewport(0, 0, new_window_size.width, new_window_size.height);
-        CalculateOrthoProjection(new_window_size);
+        m_ApplicationProjection.UpdateMatrix(new_window_size);
+
+        CalculateViewportTransform();
      }
+
+    for (const auto& weak_listener : m_ActiveEventListeners)
+    {
+        if (auto& listener = weak_listener.lock())
+        {
+            listener->OnEvent(e);
+        }
+    }
 }
 
-void Chess_Game::Application::CalculateOrthoProjection(const Size2D& window_size)
+void Chess_Game::Application::CalculateViewportTransform()
 {
-    float orthoAspect = 1.0f / 10.0f;
-    float screen_aspect_ratio = window_size.width / window_size.height;
+    constexpr float maxZ = 1.0f;
+    constexpr float minZ = 0.0f;
+    Size2D window_size = m_ApplicationWindow->GetWindowSize();
 
+    m_ViewportTransform = glm::mat4(1);
 
+    m_ViewportTransform[0][0] = static_cast<float>(window_size.width) / 2.0f;
+    m_ViewportTransform[1][1] = static_cast<float>(window_size.height) / 2.0f;
 
-    constexpr float orthoScale = 10.f;
+    m_ViewportTransform[3][0] = m_ViewportTransform[0][0];
+    m_ViewportTransform[3][1] = m_ViewportTransform[1][1];
 
-    const float kHalfWindowWidth = (window_size.width / 2.0f)*2;
-    const float kHalfWindowHeight = (window_size.height / 2.0f)*2;
-
-    m_ApplicationOrthographicProjection = glm::ortho(-kHalfWindowWidth* orthoAspect,
-        kHalfWindowWidth* orthoAspect, -kHalfWindowHeight* orthoAspect, kHalfWindowHeight* orthoAspect);
+    m_ViewportTransform[2][2] = (maxZ - minZ) / 2.0f;
+    m_ViewportTransform[3][2] = (maxZ + minZ) / 2.0f;
 
 }

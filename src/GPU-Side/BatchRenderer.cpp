@@ -32,7 +32,8 @@ Chess_Game::BatchRenderer::BatchRenderer()
 
  }
 
-void Chess_Game::BatchRenderer::Push(const glm::vec2& position, const glm::vec3& object_color)
+void Chess_Game::BatchRenderer::Push(const glm::vec2& position,
+    const glm::vec2& scale, const glm::vec3& object_color)
 {
 
     GLuint quad_index_data[6] = {
@@ -51,6 +52,7 @@ void Chess_Game::BatchRenderer::Push(const glm::vec2& position, const glm::vec3&
     };
     for (auto & vertex : quad_vertex_data)
     {
+        vertex.vertex_position *= scale;
         vertex.vertex_position += position;
         vertex.vertex_color = object_color;
     }

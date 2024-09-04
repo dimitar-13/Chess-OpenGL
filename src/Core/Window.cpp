@@ -3,14 +3,15 @@
 
 Chess_Game::Window::Window(const WindowCreateInfo& window_create_info)
 {
-   m_glfwWindowHandle = glfwCreateWindow(window_create_info.windowWidth, window_create_info.windowHeight,
-                                         window_create_info.windowTittle, nullptr, nullptr);
-   if (!this->IsWindowValid())
+    m_glfwWindowHandle = glfwCreateWindow(window_create_info.windowWidth, window_create_info.windowHeight,
+        window_create_info.windowTittle, nullptr, nullptr);
+    if (!this->IsWindowValid())
         return;
 
-   m_WindowEventCallback = window_create_info.windowOnEventCallback;
-   glfwMakeContextCurrent(m_glfwWindowHandle);
-   BindWindowClassToCallbackFunctions();
+    m_WindowEventCallback = window_create_info.windowOnEventCallback;
+    glfwMakeContextCurrent(m_glfwWindowHandle);
+    BindWindowClassToCallbackFunctions();
+    m_windowSize = Size2D{ window_create_info.windowWidth, window_create_info.windowHeight };
 }
 
 void Chess_Game::Window::OnUpdate()

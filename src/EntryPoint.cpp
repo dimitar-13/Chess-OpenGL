@@ -24,11 +24,12 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
-    Chess_Game::Application m_mainApplication;
+    std::shared_ptr<Chess_Game::Application> m_mainApplication =
+        std::make_shared<Chess_Game::Application>();
 
 
 
-    if (!m_mainApplication.IsApplicationUnitizedSuccessfully()) {
+    if (!m_mainApplication->IsApplicationUnitizedSuccessfully()) {
         CHESS_LOG_FATAL("Failed to initialize the application");
         glfwTerminate();
         return -1;
@@ -57,7 +58,7 @@ int main() {
    
 
 
-    m_mainApplication.RenderLoop();
+    m_mainApplication->RenderLoop();
    
     glfwTerminate();
 
