@@ -31,7 +31,7 @@ namespace Chess_Game
     {
     public:
         BatchRenderer();
-        void Push(const glm::vec2& position,const glm::vec3& object_color);
+        void Push(const glm::vec2& position,const glm::vec2& scale,const glm::vec3& object_color);
         void Flush();
         ~BatchRenderer();
     private:
