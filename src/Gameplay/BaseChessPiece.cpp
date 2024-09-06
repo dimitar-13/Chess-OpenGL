@@ -35,6 +35,8 @@ Chess_Game::Queen::Queen(BoardPosition start_position):ChessPiece(start_position
 Chess_Game::Bishop::Bishop(BoardPosition start_position):ChessPiece(start_position)
 {
     this->m_pieceMovementRules.push_back(std::make_unique<BishopMovementRule>());
+    this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<BlockableBoardSpecificMovementRule>());
+
 }
 
 Chess_Game::Pawn::Pawn(BoardPosition start_position):ChessPiece(start_position)
@@ -42,6 +44,7 @@ Chess_Game::Pawn::Pawn(BoardPosition start_position):ChessPiece(start_position)
     this->m_pieceMovementRules.push_back(std::make_unique<SingleForwardMovementRule>());
     this->m_pieceMovementRules.push_back(std::make_unique<PawnSidewayCaptureRule>());
     this->m_pieceMovementRules.push_back(std::make_unique<PawnStartingMovementRule>());
+    this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<BlockableBoardSpecificMovementRule>());
     this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<PawnTeamMovementRule>());
     this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<PawnCaptureBoardSpecificMovementRule>());
 
@@ -65,11 +68,14 @@ Chess_Game::Knight::Knight(BoardPosition start_position):ChessPiece(start_positi
 Chess_Game::Rook::Rook(BoardPosition start_position):ChessPiece(start_position)
 {
     this->m_pieceMovementRules.push_back(std::make_unique<RookMovementRule>());
+    this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<BlockableBoardSpecificMovementRule>());
+
 }
 
 Chess_Game::King::King(BoardPosition start_position):ChessPiece(start_position)
 {
     this->m_pieceMovementRules.push_back(std::make_unique<KingMovement>());
+    this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<BlockableBoardSpecificMovementRule>());
 
     //this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<KingMateBoardSpecificMovementRule>());
 

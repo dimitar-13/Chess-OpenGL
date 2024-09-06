@@ -46,6 +46,7 @@ namespace Chess_Game
         void WindowResizeCallback(GLFWwindow* window, int new_width,int new_height);
         void WindowMouseInputCallback(GLFWwindow* window, int button, int action, int mod);
         void WindowShouldCloseCallback(GLFWwindow* window);
+        void WindowMousePositionChangedCallback(GLFWwindow* window,double mouse_x, double mouse_y);
         static void WindowErrorCallback(int error, const char* description);
     private:
         Size2D m_windowSize{};

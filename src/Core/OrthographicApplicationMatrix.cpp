@@ -1,6 +1,32 @@
+#include <GL/glew.h>
 #include "OrthographicApplicationMatrix.h"
 
-void Chess_Game::ApplicationProjection::CalculateOrthographicMatrix(Size2D window_width)
+Chess_Game::OrthoViewportHandler::OrthoViewportHandler(const Viewport viewport_dimensions):
+    m_ViewportDimension(viewport_dimensions)
+{
+    UpdateViewport(viewport_dimensions);
+}
+void Chess_Game::OrthoViewportHandler::UpdateViewport(const Viewport& viewport_dimensions)
+{
+    m_ViewportDimension = viewport_dimensions;
+    size_t width  = viewport_dimensions.width;
+    size_t height = viewport_dimensions.height;
+
+    glViewport(m_ViewportDimension.x, m_ViewportDimension.y, m_ViewportDimension.width, m_ViewportDimension.height);\
+
+    CalculateViewportMatrix();
+
+    CalculateOrthographicMatrix(Size2D{ width, height });
+}
+
+glm::vec2 Chess_Game::OrthoViewportHandler::FromScreenToOrthographicCoordinates(glm::vec2 screen_position)const
+{
+    glm::vec4 to_covert = glm::vec4(screen_position.x, screen_position.y,1.0f,1.0f);
+    screen_position = glm::inverse(m_OrthographicMatrix) * glm::inverse(m_ViewportTransform) * to_covert;
+    return screen_position;
+}
+
+void Chess_Game::OrthoViewportHandler::CalculateOrthographicMatrix(Size2D window_width)
 {
     /**
      * Dynamic orthographic aspect ratio adjustment.
@@ -60,16 +86,37 @@ void Chess_Game::ApplicationProjection::CalculateOrthographicMatrix(Size2D windo
     }
 
     m_OrthographicMatrix = glm::ortho(
-        0.0f,
-        horizontal_border,
-        0.0f,
-        vertical_border,
+        -horizontal_border/2.0f,
+        horizontal_border / 2.0f,
+        -vertical_border / 2.0f,
+        vertical_border/2.0f,
         -1.0f,
         1.0f
     );
 
-    m_MatrixBorders.right = horizontal_border;
-    m_MatrixBorders.top = vertical_border;
+    m_MatrixBorders.right = horizontal_border / 2.0f;
+    m_MatrixBorders.left = -m_MatrixBorders.right;
+    m_MatrixBorders.top = vertical_border / 2.0f;
+    m_MatrixBorders.bottom = -m_MatrixBorders.top;
+}
+
+void Chess_Game::OrthoViewportHandler::CalculateViewportMatrix()
+{
+    constexpr float maxZ = 1.0f;
+    constexpr float minZ = 0.0f;
+    Size2D window_size = 
+        Size2D{static_cast<size_t>(m_ViewportDimension.width), static_cast<size_t>(m_ViewportDimension.height)};
+
+    m_ViewportTransform = glm::mat4(1);
+
+    m_ViewportTransform[0][0] = static_cast<float>(window_size.width) / 2.0f;
+    m_ViewportTransform[1][1] = static_cast<float>(window_size.height) / 2.0f;
+
+    m_ViewportTransform[3][0] = m_ViewportTransform[0][0];
+    m_ViewportTransform[3][1] = m_ViewportTransform[1][1];
+
+    m_ViewportTransform[2][2] = (maxZ - minZ) / 2.0f;
+    m_ViewportTransform[3][2] = (maxZ + minZ) / 2.0f;
 
 }
 

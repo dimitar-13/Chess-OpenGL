@@ -1,6 +1,6 @@
 #include "Window.h"
-#include <Logging/Logger.h>
-
+#include "Logging/Logger.h"
+#include "Event/MouseEvents.h"
 Chess_Game::Window::Window(const WindowCreateInfo& window_create_info)
 {
     m_glfwWindowHandle = glfwCreateWindow(window_create_info.windowWidth, window_create_info.windowHeight,
@@ -42,8 +42,16 @@ void Chess_Game::Window::BindWindowClassToCallbackFunctions()
 
     glfwSetWindowCloseCallback(m_glfwWindowHandle, WindowShouldCloseCallback);
 
-    glfwSetErrorCallback(WindowErrorCallback);
+    auto MousePositionChangedCallback = [](GLFWwindow* window, double mouse_x, double mouse_y)
+        {
+            static_cast<Window*>
+                (glfwGetWindowUserPointer(window))->WindowMousePositionChangedCallback(window, mouse_x, mouse_y);
+        };
 
+    glfwSetCursorPosCallback(m_glfwWindowHandle, MousePositionChangedCallback);
+
+
+    glfwSetErrorCallback(WindowErrorCallback);
 }
 
 void Chess_Game::Window::WindowResizeCallback(GLFWwindow* window, int new_width, int new_height)
@@ -57,13 +65,19 @@ void Chess_Game::Window::WindowResizeCallback(GLFWwindow* window, int new_width,
 
 void Chess_Game::Window::WindowMouseInputCallback(GLFWwindow* window, int button, int action, int mod)
 {
-    CHESS_LOG_INFO("Mouse input detected.");
-
+    MouseButtonEvent e(static_cast<MouseButton_>(button), static_cast<InputAction_>(action));
+    m_WindowEventCallback(e);
 }
 
 void Chess_Game::Window::WindowShouldCloseCallback(GLFWwindow* window)
 {
     WindowCloseEvent e;
+    m_WindowEventCallback(e);
+}
+
+void Chess_Game::Window::WindowMousePositionChangedCallback(GLFWwindow* window, double mouse_x, double mouse_y)
+{
+    MousePositionChangedEvent e(MousePos{ mouse_x,mouse_y });
     m_WindowEventCallback(e);
 }
 

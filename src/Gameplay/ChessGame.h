@@ -10,6 +10,8 @@ namespace Chess_Game
         ChessGame(const std::shared_ptr<ChessPlayer>& white_player,
             const std::shared_ptr<ChessPlayer>& black_player);
         void SelectPiece(BoardPosition piece_board_position);
+        bool IsPieceSelected();
+        std::weak_ptr<ChessPiece> GetSelectedPiece();
         bool CanMoveSelectedPiece(BoardPosition new_position);
         void MoveSelectedPiece(BoardPosition new_position);
         void IsGameOver() {}

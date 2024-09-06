@@ -52,7 +52,10 @@ void Chess_Game::ChessPlayer::SelectPiece(BoardPosition piece_board_position)
 {
     OptionalIndex selected_piece_index = GetPieceArrayIndex(piece_board_position);
     if (!selected_piece_index.is_set)
+    {
         m_SelectedPiece = std::weak_ptr<ChessPiece>();
+        return;
+    }
 
     m_SelectedPiece = m_PlayerPieces[selected_piece_index.index_value];
 }
@@ -74,6 +77,13 @@ bool Chess_Game::ChessPlayer::CanSelectedPieceMove(BoardPosition new_position, C
 {
     if (auto selected_piece = m_SelectedPiece.lock())
     {
+        if (selected_piece->GetPiecePosition() == new_position)
+        {
+            CHESS_LOG_INFO("Piece was unselected.");
+            UnSelectPiece();
+            return false;
+        }
+
         if (!selected_piece->CanMove(new_position))
         {
             CHESS_LOG_INFO("New position does not obey piece rules.");
