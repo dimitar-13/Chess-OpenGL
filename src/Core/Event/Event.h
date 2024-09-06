@@ -1,13 +1,14 @@
 #pragma once
 #include "Core/ApplicationData.h"
-
 namespace Chess_Game
 {
+
     enum EventType_
     {
         EventType_kUnknown,
         EventType_kWindowResize,
-        EventType_kMouseButtonEvent,
+        EventType_kMouseInputEvent,
+        EventType_kMousePositionChangedEvent,
         EventType_kWindowClosed
     };
 
@@ -17,16 +18,7 @@ namespace Chess_Game
         virtual EventType_ GetEventType()const = 0;
     };
 
-
-
-    class MouseButtonEvent : public Event
-    {
-    public:
-        EventType_ GetEventType()const override { return EventType_kMouseButtonEvent; }
-
-    private:
-
-    };
+   
     class WindowResizeEvent : public Event
     {
     public:
@@ -46,4 +38,6 @@ namespace Chess_Game
         WindowCloseEvent() = default;
         EventType_ GetEventType()const override { return EventType_kWindowClosed; }
     };
+
+   
 }

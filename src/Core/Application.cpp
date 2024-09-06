@@ -7,7 +7,8 @@
 #include "Scene/DefaultChessGameScene.h"
 #include "Core/SceneObject.h"
 
-Chess_Game::Application::Application()
+Chess_Game::Application::Application():
+    m_ApplicationProjection({ Viewport{0,0, 1000, 1000} })
 {
     constexpr int kStartWindowWidth = 1000;
     constexpr int kStartWindowHeight = 1000;
@@ -24,10 +25,7 @@ Chess_Game::Application::Application()
     if (!m_ApplicationWindow->IsWindowValid())
         m_ApplicationInitStatus = false;
 
-    glViewport(0, 0, kStartWindowWidth, kStartWindowHeight);
-    m_ApplicationProjection.UpdateMatrix(Size2D{ kStartWindowWidth, kStartWindowHeight});
 
-    CalculateViewportTransform();
     //ChessGame test_chess_board;
 
 
@@ -97,14 +95,14 @@ void Chess_Game::Application::RenderLoop()
     ShaderClass test_shader_class("D:/c++/OpenGl/Chess-OpenGL/Shaders/TestShader.glsl");
     
     BatchRenderer batch_renderer_test{};
-    m_CurrentApplicationScene = std::make_shared<DefaultChessScene>(this->shared_from_this());
+    m_CurrentApplicationScene = std::make_shared<DefaultChessScene>(this->weak_from_this());
     m_CurrentApplicationScene->InitScene();
     //batch_renderer_test.Push({ 3,2 }, { 1.0f,1.0f,0.0f });
-   
+    glEnable(GL_DEPTH_TEST);
 
     while (m_isApplicationRunning) {
 
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glClearColor(1.f, 0.f, 0.f, 1.0f);
 
@@ -126,14 +124,10 @@ void Chess_Game::Application::OnEvent(const Event& e)
         m_isApplicationRunning = false;
     else if (e.GetEventType() == EventType_kWindowResize)
     {
-        const WindowResizeEvent kWindowResizeEvent = dynamic_cast<const WindowResizeEvent&>(e);
-        Size2D new_window_size = kWindowResizeEvent.GetWindowSize();
-
-        glViewport(0, 0, new_window_size.width, new_window_size.height);
-        m_ApplicationProjection.UpdateMatrix(new_window_size);
-
-        CalculateViewportTransform();
-     }
+        OnWindowResizeEvent(dynamic_cast<const WindowResizeEvent&>(e));
+    }
+  
+    dynamic_cast<Listener&>(m_ApplicationMouseInput).OnEvent(e);
 
     for (const auto& weak_listener : m_ActiveEventListeners)
     {
@@ -144,21 +138,11 @@ void Chess_Game::Application::OnEvent(const Event& e)
     }
 }
 
-void Chess_Game::Application::CalculateViewportTransform()
+void Chess_Game::Application::OnWindowResizeEvent(const WindowResizeEvent& e)
 {
-    constexpr float maxZ = 1.0f;
-    constexpr float minZ = 0.0f;
-    Size2D window_size = m_ApplicationWindow->GetWindowSize();
+    Size2D new_window_size = e.GetWindowSize();
 
-    m_ViewportTransform = glm::mat4(1);
-
-    m_ViewportTransform[0][0] = static_cast<float>(window_size.width) / 2.0f;
-    m_ViewportTransform[1][1] = static_cast<float>(window_size.height) / 2.0f;
-
-    m_ViewportTransform[3][0] = m_ViewportTransform[0][0];
-    m_ViewportTransform[3][1] = m_ViewportTransform[1][1];
-
-    m_ViewportTransform[2][2] = (maxZ - minZ) / 2.0f;
-    m_ViewportTransform[3][2] = (maxZ + minZ) / 2.0f;
+    m_ApplicationProjection.UpdateViewport(Viewport{ 0,0, static_cast<float>(new_window_size.width),
+        static_cast<float>(new_window_size.height)});
 
 }

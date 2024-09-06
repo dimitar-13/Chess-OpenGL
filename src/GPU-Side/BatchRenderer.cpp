@@ -15,7 +15,7 @@ Chess_Game::BatchRenderer::BatchRenderer()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BatchIndexArrayBufferObject);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, BatchRendererData::kBatchIndexArraySize*sizeof(GLuint), nullptr, GL_DYNAMIC_DRAW);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertex_position));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertex_position));
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertex_color));
     glEnableVertexAttribArray(1);
@@ -32,7 +32,7 @@ Chess_Game::BatchRenderer::BatchRenderer()
 
  }
 
-void Chess_Game::BatchRenderer::Push(const glm::vec2& position,
+void Chess_Game::BatchRenderer::Push(const glm::vec3& position,
     const glm::vec2& scale, const glm::vec3& object_color)
 {
 
@@ -43,16 +43,16 @@ void Chess_Game::BatchRenderer::Push(const glm::vec2& position,
 
     Vertex quad_vertex_data[] = {
         //First triangle
-        {{-1.0f,1.0f}, {1.0f,1.0f,1.0f}},
-        {{-1.0f,-1.0f},{1.0f,1.0f,1.0f}},
+        {{-1.0f,1.0f,0.0f}, {1.0f,1.0f,1.0f}},
+        {{-1.0f,-1.0f,0.0f},{1.0f,1.0f,1.0f}},
         //Second triangle
-        {{1.0f,-1.0f}, {1.0f,1.0f,1.0f}},
-        {{1.0f,1.0f} , {1.0f,1.0f,1.0f}},
+        {{1.0f,-1.0f,0.0f}, {1.0f,1.0f,1.0f}},
+        {{1.0f,1.0f,0.0f} , {1.0f,1.0f,1.0f}},
    
     };
     for (auto & vertex : quad_vertex_data)
     {
-        vertex.vertex_position *= scale;
+        vertex.vertex_position *= glm::vec3(scale.x, scale.y,1.0f);
         vertex.vertex_position += position;
         vertex.vertex_color = object_color;
     }

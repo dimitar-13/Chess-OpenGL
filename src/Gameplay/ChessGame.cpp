@@ -56,6 +56,24 @@ void Chess_Game::ChessGame::SelectPiece(BoardPosition piece_board_position)
     return;
 }
 
+bool Chess_Game::ChessGame::IsPieceSelected()
+{
+    if (auto current_player = m_CurrentPlayer.lock())
+    {
+        return !current_player->GetSelectedPiece().expired();
+    }
+    return false;
+}
+
+std::weak_ptr<Chess_Game::ChessPiece> Chess_Game::ChessGame::GetSelectedPiece()
+{
+    if (auto current_player = m_CurrentPlayer.lock())
+    {
+        return current_player->GetSelectedPiece();
+    }
+    return std::weak_ptr<ChessPiece>();
+}
+
 bool Chess_Game::ChessGame::CanMoveSelectedPiece(BoardPosition new_position)
 {
     if (auto current_player = m_CurrentPlayer.lock())
@@ -92,78 +110,96 @@ bool Chess_Game::ChessGame::CanMoveSelectedPiece(BoardPosition new_position)
 
 void Chess_Game::ChessGame::MoveSelectedPiece(BoardPosition new_position)
 {
-    if (auto current_player = m_CurrentPlayer.lock())
-    {   
-        BoardPosition current_piece_position = current_player->GetSelectedPiece().GetPiecePosition();
+    if (m_CurrentPlayer.expired())
+        return;
 
-        BoardPositionFlags_ new_position_flag = BoardPositionFlags_kIsPositionOcupied;
+    auto current_player = m_CurrentPlayer.lock();
 
-        BoardPositionFlags_ current_position_flag_piece_team = 
-            m_ChessBoardData.GetChessboardPositionFlag(current_piece_position)
-            & BoardPositionFlags_kIsPieceFromWhiteTeam ?
-            BoardPositionFlags_kIsPieceFromWhiteTeam : BoardPositionFlags_kIsPieceFromBlackTeam;
+    if (current_player->GetSelectedPiece().expired())
+        return;
+        
+    auto selected_piece = current_player->GetSelectedPiece().lock();
 
-        ChessPieceType_ selected_piece_type = current_player->GetSelectedPiece().GetChessPieceType();
+    BoardPosition current_piece_position = selected_piece->GetPiecePosition();
+
+    BoardPositionFlags_ new_position_flag = BoardPositionFlags_kIsPositionOcupied;
+
+    BoardPositionFlags_ current_position_flag_piece_team = 
+        m_ChessBoardData.GetChessboardPositionFlag(current_piece_position)
+        & BoardPositionFlags_kIsPieceFromWhiteTeam ?
+        BoardPositionFlags_kIsPieceFromWhiteTeam : BoardPositionFlags_kIsPieceFromBlackTeam;
+
+    ChessPieceType_ selected_piece_type = selected_piece->GetChessPieceType();
  
-        if (m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied)
-        {
-            CapturePiece(new_position);
-        }
-
-        current_player->MoveSelectedPiece(new_position);
-
-        new_position_flag = selected_piece_type == ChessPieceType_kKing ?
-            static_cast<BoardPositionFlags_>(new_position_flag | BoardPositionFlags_kIsPieceImortal | current_position_flag_piece_team)
-            : static_cast<BoardPositionFlags_>(new_position_flag | current_position_flag_piece_team);
-
-        m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, static_cast<BoardPositionFlags_>(0));
-
-        m_ChessBoardData.SetChessboardPositionFlag(new_position, new_position_flag);
-
-        if (ChessBoard::IsPositionAtVerticalBoarder(new_position) && selected_piece_type == ChessPieceType_kPawn)
-        {
-            //Await this thread for the answer. 
-            //Reason why this should be on separate thread is that we don't want to block the input polling and 
-            // the rendering.
-
-            //Issue a draw for a selection box for the promote piece type.
-            //Wait for the answer in this thread and then proceed.
-
-            current_player->PromotePawn(ChessPieceType_kQueen);
-        }
-
-        if (IsKingChecked())
-        {
-            IsKingCheckMated();
-        }
-
-        m_CurrentPlayer = GetNonActivePlayer();
+    if (m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied)
+    {
+        CapturePiece(new_position);
     }
+
+    current_player->MoveSelectedPiece(new_position);
+
+    new_position_flag = selected_piece_type == ChessPieceType_kKing ?
+        static_cast<BoardPositionFlags_>(new_position_flag | BoardPositionFlags_kIsPieceImortal | current_position_flag_piece_team)
+        : static_cast<BoardPositionFlags_>(new_position_flag | current_position_flag_piece_team);
+
+    m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, static_cast<BoardPositionFlags_>(0));
+
+    m_ChessBoardData.SetChessboardPositionFlag(new_position, new_position_flag);
+
+    if (ChessBoard::IsPositionAtVerticalBoarder(new_position) && selected_piece_type == ChessPieceType_kPawn)
+    {
+        //Await this thread for the answer. 
+        //Reason why this should be on separate thread is that we don't want to block the input polling and 
+        // the rendering.
+
+        //Issue a draw for a selection box for the promote piece type.
+        //Wait for the answer in this thread and then proceed.
+
+        current_player->PromotePawn(ChessPieceType_kQueen);
+    }
+
+    if (IsKingChecked())
+    {
+        IsKingCheckMated();
+    }
+    current_player->UnSelectPiece();
+
+    m_CurrentPlayer = GetNonActivePlayer();
+    
 }
 
 bool Chess_Game::ChessGame::IsKingSafeAfterMove(BoardPosition new_position)
 {
-    if (auto current_player = m_CurrentPlayer.lock())
+    if (m_CurrentPlayer.expired())
+        return false;
+
+    auto current_player = m_CurrentPlayer.lock();
+
+    if (current_player->GetSelectedPiece().expired())
+        return false;
+
+    auto selected_piece = current_player->GetSelectedPiece().lock();
+
+
+    BoardPosition kings_position = current_player->GetPlayerKing().GetPiecePosition();
+    BoardPosition current_piece_position = selected_piece->GetPiecePosition();
+    BoardPositionFlags_ previous_position_flags = 
+        m_ChessBoardData.GetChessboardPositionFlag(current_piece_position);
+
+    bool result = true;
+
+    m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, static_cast<BoardPositionFlags_>(0));
+    for (const auto& piece : GetNonActivePlayer()->GetPlayerPieces())
     {
-        BoardPosition kings_position = current_player->GetPlayerKing().GetPiecePosition();
-        BoardPosition current_piece_position = current_player->GetSelectedPiece().GetPiecePosition();
-        BoardPositionFlags_ previous_position_flags = 
-            m_ChessBoardData.GetChessboardPositionFlag(current_piece_position);
-
-        bool result = true;
-
-        m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, static_cast<BoardPositionFlags_>(0));
-        for (const auto& piece : GetNonActivePlayer()->GetPlayerPieces())
+        if (piece->CanMove(kings_position) && piece->CanMoveBoardSpecific(kings_position, m_ChessBoardData))
         {
-            if (piece->CanMove(kings_position) && piece->CanMoveBoardSpecific(kings_position, m_ChessBoardData))
-            {
-                result = false;
-                break;
-            }
+            result = false;
+            break;
         }
-        m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, previous_position_flags);
-        return result;
     }
+    m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, previous_position_flags);
+    return result;
+    
 }
 
 void Chess_Game::ChessGame::InitializeTeamPieces()

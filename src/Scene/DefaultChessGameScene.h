@@ -17,13 +17,14 @@ namespace Chess_Game
         void InitScene() override;
         void DrawScene() override;
         void OnUpdate() override;
+        BoardPosition GetMouseInputBoardPosition(std::shared_ptr<Chess_Game::Application>& application);
         void DestroyScene() override;
     private:
         std::unique_ptr<ChessGame> m_ChessGame{};
         std::shared_ptr<ChessPlayer> m_WhitePlayer{};
         std::shared_ptr<ChessPlayer> m_BlackPlayer{};
         std::shared_ptr<Drawable> m_ChessBoard{};
-
+        std::weak_ptr<Drawable> m_SelectedPieceDrawable{};
         std::shared_ptr<ScreenPositionHelper> m_PositionHelper;
         BatchRenderer m_BatchRenderer;
 

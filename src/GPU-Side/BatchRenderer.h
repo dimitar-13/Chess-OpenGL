@@ -7,7 +7,7 @@ namespace Chess_Game
     struct Vertex
     {
         //size_t batch_index{};
-        glm::vec2 vertex_position{};
+        glm::vec3 vertex_position{};
         glm::vec3 vertex_color{};
     };
 
@@ -31,7 +31,7 @@ namespace Chess_Game
     {
     public:
         BatchRenderer();
-        void Push(const glm::vec2& position,const glm::vec2& scale,const glm::vec3& object_color);
+        void Push(const glm::vec3& position,const glm::vec2& scale,const glm::vec3& object_color);
         void Flush();
         ~BatchRenderer();
     private:
