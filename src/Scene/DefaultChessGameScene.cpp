@@ -10,6 +10,12 @@ void Chess_Game::DefaultChessScene::InitScene()
 
         application->AddEventListener(shared_from_this());
     }
+    glm::vec3 board_position = glm::vec3(0.0f, 0.0f, -.5f);
+
+    m_ChessBoard =
+        std::make_shared<Drawable>(board_position, glm::vec3(0, 1, 0), m_PositionHelper->GetBoardSize());
+    m_SceneObjects.push_back(m_ChessBoard);
+
     std::vector<std::shared_ptr<ChessPiece>> white_team_vector;
 
     // Setup White Pieces
@@ -39,7 +45,7 @@ void Chess_Game::DefaultChessScene::InitScene()
         glm::vec3 piece_position = glm::vec3(m_PositionHelper->BoardToScreenPosition(piece->GetPiecePosition()), 0.f);
 
         glm::vec2 scale = m_PositionHelper->SingleSquareSize();
-        piece->AttachDrawable(std::make_shared<Drawable>(piece_position, glm::vec3(1)));
+        piece->AttachDrawable(std::make_shared<Drawable>(piece_position, glm::vec3(1), glm::vec2(10.0f),TextureName_kPawn));
     }
 
     m_WhitePlayer = std::make_shared<ChessPlayer>(white_team_vector);
@@ -92,23 +98,23 @@ void Chess_Game::DefaultChessScene::InitScene()
 
     m_ChessGame = std::make_unique<ChessGame>(m_WhitePlayer, m_BlackPlayer);
 
-    glm::vec3 board_position = glm::vec3(0.0f, 0.0f, -.5f);
 
-    m_ChessBoard =
-        std::make_shared<Drawable>(board_position, glm::vec3(0, 1, 0), m_PositionHelper->GetBoardSize());
-    m_SceneObjects.push_back(m_ChessBoard);
+
 }
 
 void Chess_Game::DefaultChessScene::DrawScene()
 {
+    AssetLoader& kApplicationAssets = m_Application.lock()->GetAssetLoader();
+
     for (const auto& drawable_weak_ptr : m_SceneObjects)
     {
         if (auto drawable = drawable_weak_ptr.lock())
         {
-            m_BatchRenderer.Push(drawable->GetPosition(), drawable->GetScale(), drawable->GetColor());
+            m_BatchRenderer.Push(drawable->GetPosition(), drawable->GetScale(), drawable->GetColor(),
+                kApplicationAssets.GetTextureAsset(drawable->GetDrawableTextureName()));
         }
     }
-    m_BatchRenderer.Flush();
+    m_BatchRenderer.Flush(m_Application.lock()->GetTestShader());
 }
 
 void Chess_Game::DefaultChessScene::OnUpdate()

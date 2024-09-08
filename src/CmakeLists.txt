@@ -54,6 +54,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/glm")
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/spdlog/include")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/stbi_image")
 
 target_link_directories(${PROJECT_NAME} PUBLIC
     "$<$<CONFIG:Debug>:${GLEW_DEBUG}>"

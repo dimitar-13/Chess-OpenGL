@@ -2,13 +2,16 @@
 #include<GL/glew.h>
 #include<glm/glm.hpp>
 #include<array>
+#include "GPU-Side/TextureResource.h"
 namespace Chess_Game
 {
     struct Vertex
     {
         //size_t batch_index{};
         glm::vec3 vertex_position{};
+        glm::vec2 vertex_uv{};
         glm::vec3 vertex_color{};
+        float texture_sampler_index{};
     };
 
     struct BatchRendererData
@@ -31,8 +34,8 @@ namespace Chess_Game
     {
     public:
         BatchRenderer();
-        void Push(const glm::vec3& position,const glm::vec2& scale,const glm::vec3& object_color);
-        void Flush();
+        void Push(const glm::vec3& position,const glm::vec2& scale,const glm::vec3& object_color, Texture texture_index = 0);
+        void Flush(ShaderClass& test_shader);
         ~BatchRenderer();
     private:
         void BeginBatch();
@@ -41,6 +44,7 @@ namespace Chess_Game
         GLuint m_BatchVertexArrayBufferObject{};
         GLuint m_BatchIndexArrayBufferObject{};
         BatchRendererData m_batchData{};
+        TextureBatcher m_TextureBatcher{};
     };
 
 }

@@ -15,10 +15,15 @@ Chess_Game::BatchRenderer::BatchRenderer()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BatchIndexArrayBufferObject);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, BatchRendererData::kBatchIndexArraySize*sizeof(GLuint), nullptr, GL_DYNAMIC_DRAW);
 
+
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertex_position));
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertex_color));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertex_uv));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertex_color));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texture_sampler_index));
+    glEnableVertexAttribArray(3);
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER,0);
@@ -33,8 +38,9 @@ Chess_Game::BatchRenderer::BatchRenderer()
  }
 
 void Chess_Game::BatchRenderer::Push(const glm::vec3& position,
-    const glm::vec2& scale, const glm::vec3& object_color)
+    const glm::vec2& scale, const glm::vec3& object_color, Texture texture_index)
 {
+    size_t texture_binding_point = m_TextureBatcher.PushTextureForRendering(texture_index);
 
     GLuint quad_index_data[6] = {
         0,1,2,
@@ -43,11 +49,11 @@ void Chess_Game::BatchRenderer::Push(const glm::vec3& position,
 
     Vertex quad_vertex_data[] = {
         //First triangle
-        {{-1.0f,1.0f,0.0f}, {1.0f,1.0f,1.0f}},
-        {{-1.0f,-1.0f,0.0f},{1.0f,1.0f,1.0f}},
+        {{-1.0f,1.0f,0.0f} , {0.0f,1.0f}, {1.0f,1.0f,1.0f},0.0f},
+        {{-1.0f,-1.0f,0.0f}, {0.0f,0.0f}, {1.0f,1.0f,1.0f},0.0f},
         //Second triangle
-        {{1.0f,-1.0f,0.0f}, {1.0f,1.0f,1.0f}},
-        {{1.0f,1.0f,0.0f} , {1.0f,1.0f,1.0f}},
+        {{1.0f,-1.0f,0.0f} , {1.0f,0.0f}, {1.0f,1.0f,1.0f},0.0f},
+        {{1.0f,1.0f,0.0f}  , {1.0f,1.0f}, {1.0f,1.0f,1.0f},0.0f},
    
     };
     for (auto & vertex : quad_vertex_data)
@@ -55,6 +61,7 @@ void Chess_Game::BatchRenderer::Push(const glm::vec3& position,
         vertex.vertex_position *= glm::vec3(scale.x, scale.y,1.0f);
         vertex.vertex_position += position;
         vertex.vertex_color = object_color;
+        vertex.texture_sampler_index = static_cast<float>(texture_binding_point);
     }
  
     memcpy(m_batchData.vertex_batch_pointer, quad_vertex_data, sizeof(quad_vertex_data));
@@ -73,8 +80,10 @@ void Chess_Game::BatchRenderer::Push(const glm::vec3& position,
 
 }
 
-void Chess_Game::BatchRenderer::Flush()
+void Chess_Game::BatchRenderer::Flush(ShaderClass& test_shader)
 {
+    m_TextureBatcher.BindTextures(test_shader);
+
     size_t vertex_data_size = (m_batchData.vertex_batch_pointer - m_batchData.vertex_batch_array) * sizeof(Vertex);
     size_t index_data_size = (m_batchData.index_batch_pointer - m_batchData.index_batch_array) * sizeof(GLuint);
     size_t index_count = (m_batchData.index_batch_pointer - m_batchData.index_batch_array);
@@ -88,12 +97,14 @@ void Chess_Game::BatchRenderer::Flush()
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, index_data_size, m_batchData.index_batch_array);
 
     glBindVertexArray(m_BatchVertexAttributeObject);
+
     glDrawElements(GL_TRIANGLES, index_count,GL_UNSIGNED_INT,NULL);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     BeginBatch();
 
+    m_TextureBatcher.Flush();
 }
 
 

@@ -20,6 +20,7 @@ namespace Chess_Game
         ~ShaderClass() { glDeleteProgram(m_shaderProgramHandle); }
         bool IsProgramCreatedSuccessfully()const { return m_shaderProgramHandle != 0; }
         void SetUniformInt(const char* uniform_name, int value) { glUniform1i(GetUniformByName(uniform_name), value); }
+        void SetSampler2DArray(const char* uniform_name, const int* array, const size_t size) { glUniform1iv(GetUniformByName(uniform_name), size, array); }
         void SetUniformFloat(const char* uniform_name, float value) { glUniform1f(GetUniformByName(uniform_name), value); }
         void SetUniform4x4Matrix(const char* uniform_name, const glm::mat4& matrix) { glUniformMatrix4fv(GetUniformByName(uniform_name),1,GL_FALSE,&matrix[0][0]); }
         void UseProgram()const { glUseProgram(m_shaderProgramHandle); }
