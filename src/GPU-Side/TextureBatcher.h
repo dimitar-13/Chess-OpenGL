@@ -17,7 +17,9 @@ namespace Chess_Game
         constexpr static size_t kShaderSamplerArrayBaseSize = 10;
     public:
         TextureBatcher();
-        void BindTextures(ShaderClass& sampler_array_shader)const;
+        void BindTextures()const;
+        const std::array<SamplerBindingPoint,kShaderSamplerArrayBaseSize>& GetBoundTexturesSlots()const { return m_BindingPointsArray; }
+        size_t GetBoundTexturesCount() { return m_TextureToBindingArrayIndexHash.size();}
         void Flush();
         size_t PushTextureForRendering(Texture texture_to_push);
     private:

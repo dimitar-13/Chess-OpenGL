@@ -4,24 +4,32 @@
 #include "Logging/Logger.h"
 namespace Chess_Game
 {
+    struct DrawableData
+    {
+        glm::vec3 position{};
+        glm::vec3 color{};
+        glm::vec2 scale{};
+        TextureName_ texture_name = TextureName_kBoard;
+        DrawableData(TextureName_ draw_tex_name,
+            glm::vec3 draw_pos = glm::vec3(0), glm::vec3 draw_color = glm::vec3(1),
+            glm::vec2 draw_scale = glm::vec2(30.0f)) :
+            position(draw_pos), color(draw_color), scale(draw_scale), texture_name(draw_tex_name)
+        {}
+    };
+
     class Drawable
     {
     public:
-        Drawable(const glm::vec3& start_position,const glm::vec3& draw_color, glm::vec2 scale = glm::vec2(10.0f),
-            TextureName_ texture_name = TextureName_kBoard) :
-            m_position(start_position), m_color(draw_color), m_scale(scale), m_textureName(texture_name)
+        Drawable(const DrawableData& drawable_data) :m_DrawableData(drawable_data)
         {}
-        glm::vec3 GetPosition()const { return m_position; }
-        const glm::vec3& GetColor()const { return m_color; }
-        glm::vec2 GetScale()const { return m_scale; }
-        void SetPosition(const glm::vec3& new_position) { m_position = new_position; }
-        void SetScale(const glm::vec2& new_scale) { m_scale = new_scale; }
-        void SetColor(const glm::vec3& color) { m_color = color; }
-        TextureName_ GetDrawableTextureName()const { return m_textureName; }
+        glm::vec3 GetPosition()const { return m_DrawableData.position; }
+        const glm::vec3& GetColor()const { return m_DrawableData.color; }
+        glm::vec2 GetScale()const { return m_DrawableData.scale; }
+        void SetPosition(const glm::vec3& new_position) { m_DrawableData.position = new_position; }
+        void SetScale(const glm::vec2& new_scale) { m_DrawableData.scale = new_scale; }
+        void SetColor(const glm::vec3& color) { m_DrawableData.color = color; }
+        TextureName_ GetDrawableTextureName()const { return m_DrawableData.texture_name; }
     private:
-        glm::vec3 m_position{};
-        glm::vec2 m_scale;
-        glm::vec3 m_color{};
-        TextureName_ m_textureName{};
+        DrawableData m_DrawableData;
     };
 }

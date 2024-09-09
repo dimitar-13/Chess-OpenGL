@@ -30,5 +30,6 @@ uniform sampler2D u_Textures[10];
 void main()
 {
 	int index_to_sample = int(TextureSamplerID);
-	FragColor = vec4(texture(u_Textures[index_to_sample],FragUV).rgb,1);
+	vec4 sampled_pixel = texture(u_Textures[index_to_sample],FragUV);
+	FragColor = vec4(sampled_pixel.xyz* VertexColor,sampled_pixel.a);
 }

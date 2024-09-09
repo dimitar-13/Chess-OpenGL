@@ -35,7 +35,7 @@ namespace Chess_Game
     public:
         BatchRenderer();
         void Push(const glm::vec3& position,const glm::vec2& scale,const glm::vec3& object_color, Texture texture_index = 0);
-        void Flush(ShaderClass& test_shader);
+        void Flush(const glm::mat4& projection);
         ~BatchRenderer();
     private:
         void BeginBatch();
@@ -45,6 +45,7 @@ namespace Chess_Game
         GLuint m_BatchIndexArrayBufferObject{};
         BatchRendererData m_batchData{};
         TextureBatcher m_TextureBatcher{};
+        ShaderClass m_TextureShader;
     };
 
 }

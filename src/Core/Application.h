@@ -24,7 +24,6 @@ namespace Chess_Game
         const OrthoViewportHandler& GetApplicationProjection() { return m_ApplicationProjection; }
         MouseInput& GetMouseInputManager() { return m_ApplicationMouseInput; }
         AssetLoader& GetAssetLoader(){ return *m_TextureAssetLoader; }
-        ShaderClass& GetTestShader() { return *m_TestImageShader; }
     private:
         void OnEvent(const Event& e);
         void OnWindowResizeEvent(const WindowResizeEvent& e);
@@ -37,7 +36,6 @@ namespace Chess_Game
         std::vector<std::weak_ptr<Listener>> m_ActiveEventListeners{};
         OrthoViewportHandler m_ApplicationProjection;
         std::unique_ptr<AssetLoader> m_TextureAssetLoader{};
-        std::unique_ptr<ShaderClass> m_TestImageShader{};
     };
 
 

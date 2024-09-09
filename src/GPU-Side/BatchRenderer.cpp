@@ -1,6 +1,7 @@
 #include "BatchRenderer.h"
 
 Chess_Game::BatchRenderer::BatchRenderer()
+    :m_TextureShader("D:/c++/OpenGl/Chess-OpenGL/Shaders/TextureShader.glsl")
 {
     glGenVertexArrays(1, &m_BatchVertexAttributeObject);
 
@@ -80,15 +81,25 @@ void Chess_Game::BatchRenderer::Push(const glm::vec3& position,
 
 }
 
-void Chess_Game::BatchRenderer::Flush(ShaderClass& test_shader)
+void Chess_Game::BatchRenderer::Flush(const glm::mat4& projection)
 {
-    m_TextureBatcher.BindTextures(test_shader);
+    const char* sampler_array_uniform_name = "u_Textures";
+    const char* projection_uniform_name = "orthographicProjection";
+
 
     size_t vertex_data_size = (m_batchData.vertex_batch_pointer - m_batchData.vertex_batch_array) * sizeof(Vertex);
     size_t index_data_size = (m_batchData.index_batch_pointer - m_batchData.index_batch_array) * sizeof(GLuint);
     size_t index_count = (m_batchData.index_batch_pointer - m_batchData.index_batch_array);
 
     if (index_count == 0) return;
+
+    m_TextureShader.UseProgram();
+    m_TextureBatcher.BindTextures();
+
+    m_TextureShader.SetUniform4x4Matrix(projection_uniform_name, projection);
+    m_TextureShader.SetSampler2DArray(sampler_array_uniform_name, m_TextureBatcher.GetBoundTexturesSlots().data(),
+        m_TextureBatcher.GetBoundTexturesCount());
+
 
     glBindBuffer(GL_ARRAY_BUFFER, m_BatchVertexArrayBufferObject);
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_data_size, m_batchData.vertex_batch_array);

@@ -1,7 +1,7 @@
 #pragma once
 #include "BoardPosition.h"
 #include "MovementRule.h"
-#include "Core/Attachable.h"
+#include "Core/Drawable.h"
 namespace Chess_Game
 {
     enum ChessPieceType_
@@ -15,13 +15,14 @@ namespace Chess_Game
         ChessPieceType_kKing
     };
 
-    class ChessPiece : public Attachable
+    class ChessPiece
     {
     public:
-        ChessPiece(BoardPosition start_position):
+        ChessPiece(BoardPosition start_position,const DrawableData& drawable_info):
             m_PiecePosition(start_position)
         {
             m_pieceBoardSpecificMovementRule.push_back(std::make_unique<CanMoveToTarget>());
+            m_PieceDrawable = std::make_shared<Drawable>(drawable_info);
         }
         void SetPiecePosition(BoardPosition new_position) { m_PiecePosition = new_position; OnPositionChanged(); }
         BoardPosition GetPiecePosition()const { return m_PiecePosition; }
@@ -29,7 +30,9 @@ namespace Chess_Game
         bool CanMove(BoardPosition new_piece_position);
         virtual void OnPositionChanged() {};
         bool CanMoveBoardSpecific(BoardPosition new_piece_position, ChessBoard& board);
+        std::weak_ptr<Drawable> GetPieceDrawable() { return m_PieceDrawable; }
     protected:
+        std::shared_ptr<Drawable> m_PieceDrawable{};
         BoardPosition m_PiecePosition;
         std::vector<std::unique_ptr<MovementRule>> m_pieceMovementRules{};
         std::vector<std::unique_ptr<BoardSpecificMovementRule>> m_pieceBoardSpecificMovementRule{};

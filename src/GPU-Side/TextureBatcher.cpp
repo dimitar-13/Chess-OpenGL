@@ -9,20 +9,13 @@ Chess_Game::TextureBatcher::TextureBatcher()
     }
 }
 
-void Chess_Game::TextureBatcher::BindTextures(ShaderClass& sampler_array_shader)const
+void Chess_Game::TextureBatcher::BindTextures()const
 {
-    const char* sampler_array_uniform_name = "u_Textures";
-    sampler_array_shader.UseProgram();
-
     for (const auto&[texture,array_index]:m_TextureToBindingArrayIndexHash)
     {
         glActiveTexture(GL_TEXTURE0 + m_BindingPointsArray[array_index]);
         glBindTexture(GL_TEXTURE_2D, texture);
     }
-
-    sampler_array_shader.SetSampler2DArray(sampler_array_uniform_name, m_BindingPointsArray.data(),
-        m_TextureToBindingArrayIndexHash.size());
-
 }
 
 void Chess_Game::TextureBatcher::Flush()

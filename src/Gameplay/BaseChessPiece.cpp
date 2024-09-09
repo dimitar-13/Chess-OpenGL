@@ -24,7 +24,8 @@ bool Chess_Game::ChessPiece::CanMoveBoardSpecific(BoardPosition new_piece_positi
     return true;
 }
 
-Chess_Game::Queen::Queen(BoardPosition start_position):ChessPiece(start_position)
+Chess_Game::Queen::Queen(BoardPosition start_position):
+    ChessPiece(start_position, DrawableData(TextureName_kQueen))
 {
     this->m_pieceMovementRules.push_back(std::make_unique<RookMovementRule>());
     this->m_pieceMovementRules.push_back(std::make_unique<BishopMovementRule>());
@@ -32,14 +33,16 @@ Chess_Game::Queen::Queen(BoardPosition start_position):ChessPiece(start_position
     this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<BlockableBoardSpecificMovementRule>());
 }
 
-Chess_Game::Bishop::Bishop(BoardPosition start_position):ChessPiece(start_position)
+Chess_Game::Bishop::Bishop(BoardPosition start_position):
+    ChessPiece(start_position, DrawableData(TextureName_kBishop))
 {
     this->m_pieceMovementRules.push_back(std::make_unique<BishopMovementRule>());
     this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<BlockableBoardSpecificMovementRule>());
 
 }
 
-Chess_Game::Pawn::Pawn(BoardPosition start_position):ChessPiece(start_position)
+Chess_Game::Pawn::Pawn(BoardPosition start_position):
+    ChessPiece(start_position, DrawableData(TextureName_kPawn))
 {
     this->m_pieceMovementRules.push_back(std::make_unique<SingleForwardMovementRule>());
     this->m_pieceMovementRules.push_back(std::make_unique<PawnSidewayCaptureRule>());
@@ -59,20 +62,23 @@ void Chess_Game::Pawn::OnPositionChanged()
     }
 }
 
-Chess_Game::Knight::Knight(BoardPosition start_position):ChessPiece(start_position)
+Chess_Game::Knight::Knight(BoardPosition start_position):
+    ChessPiece(start_position, DrawableData(TextureName_kKnight))
 {
     this->m_pieceMovementRules.push_back(std::make_unique<KnightMovementRule>());
 
 }
 
-Chess_Game::Rook::Rook(BoardPosition start_position):ChessPiece(start_position)
+Chess_Game::Rook::Rook(BoardPosition start_position):
+    ChessPiece(start_position, DrawableData(TextureName_kRook))
 {
     this->m_pieceMovementRules.push_back(std::make_unique<RookMovementRule>());
     this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<BlockableBoardSpecificMovementRule>());
 
 }
 
-Chess_Game::King::King(BoardPosition start_position):ChessPiece(start_position)
+Chess_Game::King::King(BoardPosition start_position):
+    ChessPiece(start_position, DrawableData(TextureName_kKing))
 {
     this->m_pieceMovementRules.push_back(std::make_unique<KingMovement>());
     this->m_pieceBoardSpecificMovementRule.push_back(std::make_unique<BlockableBoardSpecificMovementRule>());

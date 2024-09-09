@@ -94,7 +94,7 @@ void Chess_Game::Application::RenderLoop()
 {
     ShaderClass test_shader_class("D:/c++/OpenGl/Chess-OpenGL/Shaders/TestShader.glsl");
    // ShaderClass test_image_shader("D:/c++/OpenGl/Chess-OpenGL/Shaders/TextureShader.glsl");
-    m_TestImageShader = std::make_unique<ShaderClass>("D:/c++/OpenGl/Chess-OpenGL/Shaders/TextureShader.glsl");
+   // m_TestImageShader = std::make_unique<ShaderClass>("D:/c++/OpenGl/Chess-OpenGL/Shaders/TextureShader.glsl");
 
 
     BatchRenderer batch_renderer_test{};
@@ -105,15 +105,16 @@ void Chess_Game::Application::RenderLoop()
 
     //batch_renderer_test.Push({ 3,2 }, { 1.0f,1.0f,0.0f });
     glEnable(GL_DEPTH_TEST);
-
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     while (m_isApplicationRunning) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glClearColor(1.f, 0.f, 0.f, 1.0f);
 
-        m_TestImageShader->UseProgram();
-        m_TestImageShader->SetUniform4x4Matrix("orthographicProjection", m_ApplicationProjection.GetMatrix());
+       // m_TestImageShader->UseProgram();
+       // m_TestImageShader->SetUniform4x4Matrix("orthographicProjection", m_ApplicationProjection.GetMatrix());
 
         m_CurrentApplicationScene->OnUpdate();
         m_CurrentApplicationScene->DrawScene();

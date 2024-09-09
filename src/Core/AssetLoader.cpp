@@ -8,7 +8,13 @@ Chess_Game::AssetLoader::AssetLoader()
     const TexturePathNamePair texture_paths [] =
     {
         {"D:/c++/OpenGl/Chess-OpenGL/resources/Chess_board2.jpg",TextureName_kBoard},
-        {"D:/c++/OpenGl/Chess-OpenGL/resources/pawn.png", TextureName_kPawn}
+       // {"D:/c++/OpenGl/Chess-OpenGL/resources/pawn.png", TextureName_kPawn}
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/King.png",   TextureName_kKing},
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Knight.png", TextureName_kKnight},
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Pawn.png",   TextureName_kPawn},
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Queen.png",  TextureName_kQueen},
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Rook.png",   TextureName_kRook},
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Bishop.png",TextureName_kBishop },
 
     };
     size_t loaded_asset_count = sizeof(texture_paths)/ sizeof(texture_paths[0]);
