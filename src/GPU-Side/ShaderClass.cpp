@@ -201,19 +201,40 @@ void Chess_Game::ShaderClass::ExtractUniforms()
 {
     constexpr size_t kUniformNameBufferSize = 50;
     int uniform_count{};
+    auto ReadUniformArray = [this](const size_t array_size, std::string base_array_name)
+        {
+            for (size_t i = 0; i < array_size; i++)
+            {
+                base_array_name.at(base_array_name.find_first_of('[') + 1) = '0' + i;
+
+                GLuint uniform_index = glGetUniformLocation(m_shaderProgramHandle, base_array_name.c_str());
+                m_uniformHash.emplace(base_array_name.c_str(), uniform_index);
+            }
+        };
+
     glGetProgramiv(m_shaderProgramHandle, GL_ACTIVE_UNIFORMS, &uniform_count);
     m_uniformHash.reserve(uniform_count);
+
+
 
     for (size_t i = 0; i < uniform_count; i++)
     {   
         char uniform_name[kUniformNameBufferSize];
         int true_uniform_name_size{};
-        int uniform_by_size{};
+        int uniform_array_size{};
         GLenum uniform_value_type{};
         glGetActiveUniform(m_shaderProgramHandle,
-            (GLuint)i, kUniformNameBufferSize, &true_uniform_name_size, &uniform_by_size, &uniform_value_type, &uniform_name[0]);
-        GLuint uniform_index = glGetUniformLocation(m_shaderProgramHandle, &uniform_name[0]);
-        m_uniformHash.emplace(uniform_name, uniform_index);
+            (GLuint)i, kUniformNameBufferSize, &true_uniform_name_size, &uniform_array_size, &uniform_value_type, &uniform_name[0]);
+
+        if (uniform_array_size > 1)
+        {
+            ReadUniformArray(uniform_array_size, uniform_name);
+        }
+        else
+        {
+            GLuint uniform_index = glGetUniformLocation(m_shaderProgramHandle, &uniform_name[0]);
+            m_uniformHash.emplace(&uniform_name[0], uniform_index);
+        }       
     }
 
 }
@@ -222,5 +243,7 @@ int Chess_Game::ShaderClass::GetUniformByName(const char* uniform_name)
 {
     if(m_uniformHash.find(uniform_name) != m_uniformHash.end())
         return m_uniformHash.at(uniform_name);
-    return -1;
+    GLuint uniform_index = glGetUniformLocation(m_shaderProgramHandle, uniform_name);
+
+    return uniform_index;
 }
