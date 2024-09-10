@@ -69,8 +69,16 @@ void Chess_Game::ChessPlayer::RemovePiece(BoardPosition piece_board_position)
 
 void Chess_Game::ChessPlayer::MoveSelectedPiece(BoardPosition new_piece_position)
 {
-    if(auto selected_piece = m_SelectedPiece.lock())
+    if (auto selected_piece = m_SelectedPiece.lock())
+    {
         selected_piece->SetPiecePosition(new_piece_position);
+
+        if (m_PlayerKingCheckData.is_king_checked)
+        {
+            m_PlayerKingCheckData.is_king_checked = false;
+            m_PlayerKingCheckData.pieces_delivering_check.resize(0);
+        }
+    }
 }
 
 bool Chess_Game::ChessPlayer::CanSelectedPieceMove(BoardPosition new_position, ChessBoard& chess_board)
@@ -94,43 +102,9 @@ bool Chess_Game::ChessPlayer::CanSelectedPieceMove(BoardPosition new_position, C
             CHESS_LOG_INFO("New position does not obey board piece rules.");
             return false;
         }
-        if (chess_board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPieceImortal)
-        {
-            CHESS_LOG_INFO("Can't capture the opposite team king.");
-            return false;
-        }
-
-        if (m_PlayerKingCheckData.is_king_checked && !CanResolveCheck(new_position, chess_board))
-        {
-            CHESS_LOG_INFO("The next move must resolve the kings check.");
-            return false;
-        }
-        m_PlayerKingCheckData.is_king_checked = false;
-        m_PlayerKingCheckData.pieces_delivering_check.resize(0);
-
         return true;
     }
     return false;
-}
-
-bool Chess_Game::ChessPlayer::CanResolveCheck(BoardPosition new_position, ChessBoard& chess_board)
-{
-    BoardPositionFlags_ previous_position_flags = chess_board.GetChessboardPositionFlag(new_position);
-    BoardPosition king_position = m_PlayerKing->GetPiecePosition();
-    bool result = true;
-
-    chess_board.SetChessboardPositionFlag(new_position, BoardPositionFlags_kIsPositionOcupied);
-
-    for (const auto& piece_delivering_the_check : m_PlayerKingCheckData.pieces_delivering_check)
-    {
-        if (piece_delivering_the_check->CanMoveBoardSpecific(king_position, chess_board))
-        {
-            result = false;
-            break;
-        }
-    }
-    chess_board.SetChessboardPositionFlag(new_position, previous_position_flags);
-    return result;
 }
 
 Chess_Game::OptionalIndex Chess_Game::ChessPlayer::GetPieceArrayIndex(BoardPosition piece_position)const

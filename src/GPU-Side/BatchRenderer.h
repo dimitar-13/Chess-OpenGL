@@ -2,7 +2,7 @@
 #include<GL/glew.h>
 #include<glm/glm.hpp>
 #include<array>
-#include "GPU-Side/TextureResource.h"
+#include "GPU-Side/TextureBatcher.h"
 namespace Chess_Game
 {
     struct Vertex

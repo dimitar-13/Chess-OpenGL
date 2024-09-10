@@ -27,9 +27,9 @@ namespace Chess_Game
         void SetPiecePosition(BoardPosition new_position) { m_PiecePosition = new_position; OnPositionChanged(); }
         BoardPosition GetPiecePosition()const { return m_PiecePosition; }
         virtual ChessPieceType_ GetChessPieceType()const = 0;
-        bool CanMove(BoardPosition new_piece_position);
+        bool CanMove(BoardPosition new_piece_position)const;
         virtual void OnPositionChanged() {};
-        bool CanMoveBoardSpecific(BoardPosition new_piece_position, ChessBoard& board);
+        bool CanMoveBoardSpecific(BoardPosition new_piece_position, ChessBoard& board)const;
         std::weak_ptr<Drawable> GetPieceDrawable() { return m_PieceDrawable; }
     protected:
         std::shared_ptr<Drawable> m_PieceDrawable{};

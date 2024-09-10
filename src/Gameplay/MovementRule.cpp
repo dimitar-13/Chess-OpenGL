@@ -5,50 +5,37 @@
 #include <glm/glm.hpp>
 bool Chess_Game::RookMovementRule::CanMove(BoardPosition current_position, BoardPosition new_position) const
 {
-    BoardPosition new_position_delta{};
-    new_position_delta.VerticalPosition = new_position.VerticalPosition - current_position.VerticalPosition;
-    new_position_delta.horizontalPosition = new_position.horizontalPosition - current_position.horizontalPosition;
-    bool test = (new_position_delta.VerticalPosition != 0 && new_position_delta.horizontalPosition == 0) ||
-        (new_position_delta.VerticalPosition == 0 && new_position_delta.horizontalPosition != 0);
-    return test;
+    BoardPosition position_delta = new_position - current_position;
+
+    return (position_delta.VerticalPosition != 0 && position_delta.horizontalPosition == 0) ||
+        (position_delta.VerticalPosition == 0 && position_delta.horizontalPosition != 0);
 }
 
 bool Chess_Game::BishopMovementRule::CanMove(BoardPosition current_position, BoardPosition new_position) const
 {
-    BoardPosition position_offset{};
-    position_offset.VerticalPosition = new_position.VerticalPosition - current_position.VerticalPosition;
-    position_offset.horizontalPosition = new_position.horizontalPosition - current_position.horizontalPosition;
+    BoardPosition position_delta = new_position - current_position;
 
-    return abs(position_offset.VerticalPosition) == abs(position_offset.horizontalPosition);
+    return abs(position_delta.VerticalPosition) == abs(position_delta.horizontalPosition);
 }
 
 bool Chess_Game::KnightMovementRule::CanMove(BoardPosition current_position, BoardPosition new_position) const
 {
-    BoardPosition position_offset{};
-    position_offset.VerticalPosition = new_position.VerticalPosition - current_position.VerticalPosition;
-    position_offset.horizontalPosition = new_position.horizontalPosition - current_position.horizontalPosition;
+    BoardPosition position_delta = new_position - current_position;
 
-    return (abs(position_offset.VerticalPosition) == 2 && abs(position_offset.horizontalPosition) == 1) ||
-        (abs(position_offset.VerticalPosition) == 1 && abs(position_offset.horizontalPosition) == 2);
+    return (abs(position_delta.VerticalPosition) == 2 && abs(position_delta.horizontalPosition) == 1) ||
+        (abs(position_delta.VerticalPosition) == 1 && abs(position_delta.horizontalPosition) == 2);
 }
 
 bool Chess_Game::BlockableBoardSpecificMovementRule::CanMove(BoardPosition current_position,
     BoardPosition new_position, ChessBoard& board) const
 {
-    BoardPosition move_delta{};
+    BoardPosition position_delta = new_position - current_position;
     BoardPosition move_direction{};
-    
-    move_delta.VerticalPosition = new_position.VerticalPosition - current_position.VerticalPosition;
-    move_delta.horizontalPosition = new_position.horizontalPosition - current_position.horizontalPosition;
-    
-    move_direction.VerticalPosition = move_delta.VerticalPosition == 0 ? 0 :
-        move_delta.VerticalPosition / abs(move_delta.VerticalPosition);
-    
-    move_direction.horizontalPosition = move_delta.horizontalPosition == 0 ? 0 :
-        move_delta.horizontalPosition / abs(move_delta.horizontalPosition);
+        
+    move_direction = BoardPosition::Normalize(position_delta);
     
     unsigned char movement_count =
-        std::max(abs(move_delta.VerticalPosition), abs(move_delta.horizontalPosition));
+        std::max(abs(position_delta.VerticalPosition), abs(position_delta.horizontalPosition));
     
     BoardPosition next_position = current_position;
     
@@ -83,30 +70,31 @@ bool Chess_Game::CanMoveToTarget::CanMove(BoardPosition current_position,
 bool Chess_Game::PawnCaptureBoardSpecificMovementRule::CanMove(BoardPosition current_position,
     BoardPosition new_position, ChessBoard& board) const
 {  
-    BoardPosition move_offset{};
+    BoardPosition position_delta = new_position - current_position;
+
     
-    bool is_new_position_taken = board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied;
-    
-    move_offset.VerticalPosition = new_position.VerticalPosition - current_position.VerticalPosition;
-    move_offset.horizontalPosition = new_position.horizontalPosition - current_position.horizontalPosition;
-    
-    if (is_new_position_taken && abs(move_offset.VerticalPosition) == abs(move_offset.horizontalPosition))
+    if (abs(position_delta.VerticalPosition) == abs(position_delta.horizontalPosition))
     {
-        return is_new_position_taken;
+        bool is_new_position_taken = board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied;
+
+        BoardPositionFlags_ current_piece_flags = board.GetChessboardPositionFlag(current_position);
+        BoardPositionFlags_ new_position_flags = board.GetChessboardPositionFlag(new_position);
+        bool is_current_piece_from_white_team = current_piece_flags & BoardPositionFlags_kIsPieceFromWhiteTeam;
+        bool is_new_piece_from_white_team = new_position_flags & BoardPositionFlags_kIsPieceFromWhiteTeam;
+
+        return is_new_position_taken && is_current_piece_from_white_team != is_new_piece_from_white_team;
     }
     
-    return !is_new_position_taken;
+    return true;
 }
 
 bool Chess_Game::PawnStartingMovementRule::CanMove(BoardPosition current_position, BoardPosition new_position) const
 {
-    BoardPosition position_offset{};
-    position_offset.VerticalPosition = new_position.VerticalPosition - current_position.VerticalPosition;
-    position_offset.horizontalPosition = new_position.horizontalPosition - current_position.horizontalPosition;
+    BoardPosition position_delta = new_position - current_position;
 
-    if (position_offset.horizontalPosition != 0)
+    if (position_delta.horizontalPosition != 0)
         return false;
-    if (abs(position_offset.VerticalPosition) != 2)
+    if (abs(position_delta.VerticalPosition) != 2)
         return false;
 
     return true;
@@ -114,28 +102,22 @@ bool Chess_Game::PawnStartingMovementRule::CanMove(BoardPosition current_positio
 
 bool Chess_Game::PawnSidewayCaptureRule::CanMove(BoardPosition current_position, BoardPosition new_position) const
 {
-    BoardPosition position_offset{};
-    position_offset.VerticalPosition = new_position.VerticalPosition - current_position.VerticalPosition;
-    position_offset.horizontalPosition = new_position.horizontalPosition - current_position.horizontalPosition;
+    BoardPosition position_delta = new_position - current_position;
 
-    return abs(position_offset.VerticalPosition) == 1 && abs(position_offset.horizontalPosition) == 1;
+    return abs(position_delta.VerticalPosition) == 1 && abs(position_delta.horizontalPosition) == 1;
 }
 
 bool Chess_Game::SingleForwardMovementRule::CanMove(BoardPosition current_position, BoardPosition new_position) const
 {
-    BoardPosition position_offset{};
-    position_offset.VerticalPosition = new_position.VerticalPosition - current_position.VerticalPosition;
-    position_offset.horizontalPosition = new_position.horizontalPosition - current_position.horizontalPosition;
+    BoardPosition position_delta = new_position - current_position;
 
-    return position_offset.horizontalPosition == 0 && abs(position_offset.VerticalPosition) == 1;
+    return position_delta.horizontalPosition == 0 && abs(position_delta.VerticalPosition) == 1;
 }
 
 bool Chess_Game::KingMovement::CanMove(BoardPosition current_position, BoardPosition new_position) const
 {
-    BoardPosition position_delta{};
-    position_delta.VerticalPosition = new_position.VerticalPosition - current_position.VerticalPosition;
-    position_delta.horizontalPosition = new_position.horizontalPosition - current_position.horizontalPosition;
-    
+    BoardPosition position_delta = new_position - current_position;
+
     if (abs(position_delta.VerticalPosition) > 1 || abs(position_delta.horizontalPosition) > 1)
         return false;
 
@@ -146,13 +128,9 @@ bool Chess_Game::KingMovement::CanMove(BoardPosition current_position, BoardPosi
 bool Chess_Game::PawnTeamMovementRule::CanMove(BoardPosition current_position,
     BoardPosition new_position, ChessBoard& board) const
 {
-    BoardPosition piece_position = current_position;
-    BoardPosition position_delta{};
+    BoardPosition position_delta = new_position - current_position;
     
-    position_delta.VerticalPosition = new_position.VerticalPosition - piece_position.VerticalPosition;
-    position_delta.horizontalPosition = new_position.horizontalPosition - piece_position.horizontalPosition;
-    
-    bool is_pawn_from_white_team = board.GetChessboardPositionFlag(piece_position) & BoardPositionFlags_kIsPieceFromWhiteTeam;
+    bool is_pawn_from_white_team = board.GetChessboardPositionFlag(current_position) & BoardPositionFlags_kIsPieceFromWhiteTeam;
     
     return (position_delta.VerticalPosition >= 1 && is_pawn_from_white_team) ||
         (position_delta.VerticalPosition <= -1 && !is_pawn_from_white_team);

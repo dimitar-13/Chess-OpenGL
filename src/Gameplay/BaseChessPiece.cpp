@@ -1,6 +1,6 @@
 #include "BaseChessPiece.h"
 #include "Logging/Logger.h"
-bool Chess_Game::ChessPiece::CanMove(BoardPosition new_piece_position)
+bool Chess_Game::ChessPiece::CanMove(BoardPosition new_piece_position)const
 {
     for (auto& movement_rule : m_pieceMovementRules)
     {
@@ -11,7 +11,7 @@ bool Chess_Game::ChessPiece::CanMove(BoardPosition new_piece_position)
     return false;
 }
 
-bool Chess_Game::ChessPiece::CanMoveBoardSpecific(BoardPosition new_piece_position,ChessBoard& board)
+bool Chess_Game::ChessPiece::CanMoveBoardSpecific(BoardPosition new_piece_position,ChessBoard& board)const
 {
     for (auto& movement_rule : m_pieceBoardSpecificMovementRule)
     {

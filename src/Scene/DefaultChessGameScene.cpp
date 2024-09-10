@@ -158,9 +158,11 @@ void Chess_Game::DefaultChessScene::OnUpdate()
                 m_ChessGame->MoveSelectedPiece(mouse_to_board_postion);
                 piece_drawable->SetColor(previous_piece_color);
 
-
-            }
-            
+            }        
+        }
+        if (m_ChessGame->IsGameOver())
+        {
+            CHESS_LOG_FATAL("Game is over!");
         }
     }
 }

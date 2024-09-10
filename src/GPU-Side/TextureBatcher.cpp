@@ -1,4 +1,4 @@
-#include "TextureResource.h"
+#include "TextureBatcher.h"
 #include <cassert>
 #include <array>
 Chess_Game::TextureBatcher::TextureBatcher()
