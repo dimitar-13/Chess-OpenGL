@@ -4,6 +4,12 @@
 
 namespace Chess_Game
 {
+   //struct CheckData
+   //{
+   //    std::weak_ptr<ChessPiece> piece_delivering_the_check{};
+   //    BoardPosition check_direction{};
+   //};
+
     struct KingCheckData
     {
         bool is_king_checked = false;
@@ -29,13 +35,13 @@ namespace Chess_Game
         void MoveSelectedPiece(BoardPosition new_piece_position);
         const std::vector<std::shared_ptr<ChessPiece>>& GetPlayerPieces() { return m_PlayerPieces; }
         void SetPlayerKingCheckData(const KingCheckData& data) { m_PlayerKingCheckData = data; }
+        const KingCheckData& GetPlayerKingCheckData() { return m_PlayerKingCheckData; }
 
         const King& GetPlayerKing() { return *m_PlayerKing; }
         std::weak_ptr<ChessPiece> GetSelectedPiece() { return m_SelectedPiece; }
         void IncreaseScore(size_t amount) { m_PlayerScore += amount; }
         bool CanSelectedPieceMove(BoardPosition new_position, ChessBoard& chess_board);
     private:
-        bool CanResolveCheck(BoardPosition new_position, ChessBoard& chess_board);
         OptionalIndex GetPieceArrayIndex(BoardPosition piece_board_position)const;
     private:
         std::vector<std::shared_ptr<ChessPiece>> m_PlayerPieces;

@@ -7,35 +7,6 @@ Chess_Game::ChessGame::ChessGame(const std::shared_ptr<ChessPlayer>& white_playe
     m_WhiteTeamPlayer(white_player), m_BlackTeamPlayer(black_player)
 {
 
-    //std::vector<std::shared_ptr<ChessPiece>> black_team_vector =
-    //{ std::make_shared<King>(BoardPosition{ 'h', 8 }) };
-
-    //m_BlackTeamPlayer = std::make_shared<ChessPlayer>(black_team_vector);
-
-    //m_ChessBoardData.SetChessboardPositionFlag(BoardPosition{ 'd', 4 },
-    //    static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPositionOcupied |
-    //    BoardPositionFlags_kIsPieceFromBlackTeam | BoardPositionFlags_kIsPieceImortal));
-
-    //m_ChessBoardData.SetChessboardPositionFlag(BoardPosition{ 'a', 1 },
-    //    static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPositionOcupied | 
-    //        BoardPositionFlags_kIsPieceFromWhiteTeam));
-
-    //m_ChessBoardData.SetChessboardPositionFlag(BoardPosition{ 'c', 2 },
-    //    static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPositionOcupied | 
-    //        BoardPositionFlags_kIsPieceFromWhiteTeam));
-
-
-
-    //std::vector<std::shared_ptr<ChessPiece>> white_team_vector = 
-    //{ std::make_shared<Queen>(BoardPosition{ 'a', 1 }),
-    //  std::make_shared<Rook>(BoardPosition{ 'h', 1 }),
-    //  std::make_shared<Rook>(BoardPosition{ 'a', 2 }),
-    //std::make_shared<King>(BoardPosition{ 'g', 3 }) };
-
-    //m_WhiteTeamPlayer = std::make_shared<ChessPlayer>(white_team_vector);
-
-
-    //InitializeTeamPieces();
     SetupChessBoardBitMask();
 
     m_CurrentPlayer = m_WhiteTeamPlayer;
@@ -74,38 +45,49 @@ std::weak_ptr<Chess_Game::ChessPiece> Chess_Game::ChessGame::GetSelectedPiece()
     return std::weak_ptr<ChessPiece>();
 }
 
+bool Chess_Game::ChessGame::CanMove(BoardPosition new_position, std::shared_ptr<ChessPlayer> player_to_check)
+{  
+    if (!ChessBoard::IsNewPositionInBounds(new_position))
+    {
+        return false;
+    }
+
+    if (!player_to_check->CanSelectedPieceMove(new_position, m_ChessBoardData))
+    {
+        return false;
+    }
+    
+    if (m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPieceImortal)
+    {
+        CHESS_LOG_INFO("You can't capture the king.");
+        return false;
+    }
+    
+    if (!CanResolveCheck(new_position, player_to_check))
+    {
+        CHESS_LOG_INFO("The next move must resolve the kings check.");
+        return false;
+    }
+    
+    if (!IsKingSafeAfterMove(new_position, player_to_check))
+    {
+        CHESS_LOG_INFO("The piece cannot move in this position because the next position will result in a mate.");
+        return false;
+    }
+
+    CHESS_LOG_INFO("Movement is valid.");
+    
+    return true;
+    
+}
+
 bool Chess_Game::ChessGame::CanMoveSelectedPiece(BoardPosition new_position)
 {
     if (auto current_player = m_CurrentPlayer.lock())
     {
-        if (!ChessBoard::IsNewPositionInBounds(new_position))
-        {
-            return false;
-        }
-
-        if (!current_player->CanSelectedPieceMove(new_position, m_ChessBoardData))
-        {
-            return false;
-        }
-
-        if (!IsKingSafeAfterMove(new_position))
-        {
-            CHESS_LOG_INFO("The piece cannot move in this position because the next position will result in a mate.");
-            return false;
-        }
-
-        if (m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPieceImortal)
-        {
-            CHESS_LOG_INFO("You can't capture the king.");
-            return false;
-        }
-
-        CHESS_LOG_INFO("Movement is valid.");
-
-        return true;
+        return CanMove(new_position, current_player);
     }
     return false;
-
 }
 
 void Chess_Game::ChessGame::MoveSelectedPiece(BoardPosition new_position)
@@ -160,98 +142,55 @@ void Chess_Game::ChessGame::MoveSelectedPiece(BoardPosition new_position)
 
     if (IsKingChecked())
     {
-        IsKingCheckMated();
+        m_IsGameOver = IsKingCheckMated();
     }
-    current_player->UnSelectPiece();
 
+    current_player->UnSelectPiece();
     m_CurrentPlayer = GetNonActivePlayer();
     
 }
 
-bool Chess_Game::ChessGame::IsKingSafeAfterMove(BoardPosition new_position)
+bool Chess_Game::ChessGame::IsKingSafeAfterMove(BoardPosition new_position,
+    std::shared_ptr<ChessPlayer> current_player)
 {
-    if (m_CurrentPlayer.expired())
-        return false;
-
-    auto current_player = m_CurrentPlayer.lock();
-
-    if (current_player->GetSelectedPiece().expired())
-        return false;
-
-    auto selected_piece = current_player->GetSelectedPiece().lock();
-
-
-    BoardPosition kings_position = current_player->GetPlayerKing().GetPiecePosition();
-    BoardPosition current_piece_position = selected_piece->GetPiecePosition();
-    BoardPositionFlags_ previous_position_flags = 
-        m_ChessBoardData.GetChessboardPositionFlag(current_piece_position);
-
-    bool result = true;
-
-    m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, static_cast<BoardPositionFlags_>(0));
-    for (const auto& piece : GetNonActivePlayer()->GetPlayerPieces())
+  
+    if (auto selected_piece = current_player->GetSelectedPiece().lock())
     {
-        if (piece->CanMove(kings_position) && piece->CanMoveBoardSpecific(kings_position, m_ChessBoardData))
+        BoardPosition kings_position = selected_piece->GetChessPieceType() == ChessPieceType_kKing ?
+            new_position : current_player->GetPlayerKing().GetPiecePosition();
+
+        BoardPosition current_piece_position = selected_piece->GetPiecePosition();
+        BoardPositionFlags_ current_position_flags =
+            m_ChessBoardData.GetChessboardPositionFlag(current_piece_position);
+        BoardPositionFlags_ new_position_flags =
+            m_ChessBoardData.GetChessboardPositionFlag(new_position);
+        bool result = true;
+
+        m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, static_cast<BoardPositionFlags_>(0));
+        m_ChessBoardData.SetChessboardPositionFlag(new_position, static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPositionOcupied));
+
+        for (const auto& piece : GetNonActivePlayer()->GetPlayerPieces())
         {
-            result = false;
-            break;
+            if (piece->GetPiecePosition() == new_position &&
+                !(m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPieceImortal))
+            {
+                continue;
+            }
+
+            if (piece->CanMove(kings_position) && piece->CanMoveBoardSpecific(kings_position, m_ChessBoardData))
+            {
+                result = false;
+                break;
+            }
         }
+        m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, current_position_flags);
+        m_ChessBoardData.SetChessboardPositionFlag(new_position, new_position_flags);
+
+        return result;
     }
-    m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, previous_position_flags);
-    return result;
+    return false;
+
     
-}
-
-void Chess_Game::ChessGame::InitializeTeamPieces()
-{
-    std::vector<std::shared_ptr<ChessPiece>> white_team_vector ={
-        std::make_shared<Rook>(BoardPosition{ 'a', 1 }),
-        std::make_shared<Knight>(BoardPosition{ 'b', 1 }),
-        std::make_shared<Bishop>(BoardPosition{ 'c', 1 }),
-        std::make_shared<Queen>(BoardPosition{ 'd', 1 }),
-        std::make_shared<King>(BoardPosition{ 'e', 1 }),
-        std::make_shared<Bishop>(BoardPosition{ 'f', 1 }),
-        std::make_shared<Knight>(BoardPosition{ 'g', 1 }),
-        std::make_shared<Rook>(BoardPosition{ 'h', 1 })};
-            
-    // Pawns
-    for (char file = 'a'; file <= 'h'; ++file) {
-        white_team_vector.emplace_back(std::make_shared<Pawn>(BoardPosition{ file, 2 }));
-    }
-
-    m_WhiteTeamPlayer = std::make_shared<ChessPlayer>(white_team_vector);
-
-    std::vector<std::shared_ptr<ChessPiece>> black_team_vector = {
-        std::make_shared<Rook>(BoardPosition{ 'a', 8 }),
-        std::make_shared<Knight>(BoardPosition{ 'b', 8 }),
-        std::make_shared<Bishop>(BoardPosition{ 'c', 8 }),
-        std::make_shared<Queen>(BoardPosition{ 'd', 8 }),
-        std::make_shared<King>(BoardPosition{ 'e', 8 }),
-        std::make_shared<Bishop>(BoardPosition{ 'f', 8 }),
-        std::make_shared<Knight>(BoardPosition{ 'g', 8 }),
-        std::make_shared<Rook>(BoardPosition{ 'h', 8 })};
-
-    // Pawns
-    for (char file = 'a'; file <= 'h'; ++file) {
-        black_team_vector.emplace_back(std::make_shared<Pawn>(BoardPosition{ file, 7 }));
-    }
-
-    m_BlackTeamPlayer = std::make_shared<ChessPlayer>(black_team_vector);
-
-    size_t current_index{};
-    for(const auto& piece : white_team_vector)
-    {
-        m_ChessBoardData.SetChessboardPositionFlag(piece->GetPiecePosition(),static_cast<BoardPositionFlags_>(
-            BoardPositionFlags_kIsPositionOcupied | BoardPositionFlags_kIsPieceFromWhiteTeam));
-    }
-    for (const auto& piece : black_team_vector)
-    {
-        m_ChessBoardData.SetChessboardPositionFlag(piece->GetPiecePosition(),static_cast<BoardPositionFlags_>(
-            BoardPositionFlags_kIsPositionOcupied | BoardPositionFlags_kIsPieceFromBlackTeam));
-    }
-
-    m_ChessBoardData.SetChessboardPositionFlag({ 'e', 8 },BoardPositionFlags_kIsPieceImortal);
-    m_ChessBoardData.SetChessboardPositionFlag({ 'e', 1 },BoardPositionFlags_kIsPieceImortal);
 }
 
 void Chess_Game::ChessGame::CapturePiece(BoardPosition position_of_piece_to_capture)
@@ -277,19 +216,25 @@ std::shared_ptr<Chess_Game::ChessPlayer> Chess_Game::ChessGame::GetNonActivePlay
 
 void Chess_Game::ChessGame::SetupChessBoardBitMask()
 {
+    BoardPositionFlags_ white_team_flags = static_cast<BoardPositionFlags_>(
+        BoardPositionFlags_kIsPositionOcupied | BoardPositionFlags_kIsPieceFromWhiteTeam);
+    BoardPositionFlags_ black_team_flags = static_cast<BoardPositionFlags_>(
+        BoardPositionFlags_kIsPositionOcupied | BoardPositionFlags_kIsPieceFromBlackTeam);
+
+
     for (const auto& piece : m_WhiteTeamPlayer->GetPlayerPieces())
     {
-        m_ChessBoardData.SetChessboardPositionFlag(piece->GetPiecePosition(), static_cast<BoardPositionFlags_>(
-            BoardPositionFlags_kIsPositionOcupied | BoardPositionFlags_kIsPieceFromWhiteTeam));
+        m_ChessBoardData.SetChessboardPositionFlag(piece->GetPiecePosition(), white_team_flags);
     }
     for (const auto& piece : m_BlackTeamPlayer->GetPlayerPieces())
     {
-        m_ChessBoardData.SetChessboardPositionFlag(piece->GetPiecePosition(), static_cast<BoardPositionFlags_>(
-            BoardPositionFlags_kIsPositionOcupied | BoardPositionFlags_kIsPieceFromBlackTeam));
+        m_ChessBoardData.SetChessboardPositionFlag(piece->GetPiecePosition(), black_team_flags);
     }
 
-    m_ChessBoardData.SetChessboardPositionFlag(m_WhiteTeamPlayer->GetPlayerKing().GetPiecePosition(), BoardPositionFlags_kIsPieceImortal);
-    m_ChessBoardData.SetChessboardPositionFlag(m_BlackTeamPlayer->GetPlayerKing().GetPiecePosition(), BoardPositionFlags_kIsPieceImortal);
+    m_ChessBoardData.SetChessboardPositionFlag(m_WhiteTeamPlayer->GetPlayerKing().GetPiecePosition(), 
+        static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPieceImortal | white_team_flags));
+    m_ChessBoardData.SetChessboardPositionFlag(m_BlackTeamPlayer->GetPlayerKing().GetPiecePosition(),
+        static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPieceImortal | black_team_flags));
 
 }
 
@@ -308,13 +253,15 @@ bool Chess_Game::ChessGame::IsKingChecked()
             if (piece->CanMove(king_to_check_board_position) &&
                 piece->CanMoveBoardSpecific(king_to_check_board_position, m_ChessBoardData))
             {
-                CHESS_LOG_INFO("The opposite team king has been mated.");
+                CHESS_LOG_INFO("The opposite team king has been checked.");
+                BoardPosition piece_position =  piece->GetPiecePosition();
+         
                 check_data.is_king_checked = true;
-                check_data.pieces_delivering_check.push_back(piece);    
+                check_data.pieces_delivering_check.emplace_back(piece);
             }
         }
         if(check_data.is_king_checked)
-            current_player->SetPlayerKingCheckData(check_data);
+            non_active_player->SetPlayerKingCheckData(check_data);
 
         return check_data.is_king_checked;
     }
@@ -323,46 +270,167 @@ bool Chess_Game::ChessGame::IsKingChecked()
 
 bool Chess_Game::ChessGame::IsKingCheckMated()
 {
-    bool result = false;
+    CHESS_LOG_INFO("Checking for checkmate.");
 
     if (auto current_player = m_CurrentPlayer.lock())
     {
+        auto player_to_check = GetNonActivePlayer();
 
-        CHESS_LOG_INFO("Checking for checkmate.");
-
-        auto opposite_player = GetNonActivePlayer();
-        BoardPosition king_board_position = opposite_player->GetPlayerKing().GetPiecePosition();
-        constexpr BoardPosition kKingMovementOffsets[] = {
-            {1,1},
-            { -1,1 },
-            { 1,-1 },
-            { -1,-1 },
-            {0,1},
-            {0,-1},
-            {1,0},
-            {1,0}
-        };
-
-        opposite_player->SelectPiece(king_board_position);
-        m_CurrentPlayer = opposite_player;
-        for (const auto offset: kKingMovementOffsets)
+        // - Move the king
+        if (CanKingResolveTheCheck(player_to_check))
         {
-            BoardPosition new_position = king_board_position;
+            return false;
+        }
 
-            new_position.VerticalPosition += offset.VerticalPosition;
-            new_position.horizontalPosition += offset.horizontalPosition;
+        //- Move piece to prevent check.
+        //- Claim the piece causing the check
+        if (CanOtherPiecesResolveTheCheck(player_to_check))
+        {
+            return false;
+        }
 
-            if (this->CanMoveSelectedPiece(new_position))
+        CHESS_LOG_INFO("King has been checkmated.");
+    }
+    return true;
+}
+
+bool Chess_Game::ChessGame::CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> player_to_check)
+{
+    constexpr BoardPosition kKingMovementOffsets[] = {
+        {1,1},
+        { -1,1 },
+        { 1,-1 },
+        { -1,-1 },
+        {0,1},
+        {0,-1},
+        {1,0},
+        {1,0}
+    };
+
+    bool result = false;
+
+    BoardPosition king_board_position = player_to_check->GetPlayerKing().GetPiecePosition();
+    BoardPositionFlags_ king_board_flags = m_ChessBoardData.GetChessboardPositionFlag(king_board_position);
+
+    player_to_check->SelectPiece(king_board_position);
+
+    for (const auto offset : kKingMovementOffsets)
+    {
+        BoardPosition new_position = king_board_position;
+
+        new_position.VerticalPosition += offset.VerticalPosition;
+        new_position.horizontalPosition += offset.horizontalPosition;
+
+        if (!ChessBoard::IsNewPositionInBounds(new_position))
+        {
+            continue;
+        }
+
+        BoardPositionFlags_ previous_flags = m_ChessBoardData.GetChessboardPositionFlag(new_position);
+        m_ChessBoardData.SetChessboardPositionFlag(new_position, king_board_flags);
+
+        result = this->CanMove(new_position, player_to_check);
+       
+        m_ChessBoardData.SetChessboardPositionFlag(new_position, previous_flags);
+        player_to_check->UnSelectPiece();
+
+        if (result)
+        {
+            return result;
+        }
+    }
+    return result;
+}
+
+bool Chess_Game::ChessGame::CanOtherPiecesResolveTheCheck(std::shared_ptr<ChessPlayer> player_to_check)
+{
+    bool result = false;
+    const KingCheckData& player_check_info = player_to_check->GetPlayerKingCheckData();
+    std::vector<BoardPosition> check_line_points{};
+    BoardPosition king_board_position = player_to_check->GetPlayerKing().GetPiecePosition();
+
+    for (const auto& piece_delivering_check_info : player_check_info.pieces_delivering_check)
+    {
+        BoardPosition start_pos = piece_delivering_check_info->GetPiecePosition();
+
+        if (piece_delivering_check_info->GetChessPieceType() == ChessPieceType_kKnight)
+        {
+            check_line_points.push_back(start_pos);
+            continue;
+        }
+
+        BoardPosition direction = king_board_position - start_pos;
+
+        size_t length = std::max(abs(direction.VerticalPosition),abs(direction.horizontalPosition));
+
+        direction = BoardPosition::Normalize(direction);
+
+        for (size_t i = 0; i < length; i++)
+        {
+            BoardPosition new_position{};
+            new_position.VerticalPosition = start_pos.VerticalPosition + (direction.VerticalPosition * i);
+            new_position.horizontalPosition = start_pos.horizontalPosition + (direction.horizontalPosition * i);
+
+            check_line_points.push_back(new_position);
+        }
+    }
+
+    for (const auto position_to_check : check_line_points)
+    {
+        for (const auto& piece_to_check : player_to_check->GetPlayerPieces())
+        {          
+            player_to_check->SelectPiece(piece_to_check->GetPiecePosition());
+
+            result = this->CanMove(position_to_check, player_to_check);
+
+            if (result)
             {
-                result = true;
-                break;
+                player_to_check->UnSelectPiece();
+                return result;
+            }
+        }
+    }
+
+    return result;
+}
+
+bool Chess_Game::ChessGame::CanResolveCheck(BoardPosition new_position,
+    std::shared_ptr<ChessPlayer> current_player)
+{
+    if (auto selected_piece = current_player->GetSelectedPiece().lock())
+    {
+     
+        const KingCheckData& check_data = current_player->GetPlayerKingCheckData();
+
+        if (!check_data.is_king_checked)
+            return true;
+
+        BoardPositionFlags_ previous_position_flags = m_ChessBoardData.GetChessboardPositionFlag(new_position);
+        BoardPositionFlags_ selected_piece_flag = 
+            m_ChessBoardData.GetChessboardPositionFlag(selected_piece->GetPiecePosition());
+         
+        BoardPosition king_position = selected_piece->GetChessPieceType() == ChessPieceType_kKing ?
+            new_position : current_player->GetPlayerKing().GetPiecePosition();
+
+        bool result = true;
+        m_ChessBoardData.SetChessboardPositionFlag(new_position, selected_piece_flag);
+
+        for (const auto& piece_delivering_the_check : check_data.pieces_delivering_check)
+        {
+            if (new_position == piece_delivering_the_check->GetPiecePosition())
+            {
+                continue;
             }
 
+
+            if (piece_delivering_the_check->CanMove(king_position) && 
+                piece_delivering_the_check->CanMoveBoardSpecific(king_position, m_ChessBoardData))
+            {
+                result = false;
+                break;
+            }
         }
-        CHESS_LOG_INFO("King has been checkmated.");
-        opposite_player->SelectPiece({ -1,-1 });
-        m_CurrentPlayer = current_player;
+        m_ChessBoardData.SetChessboardPositionFlag(new_position, previous_position_flags);
+        return result;
     }
-    
-    return result;
 }
