@@ -15,6 +15,8 @@ namespace Chess_Game
         bool CanMoveSelectedPiece(BoardPosition new_position);
         void MoveSelectedPiece(BoardPosition new_position);
         bool IsGameOver()const { return m_IsGameOver; }
+        bool IsSelectedPieceChanged();
+        std::vector<BoardPosition> GetSelectedPieceAllPossibleMoves();
     private:
         bool IsKingSafeAfterMove(BoardPosition new_position,std::shared_ptr<ChessPlayer> current_player);
         bool CanResolveCheck(BoardPosition new_position,std::shared_ptr<ChessPlayer> current_player);
@@ -32,5 +34,6 @@ namespace Chess_Game
         std::shared_ptr<ChessPlayer> m_WhiteTeamPlayer{};
         std::shared_ptr<ChessPlayer> m_BlackTeamPlayer{};
         bool m_IsGameOver = false;
+        bool m_IsSelectedPieceChanged = false;
     };
 }

@@ -1,41 +1,26 @@
 #include "BatchRenderer.h"
+#include "Core/Chess_pch.h"
+
+static const std::array<Chess_Game::Vertex,4> kBaseQuadVertexData = {
+    //First triangle
+    Chess_Game::Vertex{{-1.0f,1.0f,0.0f} ,{ -1.0f,1.0f,0.0f } , {0.0f,1.0f}, {1.0f,1.0f,1.0f},0.0f},
+    Chess_Game::Vertex{{-1.0f,-1.0f,0.0f},{ -1.0f,-1.0f,0.0f} , {0.0f,0.0f}, {1.0f,1.0f,1.0f},0.0f},
+    //Second triangle  
+    Chess_Game::Vertex{{1.0f,-1.0f,0.0f} ,{ 1.0f,-1.0f,0.0f} , {1.0f,0.0f} , {1.0f,1.0f,1.0f},0.0f},
+    Chess_Game::Vertex{{1.0f,1.0f,0.0f}  ,{1.0f,1.0f,0.0f}   , {1.0f,1.0f} , {1.0f,1.0f,1.0f},0.0f},
+};
+
 
 Chess_Game::BatchRenderer::BatchRenderer()
-    :m_TextureShader("D:/c++/OpenGl/Chess-OpenGL/Shaders/TextureShader.glsl")
 {
-    glGenVertexArrays(1, &m_BatchVertexAttributeObject);
+    SetupBatch(m_TexturedQuadBatch);
+    SetupBatch(m_CircleQuadBatch);
 
-    glGenBuffers(1, &m_BatchVertexArrayBufferObject);
-    glGenBuffers(1, &m_BatchIndexArrayBufferObject);
+    m_TexturedQuadBatch.batch_shader =
+        std::make_unique<ShaderClass>("D:/c++/OpenGl/Chess-OpenGL/Shaders/TextureShader.glsl");
 
-    glBindVertexArray(m_BatchVertexAttributeObject);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_BatchVertexArrayBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, BatchRendererData::kBatchVertexArraySize*sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BatchIndexArrayBufferObject);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, BatchRendererData::kBatchIndexArraySize*sizeof(GLuint), nullptr, GL_DYNAMIC_DRAW);
-
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertex_position));
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertex_uv));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertex_color));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texture_sampler_index));
-    glEnableVertexAttribArray(3);
-
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER,0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    m_batchData.vertex_batch_array = new Vertex[BatchRendererData::kBatchVertexArraySize];
-    m_batchData.vertex_batch_pointer = m_batchData.vertex_batch_array;
-
-    m_batchData.index_batch_array = new GLuint[BatchRendererData::kBatchIndexArraySize];
-    m_batchData.index_batch_pointer = m_batchData.index_batch_array;
-
+    m_CircleQuadBatch.batch_shader =
+        std::make_unique<ShaderClass>("D:/c++/OpenGl/Chess-OpenGL/Shaders/CircleShader.glsl");
  }
 
 void Chess_Game::BatchRenderer::Push(const glm::vec3& position,
@@ -48,89 +33,199 @@ void Chess_Game::BatchRenderer::Push(const glm::vec3& position,
         2,3,0
     };
 
-    Vertex quad_vertex_data[] = {
-        //First triangle
-        {{-1.0f,1.0f,0.0f} , {0.0f,1.0f}, {1.0f,1.0f,1.0f},0.0f},
-        {{-1.0f,-1.0f,0.0f}, {0.0f,0.0f}, {1.0f,1.0f,1.0f},0.0f},
-        //Second triangle
-        {{1.0f,-1.0f,0.0f} , {1.0f,0.0f}, {1.0f,1.0f,1.0f},0.0f},
-        {{1.0f,1.0f,0.0f}  , {1.0f,1.0f}, {1.0f,1.0f,1.0f},0.0f},
-   
-    };
-    for (auto & vertex : quad_vertex_data)
+    Vertex quad_vertex_data_copy[kBaseQuadVertexData.size()] = {};
+    std::copy(std::begin(kBaseQuadVertexData), std::end(kBaseQuadVertexData), std::begin(quad_vertex_data_copy));
+
+    for (auto & vertex : quad_vertex_data_copy)
     {
-        vertex.vertex_position *= glm::vec3(scale.x, scale.y,1.0f);
-        vertex.vertex_position += position;
-        vertex.vertex_color = object_color;
+        vertex.world_position *= glm::vec3(scale.x, scale.y,1.0f);
+        vertex.world_position += position;
+        vertex.color = object_color;
         vertex.texture_sampler_index = static_cast<float>(texture_binding_point);
     }
  
-    memcpy(m_batchData.vertex_batch_pointer, quad_vertex_data, sizeof(quad_vertex_data));
+    memcpy(m_TexturedQuadBatch.render_data.vertex_batch_pointer, quad_vertex_data_copy, sizeof(quad_vertex_data_copy));
      
-    m_batchData.vertex_batch_pointer += BatchRendererData::kSingleQuadVertexCount;
+    m_TexturedQuadBatch.render_data.vertex_batch_pointer += BatchRendererData::kSingleQuadVertexCount;
 
-    size_t index_data_offset = (m_batchData.index_batch_pointer - m_batchData.index_batch_array)/ BatchRendererData::kSingleQuadIndexCount;
+    size_t index_data_offset =
+        (m_TexturedQuadBatch.render_data.index_batch_pointer - m_TexturedQuadBatch.render_data.index_batch_array)/ BatchRendererData::kSingleQuadIndexCount;
     for (auto& index : quad_index_data)
     {
         index += 4 * index_data_offset;
     }
-    memcpy(m_batchData.index_batch_pointer, quad_index_data, sizeof(quad_index_data));
+    memcpy(m_TexturedQuadBatch.render_data.index_batch_pointer, quad_index_data, sizeof(quad_index_data));
 
 
-    m_batchData.index_batch_pointer += BatchRendererData::kSingleQuadIndexCount;
+    m_TexturedQuadBatch.render_data.index_batch_pointer += BatchRendererData::kSingleQuadIndexCount;
 
 }
 
-void Chess_Game::BatchRenderer::Flush(const glm::mat4& projection)
+void Chess_Game::BatchRenderer::PushCircle(const glm::vec3& position, const glm::vec2& scale, const glm::vec3& object_color)
+{
+ 
+    GLuint quad_index_data[6] = {
+        0,1,2,
+        2,3,0
+    };
+
+    Vertex quad_vertex_data_copy[kBaseQuadVertexData.size()] = {};
+    std::copy(std::begin(kBaseQuadVertexData), std::end(kBaseQuadVertexData), std::begin(quad_vertex_data_copy));
+
+    for (auto& vertex : quad_vertex_data_copy)
+    {
+        vertex.world_position *= glm::vec3(scale.x, scale.y, 1.0f);
+        vertex.world_position += position;
+        vertex.color = object_color;
+    }
+
+    memcpy(m_CircleQuadBatch.render_data.vertex_batch_pointer, quad_vertex_data_copy, sizeof(quad_vertex_data_copy));
+
+    m_CircleQuadBatch.render_data.vertex_batch_pointer += BatchRendererData::kSingleQuadVertexCount;
+
+    size_t index_data_offset = 
+        (m_CircleQuadBatch.render_data.index_batch_pointer - m_CircleQuadBatch.render_data.index_batch_array) / BatchRendererData::kSingleQuadIndexCount;
+    for (auto& index : quad_index_data)
+    {
+        index += 4 * index_data_offset;
+    }
+    memcpy(m_CircleQuadBatch.render_data.index_batch_pointer, quad_index_data, sizeof(quad_index_data));
+
+
+    m_CircleQuadBatch.render_data.index_batch_pointer += BatchRendererData::kSingleQuadIndexCount;
+
+}
+
+void Chess_Game::BatchRenderer::DrawCircleBatch(const glm::mat4& projection)
+{
+    const char* projection_uniform_name = "orthographicProjection";
+
+    size_t vertex_data_size = 
+        (m_CircleQuadBatch.render_data.vertex_batch_pointer - m_CircleQuadBatch.render_data.vertex_batch_array) * sizeof(Vertex);
+    size_t index_data_size = 
+        (m_CircleQuadBatch.render_data.index_batch_pointer - m_CircleQuadBatch.render_data.index_batch_array) * sizeof(GLuint);
+    size_t index_count = 
+        (m_CircleQuadBatch.render_data.index_batch_pointer - m_CircleQuadBatch.render_data.index_batch_array);
+
+    if (index_count == 0) return;
+
+    m_CircleQuadBatch.batch_shader->UseProgram();
+    m_CircleQuadBatch.batch_shader->SetUniform4x4Matrix(projection_uniform_name, projection);
+
+    glBindVertexArray(m_CircleQuadBatch.gpu_data.vertex_attribute_array_handle);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_CircleQuadBatch.gpu_data.vertex_buffer_handle);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_data_size, m_CircleQuadBatch.render_data.vertex_batch_array);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_CircleQuadBatch.gpu_data.index_buffer_handle);
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, index_data_size, m_CircleQuadBatch.render_data.index_batch_array);
+
+    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, NULL);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    BeginBatch(m_CircleQuadBatch);
+}
+
+void Chess_Game::BatchRenderer::DrawTextureQuadBatch(const glm::mat4& projection)
 {
     const char* sampler_array_uniform_name = "u_Textures";
     const char* projection_uniform_name = "orthographicProjection";
 
-
-    size_t vertex_data_size = (m_batchData.vertex_batch_pointer - m_batchData.vertex_batch_array) * sizeof(Vertex);
-    size_t index_data_size = (m_batchData.index_batch_pointer - m_batchData.index_batch_array) * sizeof(GLuint);
-    size_t index_count = (m_batchData.index_batch_pointer - m_batchData.index_batch_array);
+    size_t vertex_data_size = 
+        (m_TexturedQuadBatch.render_data.vertex_batch_pointer - m_TexturedQuadBatch.render_data.vertex_batch_array) * sizeof(Vertex);
+    size_t index_data_size = 
+        (m_TexturedQuadBatch.render_data.index_batch_pointer - m_TexturedQuadBatch.render_data.index_batch_array) * sizeof(GLuint);
+    size_t index_count = 
+        (m_TexturedQuadBatch.render_data.index_batch_pointer - m_TexturedQuadBatch.render_data.index_batch_array);
 
     if (index_count == 0) return;
 
-    m_TextureShader.UseProgram();
+    m_TexturedQuadBatch.batch_shader->UseProgram();
     m_TextureBatcher.BindTextures();
 
-    m_TextureShader.SetUniform4x4Matrix(projection_uniform_name, projection);
-    m_TextureShader.SetSampler2DArray(sampler_array_uniform_name, m_TextureBatcher.GetBoundTexturesSlots().data(),
+    m_TexturedQuadBatch.batch_shader->SetUniform4x4Matrix(projection_uniform_name, projection);
+    m_TexturedQuadBatch.batch_shader->SetSampler2DArray(sampler_array_uniform_name, m_TextureBatcher.GetBoundTexturesSlots().data(),
         m_TextureBatcher.GetBoundTexturesCount());
 
+    glBindVertexArray(m_TexturedQuadBatch.gpu_data.vertex_attribute_array_handle);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_BatchVertexArrayBufferObject);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_data_size, m_batchData.vertex_batch_array);
+    glBindBuffer(GL_ARRAY_BUFFER, m_TexturedQuadBatch.gpu_data.vertex_buffer_handle);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_data_size, m_TexturedQuadBatch.render_data.vertex_batch_array);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BatchIndexArrayBufferObject);
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, index_data_size, m_batchData.index_batch_array);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_TexturedQuadBatch.gpu_data.index_buffer_handle);
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, index_data_size, m_TexturedQuadBatch.render_data.index_batch_array);
 
-    glBindVertexArray(m_BatchVertexAttributeObject);
+    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, NULL);
 
-    glDrawElements(GL_TRIANGLES, index_count,GL_UNSIGNED_INT,NULL);
-
+    glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    BeginBatch();
 
+    BeginBatch(m_TexturedQuadBatch);
     m_TextureBatcher.Flush();
+}
+void Chess_Game::BatchRenderer::BeginBatch(BatchData& batch_to_begin)
+{
+    batch_to_begin.render_data.vertex_batch_pointer = batch_to_begin.render_data.vertex_batch_array;
+    batch_to_begin.render_data.index_batch_pointer = batch_to_begin.render_data.index_batch_array;
 }
 
 
 Chess_Game::BatchRenderer::~BatchRenderer()
 {
-    delete[] m_batchData.vertex_batch_array;
-    delete[] m_batchData.index_batch_array;
+    //TODO: Change this to be in a batchData destructor
 
-    glDeleteBuffers(1, &m_BatchVertexArrayBufferObject);
-    glDeleteBuffers(1, &m_BatchIndexArrayBufferObject);
-    glDeleteVertexArrays(1, &m_BatchVertexArrayBufferObject);
+    FreeBatchMemory(m_CircleQuadBatch);
+    FreeBatchMemory(m_TexturedQuadBatch);
 }
-
-void Chess_Game::BatchRenderer::BeginBatch()
+void Chess_Game::BatchRenderer::FreeBatchMemory(BatchData& batch_to_free)
 {
-    m_batchData.vertex_batch_pointer = m_batchData.vertex_batch_array;
-    m_batchData.index_batch_pointer = m_batchData.index_batch_array;
+    delete[] batch_to_free.render_data.vertex_batch_array;
+    delete[] batch_to_free.render_data.index_batch_array;
+
+    glDeleteBuffers(1, &batch_to_free.gpu_data.vertex_buffer_handle);
+    glDeleteBuffers(1, &batch_to_free.gpu_data.index_buffer_handle);
+    glDeleteVertexArrays(1, &batch_to_free.gpu_data.vertex_attribute_array_handle);
+
 }
+
+void Chess_Game::BatchRenderer::SetupBatch(BatchData& batch_to_setup)
+{
+    glGenVertexArrays(1, &batch_to_setup.gpu_data.vertex_attribute_array_handle);
+
+    glGenBuffers(1, &batch_to_setup.gpu_data.vertex_buffer_handle);
+    glGenBuffers(1, &batch_to_setup.gpu_data.index_buffer_handle);
+
+    glBindVertexArray(batch_to_setup.gpu_data.vertex_attribute_array_handle);
+
+    glBindBuffer(GL_ARRAY_BUFFER, batch_to_setup.gpu_data.vertex_buffer_handle);
+    glBufferData(GL_ARRAY_BUFFER, BatchRendererData::kBatchVertexArraySize * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch_to_setup.gpu_data.index_buffer_handle);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, BatchRendererData::kBatchIndexArraySize * sizeof(GLuint), nullptr, GL_DYNAMIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, local_position));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, world_position));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texture_sampler_index));
+    glEnableVertexAttribArray(4);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    batch_to_setup.render_data.vertex_batch_array = new Vertex[BatchRendererData::kBatchVertexArraySize];
+    batch_to_setup.render_data.vertex_batch_pointer = batch_to_setup.render_data.vertex_batch_array;
+
+    batch_to_setup.render_data.index_batch_array = new GLuint[BatchRendererData::kBatchIndexArraySize];
+    batch_to_setup.render_data.index_batch_pointer = batch_to_setup.render_data.index_batch_array;
+}
+

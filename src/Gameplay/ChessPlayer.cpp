@@ -85,13 +85,6 @@ bool Chess_Game::ChessPlayer::CanSelectedPieceMove(BoardPosition new_position, C
 {
     if (auto selected_piece = m_SelectedPiece.lock())
     {
-        if (selected_piece->GetPiecePosition() == new_position)
-        {
-            CHESS_LOG_INFO("Piece was unselected.");
-            UnSelectPiece();
-            return false;
-        }
-
         if (!selected_piece->CanMove(new_position))
         {
             CHESS_LOG_INFO("New position does not obey piece rules.");
