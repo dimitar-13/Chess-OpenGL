@@ -1,6 +1,7 @@
 #include "DefaultChessGameScene.h"
 #include "Core/Application.h"
 #include "Logging/Logger.h"
+
 void Chess_Game::DefaultChessScene::InitScene()
 {
 
@@ -133,31 +134,27 @@ void Chess_Game::DefaultChessScene::OnUpdate()
 {
     if (auto application = m_Application.lock())
     {
+        if (m_ChessGame->IsSelectedPieceChanged())
+        {
+            m_SelectedPiecePossiblePositions = std::move(m_ChessGame->GetSelectedPieceAllPossibleMoves());
+        }
+
         if (application->GetMouseInputManager().IsMouseButtonPressed(MouseButton_kLeftMouseButton))
         {
-            CHESS_LOG_INFO("Mouse button was pressed.");
             BoardPosition mouse_to_board_postion = GetMouseInputBoardPosition(application);
-            //CHESS_LOG_INFO("The board position: {0} {1}", board_pos.horizontalPosition,char('0' + board_pos.VerticalPosition));
-
 
             if (!m_ChessGame->IsPieceSelected())
             {          
                 m_ChessGame->SelectPiece(mouse_to_board_postion);            
             }
 
-            if (m_ChessGame->IsSelectedPieceChanged())
-            {
-                m_SelectedPiecePossiblePositions = std::move(m_ChessGame->GetSelectedPieceAllPossibleMoves());
-            }
             else if (m_ChessGame->CanMoveSelectedPiece(mouse_to_board_postion))
             {
                 std::shared_ptr<ChessPiece> selected_piece = m_ChessGame->GetSelectedPiece().lock();
                 auto piece_drawable = selected_piece->GetPieceDrawable().lock();
                 glm::vec2 new_position = m_PositionHelper->BoardToScreenPosition(mouse_to_board_postion);
                 piece_drawable->SetPosition(glm::vec3(new_position, .0f));
-
                 m_ChessGame->MoveSelectedPiece(mouse_to_board_postion);
-                m_SelectedPiecePossiblePositions.clear();
             }  
       
         }

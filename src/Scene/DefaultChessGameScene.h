@@ -13,12 +13,12 @@ namespace Chess_Game
             SceneObject(main_application)
         {}
     private:
-        // Inherited via SceneObject
         void InitScene() override;
         void DrawScene() override;
         void OnUpdate() override;
         BoardPosition GetMouseInputBoardPosition(std::shared_ptr<Chess_Game::Application>& application);
         void DestroyScene() override;
+        void OnEvent(const Event& e) override;
     private:
         std::unique_ptr<ChessGame> m_ChessGame{};
         std::shared_ptr<ChessPlayer> m_WhitePlayer{};
@@ -28,8 +28,7 @@ namespace Chess_Game
         std::shared_ptr<ScreenPositionHelper> m_PositionHelper;
         BatchRenderer m_BatchRenderer;
         std::vector<BoardPosition> m_SelectedPiecePossiblePositions{};
-        // Inherited via Listener
-        void OnEvent(const Event& e) override;
+
     };
 
 }
