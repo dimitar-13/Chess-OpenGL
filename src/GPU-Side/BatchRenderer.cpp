@@ -77,7 +77,7 @@ void Chess_Game::BatchRenderer::Push(const glm::vec3& position,
     memcpy(m_batchData.index_batch_pointer, quad_index_data, sizeof(quad_index_data));
 
 
-    m_batchData.index_batch_pointer += BatchRendererData::kSingleQuadIndexCount;
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 }
 
