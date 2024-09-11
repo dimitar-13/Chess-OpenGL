@@ -1,7 +1,6 @@
 #pragma once
-#include<GLFW/glfw3.h>
+#include "Chess_pch.h"
 #include"Core/ApplicationData.h"
-#include<functional>
 #include"Core/Event/Event.h"
 namespace Chess_Game
 {

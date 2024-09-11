@@ -1,6 +1,4 @@
 #include "ShaderClass.h"
-#include <fstream>
-#include <array>
 #include "Logging/Logger.h"
 Chess_Game::ShaderClass::ShaderClass(const char* shader_file_path)
 {

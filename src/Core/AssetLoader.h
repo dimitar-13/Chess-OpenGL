@@ -1,8 +1,6 @@
 #pragma once
 #include "ApplicationData.h"
-#include <GL/glew.h>
-#include <unordered_map>
-#include <vector>
+#include "Chess_pch.h"
 #include "TextureEnum.h"
 namespace Chess_Game
 {

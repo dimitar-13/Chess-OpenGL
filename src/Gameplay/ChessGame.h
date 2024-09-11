@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseChessPiece.h"
 #include "ChessPlayer.h"
-#include <vector>
+#include "Core/Chess_pch.h"
 
 namespace Chess_Game
 {

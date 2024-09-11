@@ -1,6 +1,5 @@
 #pragma once
-#include <vector>
-#include <memory>
+#include "Chess_pch.h"
 #include "Core/Drawable.h"
 
 namespace Chess_Game

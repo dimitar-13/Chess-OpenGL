@@ -1,9 +1,5 @@
 #pragma once
-#include<GL/glew.h>
-#include<vector>
-#include<unordered_map>
-#include<string>
-#include<glm/glm.hpp>
+#include "Core/Chess_pch.h"
 namespace Chess_Game
 {
     class ShaderClass

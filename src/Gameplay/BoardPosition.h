@@ -1,8 +1,4 @@
 #pragma once
-#include <iostream>
-#include <unordered_map>
-#include <memory>
-#include <array>
 namespace Chess_Game
 {
     struct BoardPosition

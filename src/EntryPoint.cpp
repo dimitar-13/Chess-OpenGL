@@ -1,7 +1,5 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "Core/Chess_pch.h"
 #include "Logging/Logger.h"
-#include <string_view>
 #include "Core/Application.h"
 
 void APIENTRY OpenGLDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity,
