@@ -1,7 +1,5 @@
 #pragma once
-#include<GL/glew.h>
-#include<glm/glm.hpp>
-#include<array>
+#include "Core/Chess_pch.h"
 #include "GPU-Side/TextureBatcher.h"
 namespace Chess_Game
 {

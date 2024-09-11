@@ -1,7 +1,8 @@
 #pragma once
+#include "Core/Chess_pch.h"
 #include "BoardPosition.h"
 #include "ChessBoard.h"
-#include <string>
+
 namespace Chess_Game
 {
     class ChessPiece;

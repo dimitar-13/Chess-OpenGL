@@ -4,6 +4,7 @@
 
 namespace Chess_Game
 {
+    //TODO: Remove this
     class Attachable
     {
     public:

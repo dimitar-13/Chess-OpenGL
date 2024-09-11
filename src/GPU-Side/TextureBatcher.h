@@ -1,10 +1,9 @@
 #pragma once
+#include "Core/Chess_pch.h"
 #include "Core/ApplicationData.h"
-#include <GL/glew.h>
-#include <vector>
 #include "Core/TextureEnum.h"
 #include "gpu-side/ShaderClass.h"
-#include <array>
+
 namespace Chess_Game
 {
     typedef int SamplerBindingPoint;

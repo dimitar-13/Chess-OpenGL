@@ -2,7 +2,7 @@
 #include "BaseChessPiece.h"
 #include "Logging/Logger.h"
 #include "ChessBoard.h"
-#include <glm/glm.hpp>
+
 bool Chess_Game::RookMovementRule::CanMove(BoardPosition current_position, BoardPosition new_position) const
 {
     BoardPosition position_delta = new_position - current_position;

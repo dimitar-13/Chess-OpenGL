@@ -1,6 +1,5 @@
 #include "TextureBatcher.h"
-#include <cassert>
-#include <array>
+
 Chess_Game::TextureBatcher::TextureBatcher()
 {
     for (size_t i = 0; i < m_BindingPointsArray.size(); i++)

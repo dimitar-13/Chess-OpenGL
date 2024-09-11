@@ -1,5 +1,5 @@
 #pragma once
-#include <glm/glm.hpp>
+#include "Core/Chess_pch.h"
 #include "Gameplay/BoardPosition.h"
 #include "Core/ApplicationData.h"
 #include "Core/Application.h"

@@ -1,14 +1,11 @@
 #pragma once
+#include "Chess_pch.h"
 #include "AssetLoader.h"
-#include"Window.h"
-#include<memory>
-#include<glm/glm.hpp>
-#include<Core/Event/Event.h>
+#include "Window.h"
 #include "Core/SceneObject.h"
 #include "Core/EventListener.h"
 #include "Core/OrthographicApplicationMatrix.h"
 #include "Core/Input.h"
-#include "gpu-side/ShaderClass.h"
 
 namespace Chess_Game
 {
