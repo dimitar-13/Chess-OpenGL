@@ -23,6 +23,8 @@ void Chess_Game::ChessGame::SelectPiece(BoardPosition piece_board_position)
     if (auto current_player = m_CurrentPlayer.lock())
     {
         current_player->SelectPiece(piece_board_position);
+
+        m_IsSelectedPieceChanged = true;
     }
     return;
 }
@@ -84,7 +86,16 @@ bool Chess_Game::ChessGame::CanMove(BoardPosition new_position, std::shared_ptr<
 bool Chess_Game::ChessGame::CanMoveSelectedPiece(BoardPosition new_position)
 {
     if (auto current_player = m_CurrentPlayer.lock())
-    {
+    {     
+        if (!current_player->GetSelectedPiece().expired() && 
+            current_player->GetSelectedPiece().lock()->GetPiecePosition() == new_position)
+        {
+            CHESS_LOG_INFO("Piece was unselected.");
+            current_player->UnSelectPiece();
+            m_IsSelectedPieceChanged = true;
+
+            return false;
+        }     
         return CanMove(new_position, current_player);
     }
     return false;
@@ -146,8 +157,46 @@ void Chess_Game::ChessGame::MoveSelectedPiece(BoardPosition new_position)
     }
 
     current_player->UnSelectPiece();
+    m_IsSelectedPieceChanged = true;
     m_CurrentPlayer = GetNonActivePlayer();
     
+}
+
+bool Chess_Game::ChessGame::IsSelectedPieceChanged()
+{
+    bool result = m_IsSelectedPieceChanged;
+    if (m_IsSelectedPieceChanged)
+        m_IsSelectedPieceChanged = false;
+    return result;
+}
+
+std::vector<Chess_Game::BoardPosition> Chess_Game::ChessGame::GetSelectedPieceAllPossibleMoves()
+{
+    if (m_CurrentPlayer.expired())
+        return std::vector<BoardPosition>();
+
+    auto current_player = m_CurrentPlayer.lock();
+
+    if (auto selected_piece = current_player->GetSelectedPiece().lock())
+    {
+        std::vector<BoardPosition> result{};
+
+        size_t vertical{}, horizontal{};
+        for (vertical = 1; vertical <= 8; vertical++)
+        {
+            for (horizontal = 'a'; horizontal <= 'h'; horizontal++)
+            {
+                BoardPosition position_to_check = {static_cast<char>(horizontal) ,static_cast<char>(vertical) };
+                if (CanMove(position_to_check,current_player))
+                {
+                    result.push_back(position_to_check);
+                }
+            }
+        }
+        return result;
+
+    }
+    return std::vector<BoardPosition>();
 }
 
 bool Chess_Game::ChessGame::IsKingSafeAfterMove(BoardPosition new_position,

@@ -30,7 +30,7 @@ void Chess_Game::ChessBoard::SetChessboardPositionFlag(BoardPosition position, B
 
 bool Chess_Game::ChessBoard::IsPositionAtVerticalBoarder(BoardPosition new_position)
 {
-    return new_position.VerticalPosition == 8 || new_position.VerticalPosition == 0;
+    return new_position.VerticalPosition == 8 || new_position.VerticalPosition == 1;
 }
 
 bool Chess_Game::ChessBoard::IsNewPositionInBounds(BoardPosition new_position)

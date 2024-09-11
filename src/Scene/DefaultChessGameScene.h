@@ -27,7 +27,7 @@ namespace Chess_Game
         std::weak_ptr<Drawable> m_SelectedPieceDrawable{};
         std::shared_ptr<ScreenPositionHelper> m_PositionHelper;
         BatchRenderer m_BatchRenderer;
-
+        std::vector<BoardPosition> m_SelectedPiecePossiblePositions{};
         // Inherited via Listener
         void OnEvent(const Event& e) override;
     };

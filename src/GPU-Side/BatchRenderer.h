@@ -5,21 +5,20 @@ namespace Chess_Game
 {
     struct Vertex
     {
-        //size_t batch_index{};
-        glm::vec3 vertex_position{};
-        glm::vec2 vertex_uv{};
-        glm::vec3 vertex_color{};
+        glm::vec3 local_position{};
+        glm::vec3 world_position{};
+        glm::vec2 uv{};
+        glm::vec3 color{};
         float texture_sampler_index{};
     };
 
     struct BatchRendererData
     {
-        static constexpr size_t kMaxBatchQuadSize = 50;
+        static constexpr size_t kPerBatchQuadSize = 100;
         static constexpr size_t kSingleQuadIndexCount = 6;
         static constexpr size_t kSingleQuadVertexCount = 4;
-        static constexpr size_t kSingleQuadBatch = (kSingleQuadVertexCount * sizeof(Vertex));
-        static constexpr size_t kBatchVertexArraySize = kSingleQuadVertexCount * kMaxBatchQuadSize;
-        static constexpr size_t kBatchIndexArraySize = kSingleQuadIndexCount * kMaxBatchQuadSize;
+        static constexpr size_t kBatchVertexArraySize = kSingleQuadVertexCount * kPerBatchQuadSize;
+        static constexpr size_t kBatchIndexArraySize = kSingleQuadIndexCount * kPerBatchQuadSize;
 
         Vertex* vertex_batch_pointer = nullptr;
         Vertex* vertex_batch_array = nullptr;
@@ -28,22 +27,37 @@ namespace Chess_Game
         GLuint* index_batch_array = nullptr;
     };
 
+    struct BatchGpuData
+    {
+        GLuint vertex_buffer_handle{};
+        GLuint vertex_attribute_array_handle{};
+        GLuint index_buffer_handle{};
+    };
+    struct BatchData
+    {
+        BatchGpuData gpu_data{};
+        BatchRendererData render_data{};
+        std::unique_ptr<ShaderClass> batch_shader{};
+    };
+
+
     class BatchRenderer
     {
     public:
         BatchRenderer();
         void Push(const glm::vec3& position,const glm::vec2& scale,const glm::vec3& object_color, Texture texture_index = 0);
-        void Flush(const glm::mat4& projection);
+        void PushCircle(const glm::vec3& position, const glm::vec2& scale, const glm::vec3& object_color);
+        void DrawCircleBatch(const glm::mat4& projection);
+        void DrawTextureQuadBatch(const glm::mat4& projection);
         ~BatchRenderer();
     private:
-        void BeginBatch();
+        void SetupBatch(BatchData& batch_to_setup);
+        void BeginBatch(BatchData& batch_to_begin);
+        void FreeBatchMemory(BatchData& batch_to_free);
     private:
-        GLuint m_BatchVertexAttributeObject{};
-        GLuint m_BatchVertexArrayBufferObject{};
-        GLuint m_BatchIndexArrayBufferObject{};
-        BatchRendererData m_batchData{};
+        BatchData m_TexturedQuadBatch{};
+        BatchData m_CircleQuadBatch{};
         TextureBatcher m_TextureBatcher{};
-        ShaderClass m_TextureShader;
     };
 
 }

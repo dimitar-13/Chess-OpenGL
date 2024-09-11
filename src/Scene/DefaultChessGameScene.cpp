@@ -116,13 +116,21 @@ void Chess_Game::DefaultChessScene::DrawScene()
                     kApplicationAssets.GetTextureAsset(drawable->GetDrawableTextureName()));
             }
         }
-        m_BatchRenderer.Flush(application->GetApplicationProjection().GetMatrix());
+        m_BatchRenderer.DrawTextureQuadBatch(application->GetApplicationProjection().GetMatrix());
+
+        for (auto board_pos : m_SelectedPiecePossiblePositions)
+        {
+            glm::vec3 to_screen_pos =
+                glm::vec3(m_PositionHelper->BoardToScreenPosition(board_pos), 1.f);
+            m_BatchRenderer.PushCircle(to_screen_pos, glm::vec2{15}, glm::vec3(0,0,1));
+        }
+        m_BatchRenderer.DrawCircleBatch(application->GetApplicationProjection().GetMatrix());
+
     }
 }
 
 void Chess_Game::DefaultChessScene::OnUpdate()
 {
-    static glm::vec3 previous_piece_color{};
     if (auto application = m_Application.lock())
     {
         if (application->GetMouseInputManager().IsMouseButtonPressed(MouseButton_kLeftMouseButton))
@@ -131,22 +139,15 @@ void Chess_Game::DefaultChessScene::OnUpdate()
             BoardPosition mouse_to_board_postion = GetMouseInputBoardPosition(application);
             //CHESS_LOG_INFO("The board position: {0} {1}", board_pos.horizontalPosition,char('0' + board_pos.VerticalPosition));
 
-            
-            if (!m_ChessGame->IsPieceSelected())
-            {
-                if (auto previous_drawable = m_SelectedPieceDrawable.lock())
-                {
-                    previous_drawable->SetColor(previous_piece_color);
-                }
 
-                m_ChessGame->SelectPiece(mouse_to_board_postion);
-                if (auto selected_piece = m_ChessGame->GetSelectedPiece().lock())
-                {
-                    m_SelectedPieceDrawable = selected_piece->GetPieceDrawable();
-                    auto piece_drawable = m_SelectedPieceDrawable.lock();
-                    previous_piece_color = piece_drawable->GetColor();
-                    piece_drawable->SetColor({ 0,0,1 });
-                }
+            if (!m_ChessGame->IsPieceSelected())
+            {          
+                m_ChessGame->SelectPiece(mouse_to_board_postion);            
+            }
+
+            if (m_ChessGame->IsSelectedPieceChanged())
+            {
+                m_SelectedPiecePossiblePositions = std::move(m_ChessGame->GetSelectedPieceAllPossibleMoves());
             }
             else if (m_ChessGame->CanMoveSelectedPiece(mouse_to_board_postion))
             {
@@ -156,9 +157,9 @@ void Chess_Game::DefaultChessScene::OnUpdate()
                 piece_drawable->SetPosition(glm::vec3(new_position, .0f));
 
                 m_ChessGame->MoveSelectedPiece(mouse_to_board_postion);
-                piece_drawable->SetColor(previous_piece_color);
-
-            }        
+                m_SelectedPiecePossiblePositions.clear();
+            }  
+      
         }
         if (m_ChessGame->IsGameOver())
         {
