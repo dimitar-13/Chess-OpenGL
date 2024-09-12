@@ -6,6 +6,7 @@
 #include "Core/EventListener.h"
 #include "Core/OrthographicApplicationMatrix.h"
 #include "Core/Input.h"
+#include "UI/UIManager.h"
 
 namespace Chess_Game
 {
@@ -21,6 +22,7 @@ namespace Chess_Game
         const OrthoViewportHandler& GetApplicationProjection() { return m_ApplicationProjection; }
         MouseInput& GetMouseInputManager() { return m_ApplicationMouseInput; }
         AssetLoader& GetAssetLoader(){ return *m_TextureAssetLoader; }
+        void SwitchCurrentApplicationScene(std::shared_ptr<SceneObject>& new_scene) { m_CurrentApplicationScene = new_scene; }
     private:
         void OnEvent(const Event& e);
         void OnWindowResizeEvent(const WindowResizeEvent& e);
@@ -33,6 +35,7 @@ namespace Chess_Game
         std::vector<std::weak_ptr<Listener>> m_ActiveEventListeners{};
         OrthoViewportHandler m_ApplicationProjection;
         std::unique_ptr<AssetLoader> m_TextureAssetLoader{};
+        UIManager m_ApplicationUIManager{};
     };
 
 
