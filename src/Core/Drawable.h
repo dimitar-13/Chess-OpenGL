@@ -10,6 +10,7 @@ namespace Chess_Game
         glm::vec3 color{};
         glm::vec2 scale{};
         TextureName_ texture_name = TextureName_kBoard;
+        DrawableData() = default;
         DrawableData(TextureName_ draw_tex_name,
             glm::vec3 draw_pos = glm::vec3(0), glm::vec3 draw_color = glm::vec3(1),
             glm::vec2 draw_scale = glm::vec2(30.0f)) :

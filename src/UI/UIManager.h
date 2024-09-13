@@ -5,6 +5,8 @@
 #include <type_traits>
 #include <queue>
 #include <iostream>
+#include "Core/AssetLoader.h"
+
 namespace Chess_Game
 {
     class UIManager
@@ -13,14 +15,14 @@ namespace Chess_Game
         using ElementID = size_t;
         static constexpr size_t kUIElementCount = 10;
     public:
-        UIManager();
-        void Update();
+        UIManager(const std::shared_ptr<BatchRenderer>& global_batch_renderer);
+        void Update(const glm::mat4& projection_test, AssetLoader& test_loader);
         template<typename T>
-        std::shared_ptr<T> CreateUIElement(glm::vec2 button_position = glm::vec2(0),
-            glm::vec2 button_scale = glm::vec2(1), float texture = 0);
+        std::shared_ptr<T> CreateUIElement(TextureName_ texture,glm::vec2 button_position = glm::vec2(0),
+            glm::vec2 button_scale = glm::vec2(1));
     private:
         void PollUIInput();
-        void DrawUI();
+        void DrawUI(const glm::mat4& projection_test, AssetLoader& test_loader);
     private:
         std::queue<ElementID> m_IDQueue{};
         std::shared_ptr<BatchRenderer> m_ApplicationBatchRenderer{};
@@ -28,8 +30,8 @@ namespace Chess_Game
     };
 
     template<typename T>
-    inline std::shared_ptr<T> UIManager::CreateUIElement(glm::vec2 button_position,
-        glm::vec2 button_scale, float texture)
+    inline std::shared_ptr<T> UIManager::CreateUIElement(TextureName_ texture,glm::vec2 button_position,
+        glm::vec2 button_scale)
     {
         static_assert(std::is_base_of_v<UIElement, T> == true && "Call must inherit from 'UIElement'.");
         ElementID id = m_IDQueue.front();

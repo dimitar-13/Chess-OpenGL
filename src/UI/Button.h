@@ -8,7 +8,7 @@ namespace Chess_Game
     {
         friend class UIManager;
     private:
-        Button(size_t element_id,const glm::vec2& button_position, const glm::vec2& button_scale, float texture)
+        Button(size_t element_id,const glm::vec2& button_position, const glm::vec2& button_scale, TextureName_ texture)
             :UIElement(element_id, button_position, button_scale, texture)
         {}
         

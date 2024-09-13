@@ -22,6 +22,8 @@ namespace Chess_Game
         const OrthoViewportHandler& GetApplicationProjection() { return m_ApplicationProjection; }
         MouseInput& GetMouseInputManager() { return m_ApplicationMouseInput; }
         AssetLoader& GetAssetLoader(){ return *m_TextureAssetLoader; }
+        UIManager& GetUIManager() { return *m_ApplicationUIManager; }
+        std::weak_ptr<BatchRenderer> GetBatchRenderer() { return m_ApplicationBatchRenderer; }
         void SwitchCurrentApplicationScene(std::shared_ptr<SceneObject>& new_scene) { m_CurrentApplicationScene = new_scene; }
     private:
         void OnEvent(const Event& e);
@@ -35,7 +37,8 @@ namespace Chess_Game
         std::vector<std::weak_ptr<Listener>> m_ActiveEventListeners{};
         OrthoViewportHandler m_ApplicationProjection;
         std::unique_ptr<AssetLoader> m_TextureAssetLoader{};
-        UIManager m_ApplicationUIManager{};
+        std::shared_ptr<UIManager> m_ApplicationUIManager{};
+        std::shared_ptr<BatchRenderer> m_ApplicationBatchRenderer{};
     };
 
 

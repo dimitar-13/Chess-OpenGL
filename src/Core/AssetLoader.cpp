@@ -14,7 +14,9 @@ Chess_Game::AssetLoader::AssetLoader()
         {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Pawn.png",   TextureName_kPawn},
         {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Queen.png",  TextureName_kQueen},
         {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Rook.png",   TextureName_kRook},
-        {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Bishop.png",TextureName_kBishop },
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Bishop.png", TextureName_kBishop },
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/Test_Button.png",                          TextureName_kButton },
+
 
     };
     size_t loaded_asset_count = sizeof(texture_paths)/ sizeof(texture_paths[0]);

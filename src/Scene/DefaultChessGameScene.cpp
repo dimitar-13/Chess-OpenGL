@@ -103,7 +103,7 @@ void Chess_Game::DefaultChessScene::InitScene()
 
 }
 
-void Chess_Game::DefaultChessScene::DrawScene()
+void Chess_Game::DefaultChessScene::DrawScene(std::shared_ptr<BatchRenderer> application_batch_renderer)
 {
     if (auto application = m_Application.lock())
     {
@@ -113,19 +113,20 @@ void Chess_Game::DefaultChessScene::DrawScene()
         {
             if (auto drawable = drawable_weak_ptr.lock())
             {
-                m_BatchRenderer.Push(drawable->GetPosition(), drawable->GetScale(), drawable->GetColor(),
+                application_batch_renderer->Push(
+                    drawable->GetPosition(), drawable->GetScale(), drawable->GetColor(),
                     kApplicationAssets.GetTextureAsset(drawable->GetDrawableTextureName()));
             }
         }
-        m_BatchRenderer.DrawTextureQuadBatch(application->GetApplicationProjection().GetMatrix());
+        application_batch_renderer->DrawTextureQuadBatch(application->GetApplicationProjection().GetMatrix());
 
         for (auto board_pos : m_SelectedPiecePossiblePositions)
         {
             glm::vec3 to_screen_pos =
                 glm::vec3(m_PositionHelper->BoardToScreenPosition(board_pos), 1.f);
-            m_BatchRenderer.PushCircle(to_screen_pos, glm::vec2{15}, glm::vec3(0,0,1));
+            application_batch_renderer->PushCircle(to_screen_pos, glm::vec2{15}, glm::vec3(0,0,1));
         }
-        m_BatchRenderer.DrawCircleBatch(application->GetApplicationProjection().GetMatrix());
+        application_batch_renderer->DrawCircleBatch(application->GetApplicationProjection().GetMatrix());
 
     }
 }

@@ -2,7 +2,7 @@
 #include "Application.h"
 #include "Scene/DefaultChessGameScene.h"
 #include "Core/SceneObject.h"
-
+#include "Scene/MainMenuScene.h"
 Chess_Game::Application::Application():
     m_ApplicationProjection({ Viewport{0,0, 1000, 1000} })
 {
@@ -27,10 +27,17 @@ void Chess_Game::Application::RenderLoop()
 {
     m_TextureAssetLoader = std::make_unique<AssetLoader>();
 
-    m_CurrentApplicationScene = std::make_shared<DefaultChessScene>(this->weak_from_this());
+    m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>();
+    m_ApplicationUIManager = std::make_shared<UIManager>(m_ApplicationBatchRenderer);
+
+    //m_CurrentApplicationScene = std::make_shared<DefaultChessScene>(this->weak_from_this());
+    m_CurrentApplicationScene = std::make_shared<MainMenuScene>(this->weak_from_this());
+
     m_CurrentApplicationScene->InitScene();
 
-    auto button_test = m_ApplicationUIManager.CreateUIElement<Button>();
+
+   // auto button_test = m_ApplicationUIManager->CreateUIElement<Button>(TextureName_kButton,
+   //     glm::vec3(0),glm::vec2(60));
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -42,11 +49,10 @@ void Chess_Game::Application::RenderLoop()
 
         glClearColor(1.f, 0.f, 0.f, 1.0f);
 
-
         m_CurrentApplicationScene->OnUpdate();
-        m_CurrentApplicationScene->DrawScene();
+        m_CurrentApplicationScene->DrawScene(m_ApplicationBatchRenderer);
 
-        m_ApplicationUIManager.Update();
+        m_ApplicationUIManager->Update(m_ApplicationProjection.GetMatrix(),*m_TextureAssetLoader);
 
         m_ApplicationWindow->OnUpdate();
     }

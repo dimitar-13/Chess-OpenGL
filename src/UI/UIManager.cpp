@@ -1,7 +1,7 @@
 #include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "UIManager.h"
-
-Chess_Game::UIManager::UIManager()
+Chess_Game::UIManager::UIManager(const std::shared_ptr<BatchRenderer>& global_batch_renderer):
+    m_ApplicationBatchRenderer(global_batch_renderer)
 {
     for (size_t i = 0; i < kUIElementCount; i++)
     {
@@ -10,9 +10,9 @@ Chess_Game::UIManager::UIManager()
 
 }
 
-void Chess_Game::UIManager::Update()
+void Chess_Game::UIManager::Update(const glm::mat4& projection_test, AssetLoader& test_loader)
 {
-    DrawUI();
+    DrawUI(projection_test, test_loader);
     PollUIInput();
 }
 
@@ -22,7 +22,7 @@ void Chess_Game::UIManager::PollUIInput()
     //If input is on UI element invoke the on click callback.
 }
 
-void Chess_Game::UIManager::DrawUI()
+void Chess_Game::UIManager::DrawUI(const glm::mat4& projection_test, AssetLoader& test_loader)
 {
     for (auto& weak_ptr : m_UIElements)
     {
@@ -31,9 +31,11 @@ void Chess_Game::UIManager::DrawUI()
             if (auto drawable = ptr->GetDrawable().lock())
             {
                 m_ApplicationBatchRenderer->Push(drawable->GetPosition(),
-                    drawable->GetScale(), drawable->GetColor());
+                    drawable->GetScale(), drawable->GetColor(),
+                    test_loader.GetTextureAsset(drawable->GetDrawableTextureName()));
             }
         }
     }
+    m_ApplicationBatchRenderer->DrawTextureQuadBatch(projection_test);
 
 }

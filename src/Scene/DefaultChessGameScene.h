@@ -14,7 +14,7 @@ namespace Chess_Game
         {}
     private:
         void InitScene() override;
-        void DrawScene() override;
+        void DrawScene(std::shared_ptr<BatchRenderer> application_batch_renderer) override;
         void OnUpdate() override;
         BoardPosition GetMouseInputBoardPosition(std::shared_ptr<Chess_Game::Application>& application);
         void DestroyScene() override;
@@ -26,7 +26,6 @@ namespace Chess_Game
         std::shared_ptr<Drawable> m_ChessBoard{};
         std::weak_ptr<Drawable> m_SelectedPieceDrawable{};
         std::shared_ptr<ScreenPositionHelper> m_PositionHelper;
-        BatchRenderer m_BatchRenderer;
         std::vector<BoardPosition> m_SelectedPiecePossiblePositions{};
 
     };

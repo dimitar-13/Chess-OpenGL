@@ -1,7 +1,7 @@
 #pragma once
 #include "Chess_pch.h"
 #include "Core/Drawable.h"
-
+#include "Gpu-Side/BatchRenderer.h"
 namespace Chess_Game
 {
     class Application;
@@ -13,7 +13,7 @@ namespace Chess_Game
             m_Application(main_application)
         {}
         virtual void InitScene() = 0;
-        virtual void DrawScene() = 0;
+        virtual void DrawScene(std::shared_ptr<BatchRenderer> application_batch_renderer) = 0;
         virtual void OnUpdate() = 0;
         virtual void DestroyScene() = 0;
     protected:
