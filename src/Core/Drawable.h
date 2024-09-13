@@ -30,6 +30,7 @@ namespace Chess_Game
         void SetScale(const glm::vec2& new_scale) { m_DrawableData.scale = new_scale; }
         void SetColor(const glm::vec3& color) { m_DrawableData.color = color; }
         TextureName_ GetDrawableTextureName()const { return m_DrawableData.texture_name; }
+        void SetDrawableTextureName(TextureName_ new_texture_name) { m_DrawableData.texture_name = new_texture_name; }
     private:
         DrawableData m_DrawableData;
     };

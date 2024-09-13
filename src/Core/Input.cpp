@@ -1,6 +1,6 @@
 #include "Input.h"
 #include "Logging/Logger.h"
-bool Chess_Game::MouseInput::IsMouseButtonPressed(MouseButton_ button_to_check)
+bool Chess_Game::MouseInput::IsMouseButtonPressed(MouseButton_ button_to_check)const
 {
     if (m_MouseButtonsHash.find(button_to_check) == m_MouseButtonsHash.end())
     {
@@ -9,10 +9,17 @@ bool Chess_Game::MouseInput::IsMouseButtonPressed(MouseButton_ button_to_check)
     }
     InputAction_ current_action = m_MouseButtonsHash.at(button_to_check);
 
-    m_MouseButtonsHash.at(button_to_check) = current_action == InputAction_kPressed ?
-        InputAction_kReleased : current_action;
+    return  current_action == InputAction_kPressed;
+}
 
-    return current_action == InputAction_kPressed;
+//Temporary solution
+void Chess_Game::MouseInput::FlushInputPoll()
+{
+    for (auto& [key, value] : m_MouseButtonsHash)
+    {
+        value = InputAction_kReleased;
+    }
+
 }
 
 void Chess_Game::MouseInput::OnEvent(const Event& e)

@@ -16,7 +16,7 @@ namespace Chess_Game
         void OnUpdate() override;
         void DestroyScene() override;
     private:
-        std::shared_ptr<Button> m_GameLogo{};
+        std::shared_ptr<Drawable> m_GameLogo{};
         std::shared_ptr<Button> m_StartButton{};
     };
 }

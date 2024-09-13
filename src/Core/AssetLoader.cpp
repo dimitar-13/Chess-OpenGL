@@ -16,6 +16,7 @@ Chess_Game::AssetLoader::AssetLoader()
         {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Rook.png",   TextureName_kRook},
         {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Bishop.png", TextureName_kBishop },
         {"D:/c++/OpenGl/Chess-OpenGL/resources/Test_Button.png",                          TextureName_kButton },
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/Chess_logo.png",TextureName_kGameLogo}
 
 
     };

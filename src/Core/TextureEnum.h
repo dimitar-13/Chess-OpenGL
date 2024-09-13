@@ -10,7 +10,9 @@ namespace Chess_Game
         TextureName_kRook,
         TextureName_kBishop,
         TextureName_kQueen,
-        TextureName_kButton
+        TextureName_kButton,
+        TextureName_kGameLogo
+
     };
 
     typedef unsigned int Texture;

@@ -24,7 +24,7 @@ namespace Chess_Game
         AssetLoader& GetAssetLoader(){ return *m_TextureAssetLoader; }
         UIManager& GetUIManager() { return *m_ApplicationUIManager; }
         std::weak_ptr<BatchRenderer> GetBatchRenderer() { return m_ApplicationBatchRenderer; }
-        void SwitchCurrentApplicationScene(std::shared_ptr<SceneObject>& new_scene) { m_CurrentApplicationScene = new_scene; }
+        void SwitchCurrentApplicationScene(std::shared_ptr<SceneObject> new_scene) { m_ToLoadScene = new_scene; }
     private:
         void OnEvent(const Event& e);
         void OnWindowResizeEvent(const WindowResizeEvent& e);
@@ -34,6 +34,7 @@ namespace Chess_Game
         MouseInput m_ApplicationMouseInput{};
         std::unique_ptr<Window> m_ApplicationWindow;
         std::shared_ptr<SceneObject> m_CurrentApplicationScene{};
+        std::shared_ptr<SceneObject> m_ToLoadScene{};
         std::vector<std::weak_ptr<Listener>> m_ActiveEventListeners{};
         OrthoViewportHandler m_ApplicationProjection;
         std::unique_ptr<AssetLoader> m_TextureAssetLoader{};

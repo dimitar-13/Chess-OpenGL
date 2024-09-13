@@ -28,7 +28,10 @@ void Chess_Game::Application::RenderLoop()
     m_TextureAssetLoader = std::make_unique<AssetLoader>();
 
     m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>();
-    m_ApplicationUIManager = std::make_shared<UIManager>(m_ApplicationBatchRenderer);
+
+    m_ApplicationUIManager = std::make_shared<UIManager>(m_ApplicationWindow->GetWindowSize());
+    this->AddEventListener(m_ApplicationUIManager);
+
 
     //m_CurrentApplicationScene = std::make_shared<DefaultChessScene>(this->weak_from_this());
     m_CurrentApplicationScene = std::make_shared<MainMenuScene>(this->weak_from_this());
@@ -52,9 +55,21 @@ void Chess_Game::Application::RenderLoop()
         m_CurrentApplicationScene->OnUpdate();
         m_CurrentApplicationScene->DrawScene(m_ApplicationBatchRenderer);
 
-        m_ApplicationUIManager->Update(m_ApplicationProjection.GetMatrix(),*m_TextureAssetLoader);
+        m_ApplicationUIManager->DrawUI(m_ApplicationBatchRenderer, *m_TextureAssetLoader);
+        m_ApplicationUIManager->PollUIInput(m_ApplicationMouseInput,m_ApplicationProjection);
+
+        m_ApplicationMouseInput.FlushInputPoll();
 
         m_ApplicationWindow->OnUpdate();
+
+        if (m_ToLoadScene != nullptr && m_CurrentApplicationScene != m_ToLoadScene)
+        {
+            m_CurrentApplicationScene->DestroyScene();
+            m_ToLoadScene->InitScene();
+
+            m_CurrentApplicationScene = m_ToLoadScene;
+        }
+
     }
 
 }

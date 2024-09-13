@@ -11,7 +11,7 @@ namespace Chess_Game
     public:
         DefaultChessScene(std::weak_ptr<Application> main_application) :
             SceneObject(main_application)
-        {}
+        { }
     private:
         void InitScene() override;
         void DrawScene(std::shared_ptr<BatchRenderer> application_batch_renderer) override;

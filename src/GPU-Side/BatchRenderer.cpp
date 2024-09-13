@@ -35,7 +35,8 @@ void Chess_Game::BatchRenderer::Push(const glm::vec3& position,
 
     Vertex quad_vertex_data_copy[kBaseQuadVertexData.size()] = {};
     std::copy(std::begin(kBaseQuadVertexData), std::end(kBaseQuadVertexData), std::begin(quad_vertex_data_copy));
-
+    glm::vec2 min{}, max{};
+    float shape_aspect = scale.x/ scale.y;
     for (auto & vertex : quad_vertex_data_copy)
     {
         vertex.world_position *= glm::vec3(scale.x, scale.y,1.0f);

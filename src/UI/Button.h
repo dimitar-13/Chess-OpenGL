@@ -8,15 +8,18 @@ namespace Chess_Game
     {
         friend class UIManager;
     private:
-        Button(size_t element_id,const glm::vec2& button_position, const glm::vec2& button_scale, TextureName_ texture)
-            :UIElement(element_id, button_position, button_scale, texture)
+        Button(size_t element_id, const Margin& button_margin, Size2D window_size, const glm::vec2& button_scale)
+            :UIElement(element_id, button_margin, window_size, button_scale)
         {}
-        
-        std::weak_ptr<Drawable> GetButtonDrawable() { return button_drawable; }
+        void OnWidgetPressed()override
+        {
+            if (m_OnButtonClick != nullptr)
+                m_OnButtonClick();
+        }
     public:
+        void SetButtonCustomTexture(TextureName_ name_of_texture) { m_UIDrawable->SetDrawableTextureName(name_of_texture); }
         void SetButtonCallback(const std::function<void()>& callback) { m_OnButtonClick = callback; }
     private:
-        std::shared_ptr<Drawable> button_drawable{};
         std::function<void()> m_OnButtonClick{};
     };
  

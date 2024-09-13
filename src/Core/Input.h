@@ -9,8 +9,9 @@ namespace Chess_Game
     {
     public:
         MouseInput() = default;
-        bool IsMouseButtonPressed(MouseButton_ button_to_check);
+        bool IsMouseButtonPressed(MouseButton_ button_to_check)const;
         const MousePos& GetMousePosition()const { return m_CurrentMousePosition; }
+        void FlushInputPoll();
     private:
         void OnEvent(const Event& e) override;
         void OnMousePositionChangedEvent(const MousePositionChangedEvent& e);
