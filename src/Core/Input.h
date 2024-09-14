@@ -9,14 +9,17 @@ namespace Chess_Game
     {
     public:
         MouseInput() = default;
-        bool IsMouseButtonPressed(MouseButton_ button_to_check);
-        const MousePos& GetMousePosition()const { return m_CurrentMousePosition; }
+        bool IsMouseButtonPressed(MouseButton_ button_to_check)const;
+        const MousePos& GetMousePositionUpperLeft()const { return m_CurrentMousePositionUpperLeft; }
+        const MousePos& GetMousePositionBottomLeft()const { return m_CurrentMousePositionBottomLeft; }
+        void FlushInputPoll();
     private:
         void OnEvent(const Event& e) override;
         void OnMousePositionChangedEvent(const MousePositionChangedEvent& e);
         void OnMouseButtonInputEvent(const MouseButtonEvent& e);
     private:
-        MousePos m_CurrentMousePosition{};
+        MousePos m_CurrentMousePositionUpperLeft{};
+        MousePos m_CurrentMousePositionBottomLeft{};
         std::unordered_map<MouseButton_, InputAction_> m_MouseButtonsHash =
         {
             {MouseButton_kLeftMouseButton,    InputAction_kReleased},

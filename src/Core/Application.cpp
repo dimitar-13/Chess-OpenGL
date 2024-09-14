@@ -2,7 +2,7 @@
 #include "Application.h"
 #include "Scene/DefaultChessGameScene.h"
 #include "Core/SceneObject.h"
-
+#include "Scene/MainMenuScene.h"
 Chess_Game::Application::Application():
     m_ApplicationProjection({ Viewport{0,0, 1000, 1000} })
 {
@@ -21,93 +21,49 @@ Chess_Game::Application::Application():
     if (!m_ApplicationWindow->IsWindowValid())
         m_ApplicationInitStatus = false;
 
-
-    //ChessGame test_chess_board;
-
-
-    //if (test_chess_board.CanMoveSelectedPiece({ 'c',3 }))
-    //{
-    //    test_chess_board.MoveSelectedPiece({ 'c',3 });
-    //}
-       // Simulate moves for Scholar's Mate
-
-    //test_chess_board.SelectPiece({ 'e', 2 });
-    //if (test_chess_board.CanMoveSelectedPiece({ 'e', 4 })) {
-    //    test_chess_board.MoveSelectedPiece({ 'e', 4 });
-    //}
-
-    //// Black pawn e7 -> e5
-    //test_chess_board.SelectPiece({ 'e', 7 });
-    //if (test_chess_board.CanMoveSelectedPiece({ 'e', 5 })) {
-    //    test_chess_board.MoveSelectedPiece({ 'e', 5 });
-    //}
-
-    //// White knight g1 -> f3
-    //test_chess_board.SelectPiece({ 'g', 1 });
-    //if (test_chess_board.CanMoveSelectedPiece({ 'f', 3 })) {
-    //    test_chess_board.MoveSelectedPiece({ 'f', 3 });
-    //}
-
-    //// Black knight b8 -> c6
-    //test_chess_board.SelectPiece({ 'b', 8 });
-    //if (test_chess_board.CanMoveSelectedPiece({ 'c', 6 })) {
-    //    test_chess_board.MoveSelectedPiece({ 'c', 6 });
-    //}
-
-    //// White castles kingside (O-O)
-    //test_chess_board.SelectPiece({ 'a', 2 });
-    //if (test_chess_board.CanMoveSelectedPiece({ 'a', 3 })) {
-    //    test_chess_board.MoveSelectedPiece({ 'a', 3 });
-    //}
-
-    //// Black pawn d7 -> d6
-    //test_chess_board.SelectPiece({ 'd', 7 });
-    //if (test_chess_board.CanMoveSelectedPiece({ 'd', 6 })) {
-    //    test_chess_board.MoveSelectedPiece({ 'd', 6 });
-    //}
-
-    //// White pawn d2 -> d4
-    //test_chess_board.SelectPiece({ 'd', 2 });
-    //if (test_chess_board.CanMoveSelectedPiece({ 'd', 4 })) {
-    //    test_chess_board.MoveSelectedPiece({ 'd', 4 });
-    //}
-
-    //// Black captures White's pawn: e5 -> d4
-    //test_chess_board.SelectPiece({ 'e', 5 });
-    //if (test_chess_board.CanMoveSelectedPiece({ 'd', 4 })) {
-    //    test_chess_board.MoveSelectedPiece({ 'd', 4 });
-    //}
-
-    //// White recaptures with knight: f3 -> e4
-    //test_chess_board.SelectPiece({ 'f', 3 });
-    //if (test_chess_board.CanMoveSelectedPiece({ 'd', 4 })) {
-    //    test_chess_board.MoveSelectedPiece({ 'd', 4 });
-    //}
-
 }
 
 void Chess_Game::Application::RenderLoop()
 {
     m_TextureAssetLoader = std::make_unique<AssetLoader>();
 
-    m_CurrentApplicationScene = std::make_shared<DefaultChessScene>(this->weak_from_this());
+    m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>();
+
+    m_ApplicationUIManager = std::make_shared<UIManager>(m_ApplicationWindow->GetWindowSize());
+    this->AddEventListener(m_ApplicationUIManager);
+
+    m_CurrentApplicationScene = std::make_shared<MainMenuScene>(this->weak_from_this());
+
     m_CurrentApplicationScene->InitScene();
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     while (m_isApplicationRunning) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glClearColor(1.f, 0.f, 0.f, 1.0f);
-
+        glClearColor(1.f, 0.f, 0.f, 0.0f);
 
         m_CurrentApplicationScene->OnUpdate();
-        m_CurrentApplicationScene->DrawScene();
+        m_CurrentApplicationScene->DrawScene(m_ApplicationBatchRenderer);
 
+        m_ApplicationUIManager->DrawUI(m_ApplicationBatchRenderer, *m_TextureAssetLoader);
+        m_ApplicationUIManager->PollUIInput(m_ApplicationMouseInput,m_ApplicationProjection);
+
+        m_ApplicationMouseInput.FlushInputPoll();
 
         m_ApplicationWindow->OnUpdate();
+
+        if (m_ToLoadScene != nullptr && m_CurrentApplicationScene != m_ToLoadScene)
+        {
+            m_CurrentApplicationScene->DestroyScene();
+            m_ToLoadScene->InitScene();
+
+            m_CurrentApplicationScene = m_ToLoadScene;
+        }
+
     }
 
 }

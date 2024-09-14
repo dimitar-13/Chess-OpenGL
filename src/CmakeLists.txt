@@ -40,6 +40,8 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/GPU-Side")
 add_subdirectory("${PROJECT_SOURCE_DIR}/Gameplay")
 add_subdirectory("${PROJECT_SOURCE_DIR}/Scene")
 add_subdirectory("${PROJECT_SOURCE_DIR}/Helpers")
+add_subdirectory("${PROJECT_SOURCE_DIR}/UI")
+
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/Core/Chess_pch.h")
 

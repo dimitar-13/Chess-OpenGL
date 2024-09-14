@@ -1,7 +1,7 @@
 #include "DefaultChessGameScene.h"
 #include "Core/Application.h"
 #include "Logging/Logger.h"
-
+#include "Scene/MainMenuScene.h"
 void Chess_Game::DefaultChessScene::InitScene()
 {
 
@@ -11,6 +11,45 @@ void Chess_Game::DefaultChessScene::InitScene()
             std::make_shared<ScreenPositionHelper>(application->GetApplicationProjection().GetProjectionSize());
 
         application->AddEventListener(shared_from_this());
+
+        Margin button_margin{};
+        button_margin.right = 60.f;
+        button_margin.top = 60.f;
+
+
+        m_ResetButton = application->GetUIManager().CreateUIElement<Button>(button_margin,
+            AnchorPoint_kTopRight,glm::vec2(40.f));
+
+        auto button_reset_callback_test = [this]() {
+            if (auto application = m_Application.lock())
+            {
+
+                std::shared_ptr<DefaultChessScene> new_scene = std::make_shared<DefaultChessScene>(m_Application);
+                application->SwitchCurrentApplicationScene(new_scene);
+            }
+            };
+
+        m_ResetButton->SetButtonCallback(button_reset_callback_test);
+
+        m_ResetButton->SetButtonCustomTexture(TextureName_kResetButton);
+
+        button_margin.right = 180.0f;
+
+        m_MainMenuButton = application->GetUIManager().CreateUIElement<Button>(button_margin,
+            AnchorPoint_kTopRight, glm::vec2(40.f));
+
+        auto to_main_menu_button_callback = [this]() {
+            if (auto application = m_Application.lock())
+            {
+                std::shared_ptr<MainMenuScene> main_menu_scene = std::make_shared<MainMenuScene>(m_Application);
+                application->SwitchCurrentApplicationScene(main_menu_scene);
+            }
+            };
+
+
+        m_MainMenuButton->SetButtonCallback(to_main_menu_button_callback);
+
+        m_MainMenuButton->SetButtonCustomTexture(TextureName_kHomeButton);
     }
     glm::vec3 board_position = glm::vec3(0.0f, 0.0f, -.5f);
 
@@ -103,7 +142,7 @@ void Chess_Game::DefaultChessScene::InitScene()
 
 }
 
-void Chess_Game::DefaultChessScene::DrawScene()
+void Chess_Game::DefaultChessScene::DrawScene(std::shared_ptr<BatchRenderer> application_batch_renderer)
 {
     if (auto application = m_Application.lock())
     {
@@ -113,19 +152,20 @@ void Chess_Game::DefaultChessScene::DrawScene()
         {
             if (auto drawable = drawable_weak_ptr.lock())
             {
-                m_BatchRenderer.Push(drawable->GetPosition(), drawable->GetScale(), drawable->GetColor(),
+                application_batch_renderer->Push(
+                    drawable->GetPosition(), drawable->GetScale(), drawable->GetColor(),
                     kApplicationAssets.GetTextureAsset(drawable->GetDrawableTextureName()));
             }
         }
-        m_BatchRenderer.DrawTextureQuadBatch(application->GetApplicationProjection().GetMatrix());
+        application_batch_renderer->DrawTextureQuadBatch(application->GetApplicationProjection().GetMatrix());
 
         for (auto board_pos : m_SelectedPiecePossiblePositions)
         {
             glm::vec3 to_screen_pos =
                 glm::vec3(m_PositionHelper->BoardToScreenPosition(board_pos), 1.f);
-            m_BatchRenderer.PushCircle(to_screen_pos, glm::vec2{15}, glm::vec3(0,0,1));
+            application_batch_renderer->PushCircle(to_screen_pos, glm::vec2{15}, glm::vec3(0,0,1));
         }
-        m_BatchRenderer.DrawCircleBatch(application->GetApplicationProjection().GetMatrix());
+        application_batch_renderer->DrawCircleBatch(application->GetApplicationProjection().GetMatrix());
 
     }
 }
@@ -167,7 +207,7 @@ void Chess_Game::DefaultChessScene::OnUpdate()
 
 Chess_Game::BoardPosition Chess_Game::DefaultChessScene::GetMouseInputBoardPosition(std::shared_ptr<Chess_Game::Application>& application)
 {
-    MousePos screen_coordinates = application->GetMouseInputManager().GetMousePosition();
+    MousePos screen_coordinates = application->GetMouseInputManager().GetMousePositionUpperLeft();
     glm::vec2 converted_screen_coords = glm::vec2{ screen_coordinates.x,screen_coordinates.y };
     //Convert from screen to orthographic
     glm::vec2 orthographic_coordinates =

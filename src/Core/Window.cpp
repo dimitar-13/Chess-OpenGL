@@ -77,7 +77,8 @@ void Chess_Game::Window::WindowShouldCloseCallback(GLFWwindow* window)
 
 void Chess_Game::Window::WindowMousePositionChangedCallback(GLFWwindow* window, double mouse_x, double mouse_y)
 {
-    MousePositionChangedEvent e(MousePos{ mouse_x,mouse_y });
+    MousePositionChangedEvent e(MousePos{ mouse_x,mouse_y },
+        MousePos{ mouse_x,m_windowSize.height - mouse_y });
     m_WindowEventCallback(e);
 }
 

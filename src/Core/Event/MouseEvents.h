@@ -43,11 +43,18 @@ namespace Chess_Game
     class MousePositionChangedEvent : public Event
     {
     public:
-        MousePositionChangedEvent(MousePos new_mouse_position) :
-            m_NewMousePosition(new_mouse_position) {}
+        MousePositionChangedEvent(const MousePos& new_mouse_position_upper_left,
+            const MousePos& new_mouse_position_lower_left) :
+            m_NewMousePositionUpperLeft(new_mouse_position_upper_left),
+            m_NewMousePositionBottomLeft(new_mouse_position_lower_left)
+        {}
         EventType_ GetEventType()const override { return EventType_kMousePositionChangedEvent; }
-        const MousePos& GetMousePosition()const { return m_NewMousePosition; }
+        const MousePos& GetMousePositionUpperLeft()const { return m_NewMousePositionUpperLeft; }
+        const MousePos& GetMousePositionBottomLeft()const { return m_NewMousePositionBottomLeft; }
+
     private:
-        MousePos m_NewMousePosition{};
+        MousePos m_NewMousePositionUpperLeft{};
+        MousePos m_NewMousePositionBottomLeft{};
+
     };
 }
