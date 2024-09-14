@@ -8,8 +8,10 @@ namespace Chess_Game
     {
         friend class UIManager;
     private:
-        Button(size_t element_id, const Margin& button_margin, Size2D window_size, const glm::vec2& button_scale)
-            :UIElement(element_id, button_margin, window_size, button_scale)
+        Button(size_t element_id, std::weak_ptr<UIManager> ui_manager_ref, const Margin& button_margin,
+            AnchorPoint_ element_margin_anchor_point,
+            Size2D window_size, const glm::vec2& button_scale)
+            :UIElement(element_id, ui_manager_ref, button_margin, element_margin_anchor_point, window_size, button_scale)
         {}
         void OnWidgetPressed()override
         {

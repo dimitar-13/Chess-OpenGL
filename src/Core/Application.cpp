@@ -32,15 +32,9 @@ void Chess_Game::Application::RenderLoop()
     m_ApplicationUIManager = std::make_shared<UIManager>(m_ApplicationWindow->GetWindowSize());
     this->AddEventListener(m_ApplicationUIManager);
 
-
-    //m_CurrentApplicationScene = std::make_shared<DefaultChessScene>(this->weak_from_this());
     m_CurrentApplicationScene = std::make_shared<MainMenuScene>(this->weak_from_this());
 
     m_CurrentApplicationScene->InitScene();
-
-
-   // auto button_test = m_ApplicationUIManager->CreateUIElement<Button>(TextureName_kButton,
-   //     glm::vec3(0),glm::vec2(60));
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -50,7 +44,7 @@ void Chess_Game::Application::RenderLoop()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glClearColor(1.f, 0.f, 0.f, 1.0f);
+        glClearColor(1.f, 0.f, 0.f, 0.0f);
 
         m_CurrentApplicationScene->OnUpdate();
         m_CurrentApplicationScene->DrawScene(m_ApplicationBatchRenderer);

@@ -3,6 +3,7 @@
 #include "Core/Application.h"
 #include "Scene/DefaultChessGameScene.h"
 #include "Logging/Logger.h"
+
 void Chess_Game::MainMenuScene::InitScene()
 {
     DrawableData game_logo_data{};
@@ -10,20 +11,26 @@ void Chess_Game::MainMenuScene::InitScene()
     game_logo_data.position = glm::vec3(0, 150, .5f);
     game_logo_data.scale = glm::vec2(200);
     game_logo_data.texture_name = TextureName_kGameLogo;
-    m_GameLogo = std::make_shared<Drawable>(game_logo_data);
-    m_SceneObjects.emplace_back(m_GameLogo);
 
+    
     if (auto application = m_Application.lock())
     {
         Size2D win_size = application->GetApplicationWindow().GetWindowSize();
 
         Margin button_margin{};
         button_margin.top += 200.0f;
+
+        Margin logo_margin{};
        // button_margin.bottom = 200.0f;
 
         m_StartButton = application->GetUIManager().CreateUIElement<Button>(
-            button_margin,glm::vec2(200,70));
+            button_margin,AnchorPoint_kMiddle,glm::vec2(200,70));
         m_StartButton->SetButtonCustomTexture(TextureName_kButton);
+
+        m_GameLogoImage = application->GetUIManager().CreateUIElement<Image>(
+            logo_margin, AnchorPoint_kMiddle, glm::vec2(200, 200));
+        m_GameLogoImage->SetImageTexture(TextureName_kGameLogo);
+
 
         auto test_callback = [this]() 
             {
@@ -42,22 +49,7 @@ void Chess_Game::MainMenuScene::InitScene()
 
 void Chess_Game::MainMenuScene::DrawScene(std::shared_ptr<BatchRenderer> application_batch_renderer)
 {
-    if (auto application = m_Application.lock())
-    {
-        AssetLoader& asset_loader = application->GetAssetLoader();
-
-        for (const auto& drawable_weak_ptr : m_SceneObjects)
-        {
-            if (auto drawable = drawable_weak_ptr.lock())
-            {
-                application_batch_renderer->Push(drawable->GetPosition(),
-                    drawable->GetScale(), drawable->GetColor(), 
-                    asset_loader.GetTextureAsset(drawable->GetDrawableTextureName()));
-            }
-        }
-
-        application_batch_renderer->DrawTextureQuadBatch(application->GetApplicationProjection().GetMatrix());
-    }
+  
 }
 
 void Chess_Game::MainMenuScene::OnUpdate()

@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/SceneObject.h"
 #include "UI/Button.h"
+#include "UI/UI_Image.h"
 namespace Chess_Game
 {
     class MainMenuScene : public SceneObject
@@ -16,7 +17,8 @@ namespace Chess_Game
         void OnUpdate() override;
         void DestroyScene() override;
     private:
-        std::shared_ptr<Drawable> m_GameLogo{};
         std::shared_ptr<Button> m_StartButton{};
+        std::shared_ptr<Image> m_GameLogoImage{};
+
     };
 }

@@ -1,5 +1,6 @@
 #include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "UIManager.h"
+
 Chess_Game::UIManager::UIManager(Size2D window_size):
     m_CurrentWindowSize(window_size)
 {
@@ -8,6 +9,19 @@ Chess_Game::UIManager::UIManager(Size2D window_size):
         m_IDQueue.push(i);
     }
     m_ToNDCMatrix = glm::ortho<float>(0, window_size.width, 0, window_size.height);
+}
+
+void Chess_Game::UIManager::RemoveWidget(ElementID widget_id)
+{
+    m_IDQueue.push(widget_id);
+    for (size_t i =0; i < m_UIElements.size();i++)
+    {
+        if (m_UIElements[i].expired())
+        {        
+           m_UIElements.erase(m_UIElements.begin() + i);
+           break;         
+        }
+    }
 }
 
 void Chess_Game::UIManager::DrawUI(std::shared_ptr<BatchRenderer> application_batch_renderer,
@@ -29,16 +43,25 @@ void Chess_Game::UIManager::PollUIInput(const MouseInput& application_input,cons
 {
     if (application_input.IsMouseButtonPressed(MouseButton_kLeftMouseButton))
     {
-        auto& mouse_pos = application_input.GetMousePosition();
+        auto& mouse_pos_bottom_left = application_input.GetMousePositionBottomLeft();
 
         for (auto& weak_element : m_UIElements)
         {
             if (auto element = weak_element.lock())
-            {
-                if (element->GetElementBoundingBox().IsInsideBox(glm::vec2{ mouse_pos.x,
-                    m_CurrentWindowSize.height - mouse_pos.y }))
+            {            
+                if (element->GetElementBoundingBox().IsInsideBox(
+                    glm::vec2(mouse_pos_bottom_left.x, mouse_pos_bottom_left.y)))
+                {
+                    //Temporary solution 
 
-                    element->OnWidgetPressed();
+                    unsigned char pixel[4];  
+
+                    glReadPixels(mouse_pos_bottom_left.x, mouse_pos_bottom_left.y, 1, 1,
+                        GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+                    if(pixel[3] != 0 )
+                        element->OnWidgetPressed();
+                }
+
             }
         }
     }

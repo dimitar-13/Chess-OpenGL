@@ -17,7 +17,11 @@ namespace Chess_Game
     
     enum AnchorPoint_
     {
-        AnchorPoint_kMiddle
+        AnchorPoint_kMiddle,
+        AnchorPoint_kTopLeft,
+        AnchorPoint_kBottomLeft,
+        AnchorPoint_kTopRight,
+        AnchorPoint_kBottomRight,
     };
 
     struct Margin
@@ -33,7 +37,6 @@ namespace Chess_Game
     {
     public:
         virtual void SetVisibility(bool is_visible) { m_IsVisible = is_visible; }
-        void SetPosition(const glm::vec2& new_position);
         void SetScale(const glm::vec2& new_scale);
         void SetMargin(const Margin& new_margin);
         AxisAlignedBoundingBox& GetElementBoundingBox() { return m_ElementBoundingBox; }
@@ -41,8 +44,11 @@ namespace Chess_Game
     protected:
         friend class UIManager;
 
-        UIElement(size_t element_id, const Margin& element_margin, Size2D window_size,
+        UIElement(size_t element_id,std::weak_ptr<UIManager> ui_manager_ref,
+            const Margin& element_margin, AnchorPoint_ element_margin_anchor_point,
+            Size2D window_size,
             const glm::vec2& element_scale);
+        virtual ~UIElement();
         virtual void OnWidgetPressed() {};
         void UpdateWindowPosition(Size2D new_window_size);
         void CalculateMarginPosition(Size2D window_size);
@@ -54,8 +60,10 @@ namespace Chess_Game
         size_t m_UIElementID{};
         bool m_IsVisible = true; 
         Margin m_UIElementMargin;
+        AnchorPoint_ m_ElementAnchorPoint;
         glm::vec2 m_ElementWindowPos{};
         glm::vec2 m_ElementScale{};
+        std::weak_ptr<UIManager> m_UIManager{};
 
     };
 }

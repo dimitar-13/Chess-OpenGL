@@ -36,7 +36,8 @@ void Chess_Game::MouseInput::OnEvent(const Event& e)
 
 void Chess_Game::MouseInput::OnMousePositionChangedEvent(const MousePositionChangedEvent& e)
 {
-    m_CurrentMousePosition = e.GetMousePosition();
+    m_CurrentMousePositionUpperLeft = e.GetMousePositionUpperLeft();
+    m_CurrentMousePositionBottomLeft = e.GetMousePositionBottomLeft();
 }
 
 void Chess_Game::MouseInput::OnMouseButtonInputEvent(const MouseButtonEvent& e)
