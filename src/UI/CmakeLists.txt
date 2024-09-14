@@ -1,10 +1,14 @@
 set(INPUT_SOURCES
-	DefaultChessGameScene.cpp
-	MainMenuScene.cpp
+	UIElement.cpp
+	UIManager.cpp
 )
 
+
 set(INPUT_HEADERS
-	DefaultChessGameScene.h
-	MainMenuScene.h
+	UIManager.h
+	Button.h
+	UI_Image.h
+	UIElement.h
+
 )
 target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})
