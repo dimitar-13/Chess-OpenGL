@@ -12,12 +12,30 @@ bool Chess_Game::MouseInput::IsMouseButtonPressed(MouseButton_ button_to_check)c
     return  current_action == InputAction_kPressed;
 }
 
-//Temporary solution
 void Chess_Game::MouseInput::FlushInputPoll()
 {
+    /**
+     * Why this might be the best solution for now.
+     *
+     * The problem with input is that if a frame is rendered 60 times a second, each update may cause every system that
+     * checks if the mouse is pressed to receive a "true" value 3-5 times. This is problematic because relying on a single
+     * input check can lead to inconsistent behavior. One solution is to change the state after detecting a press, but this
+     * approach is flawed since the mouse state will depend on the order of access rather than the state itself. Another
+     * method is a timer-based approach where you set a timer after receiving the state, but this also has issues similar
+     * to the previous suggestion. Flushing the input poll might be the easiest fix for now, as it ensures that a state like
+     * "press" is registered only once per frame.
+     * 
+     */
+
+    /**
+     * One consideration could be that you can create a array to hold all of the 'InputAction' states and iterate
+     * then instead. To improve cache locality but this is a pre-mature optimization.
+     */
+
     for (auto& [key, value] : m_MouseButtonsHash)
     {
-        value = InputAction_kReleased;
+        if(value == InputAction_kPressed)
+            value = InputAction_kReleased;
     }
 
 }

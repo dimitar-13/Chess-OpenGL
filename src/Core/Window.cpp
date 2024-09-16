@@ -1,17 +1,33 @@
 #include "Window.h"
 #include "Logging/Logger.h"
 #include "Event/MouseEvents.h"
+
 Chess_Game::Window::Window(const WindowCreateInfo& window_create_info)
 {
+    if (!glfwInit()) {
+        CHESS_LOG_FATAL("[GLFW] GLFW failed to initialize.");
+        return;
+    }
+
     m_glfwWindowHandle = glfwCreateWindow(window_create_info.windowWidth, window_create_info.windowHeight,
         window_create_info.windowTittle, nullptr, nullptr);
+
     if (!this->IsWindowValid())
+    {
+        CHESS_LOG_FATAL("[GLFW] Window failed to be created.");
         return;
+    }
 
     m_WindowEventCallback = window_create_info.windowOnEventCallback;
     glfwMakeContextCurrent(m_glfwWindowHandle);
     BindWindowClassToCallbackFunctions();
     m_windowSize = Size2D{ window_create_info.windowWidth, window_create_info.windowHeight };
+}
+
+Chess_Game::Window::~Window()
+{
+    glfwDestroyWindow(m_glfwWindowHandle);
+    glfwTerminate();
 }
 
 void Chess_Game::Window::OnUpdate()

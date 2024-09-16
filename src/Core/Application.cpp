@@ -3,11 +3,13 @@
 #include "Scene/DefaultChessGameScene.h"
 #include "Core/SceneObject.h"
 #include "Scene/MainMenuScene.h"
+
+static constexpr int kStartWindowWidth = 1000;
+static constexpr int kStartWindowHeight = 1000;
+
 Chess_Game::Application::Application():
-    m_ApplicationProjection({ Viewport{0,0, 1000, 1000} })
+    m_ApplicationProjection({ Viewport{0,0, kStartWindowWidth, kStartWindowHeight} })
 {
-    constexpr int kStartWindowWidth = 1000;
-    constexpr int kStartWindowHeight = 1000;
     const char* kWindowTittle = "Chess";
 
     Chess_Game::WindowCreateInfo window_create_info{};
@@ -16,37 +18,32 @@ Chess_Game::Application::Application():
     window_create_info.windowTittle = kWindowTittle;
     window_create_info.windowOnEventCallback = std::bind(&Application::OnEvent, this, std::placeholders::_1);
    
-
     m_ApplicationWindow = std::make_unique<Window>(window_create_info);
-    if (!m_ApplicationWindow->IsWindowValid())
-        m_ApplicationInitStatus = false;
 
+    if (!m_ApplicationWindow->IsWindowValid())
+        return;
+
+    if (glewInit() != GLEW_OK) {
+        CHESS_LOG_FATAL("[GLEW] Failed to initialize GLEW");
+        return;
+    }
+    glewExperimental = GL_TRUE;
+
+    InitAppResource();
+    m_ApplicationInitStatus = true;
 }
 
-void Chess_Game::Application::RenderLoop()
+void Chess_Game::Application::StartRenderLoop()
 {
-    m_ApplicationDrawableCreator = std::make_shared<DrawableCreator>();
-
-    m_TextureAssetLoader = std::make_unique<AssetLoader>();
-
-    m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>(m_ApplicationWindow->GetWindowSize());
-
-    m_ApplicationUIManager = 
-        std::make_shared<UIManager>(m_ApplicationWindow->GetWindowSize(),m_ApplicationDrawableCreator);
-
-    this->AddEventListener(m_ApplicationUIManager);
-
     m_CurrentApplicationScene = std::make_shared<MainMenuScene>(this->weak_from_this());
-
     m_CurrentApplicationScene->InitScene();
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);  
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
-    //glBindFramebuffer(GL_FRAMEBUFFER, m_TestFramebuffer);
-
     while (m_isApplicationRunning) {
+
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -65,13 +62,24 @@ void Chess_Game::Application::RenderLoop()
         if (m_ToLoadScene != nullptr && m_CurrentApplicationScene != m_ToLoadScene)
         {
             m_CurrentApplicationScene->DestroyScene();
-            m_ToLoadScene->InitScene();
-
             m_CurrentApplicationScene = m_ToLoadScene;
-        }
+            m_ToLoadScene = nullptr;
 
+            m_CurrentApplicationScene->InitScene();
+        }
     }
 
+}
+
+void Chess_Game::Application::InitAppResource()
+{
+    Size2D current_window_size = m_ApplicationWindow->GetWindowSize();
+
+    m_ApplicationDrawableCreator = std::make_shared<DrawableCreator>();
+    m_TextureAssetLoader = std::make_shared<AssetLoader>();
+    m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>(current_window_size);
+    m_ApplicationUIManager = std::make_shared<UIManager>(current_window_size, m_ApplicationDrawableCreator);
+    this->AddEventListener(m_ApplicationUIManager);
 }
 
 void Chess_Game::Application::OnEvent(const Event& e)

@@ -38,8 +38,7 @@ void Chess_Game::UIManager::DrawUI(std::shared_ptr<BatchRenderer> application_ba
                 drawable->GetColor(), application_asset_loader.GetTextureAsset(drawable->GetDrawableTextureName()));
         }
     }
-    application_batch_renderer->DrawTextureQuadBatchToIndexBuffer(*m_MousePickingFramebuffer,
-        m_ToNDCMatrix);
+    application_batch_renderer->DrawTextureQuadBatchToIndexBuffer(*m_MousePickingFramebuffer,m_ToNDCMatrix);
     application_batch_renderer->DrawTextureQuadBatch(m_ToNDCMatrix);
 }
 

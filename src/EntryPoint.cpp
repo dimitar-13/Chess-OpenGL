@@ -7,38 +7,20 @@ void APIENTRY OpenGLDebugOutput(GLenum source, GLenum type, unsigned int id, GLe
 
 int main() {
 
-
-
     Chess_Game::Logger::Init();
 
-    // Initialize GLFW
-    if (!glfwInit()) {
-        CHESS_LOG_FATAL("GLFW failed to initialize.");
-        return -1;
-    }
+    auto application = std::make_shared<Chess_Game::Application>();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
-    std::shared_ptr<Chess_Game::Application> m_mainApplication =
-        std::make_shared<Chess_Game::Application>();
 
-
-
-    if (!m_mainApplication->IsApplicationUnitizedSuccessfully()) {
+    if (!application->IsApplicationUnitizedSuccessfully()) {
         CHESS_LOG_FATAL("Failed to initialize the application");
-        glfwTerminate();
         return -1;
     }
-
-
-    if (glewInit() != GLEW_OK) {
-        CHESS_LOG_FATAL("Failed to initialize GLEW: ");
-        return -1;
-    }
-    glewExperimental = GL_TRUE;
 
 #ifdef CHESS_DEBUG
     int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
@@ -53,12 +35,8 @@ int main() {
 
     CHESS_LOG_INFO("Application was started successfully.");
 
+    application->StartRenderLoop();
    
-
-
-    m_mainApplication->RenderLoop();
-   
-    glfwTerminate();
 
     CHESS_LOG_INFO("Application exited successfully.");
 

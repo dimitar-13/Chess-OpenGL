@@ -29,14 +29,14 @@ namespace Chess_Game
     {
     public:
         Window(const WindowCreateInfo& window_create_info);
-        ~Window() { glfwDestroyWindow(m_glfwWindowHandle);}
+        ~Window();
         Window(const Window& other) = delete;
         Window(Window&& move) = delete;
         Window& operator =(const Window& other) = delete;
         Window& operator =(Window&& other) = delete;
 
         bool IsWindowValid()const { return m_glfwWindowHandle != nullptr; }
-        bool ShouldWindowClose() { return glfwWindowShouldClose(m_glfwWindowHandle); }
+        bool ShouldWindowClose()const { return glfwWindowShouldClose(m_glfwWindowHandle); }
         void OnUpdate();
         Size2D& GetWindowSize() { return m_windowSize; }
         const Size2D& GetWindowSize()const { return m_windowSize; }

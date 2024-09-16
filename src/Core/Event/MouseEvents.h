@@ -25,6 +25,7 @@ namespace Chess_Game
         InputAction_kUnknown,
         InputAction_kReleased = GLFW_RELEASE,
         InputAction_kPressed = GLFW_PRESS,
+        InputAction_kHeld ///< Currently not used.
     };
 
     class MouseButtonEvent : public Event
