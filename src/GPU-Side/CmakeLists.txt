@@ -2,12 +2,14 @@ set(INPUT_SOURCES
     ShaderClass.cpp
 	BatchRenderer.cpp
 	TextureBatcher.cpp
+	Framebuffer.cpp
 )
 
 set(INPUT_HEADERS
     ShaderClass.h
 	BatchRenderer.h
 	TextureBatcher.h
+	Framebuffer.h
 )
 
 target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})

@@ -4,6 +4,8 @@ set(INPUT_SOURCES
 	OrthographicApplicationMatrix.cpp
 	Input.cpp
 	AssetLoader.cpp
+	Drawable.cpp
+	DrawableCreator.cpp
 )
 
 
@@ -21,6 +23,7 @@ set(INPUT_HEADERS
 	Input.h
 	AssetLoader.h
 	Chess_pch.h
+	DrawableCreator.h
 )
 
 target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})
