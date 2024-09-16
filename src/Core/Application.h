@@ -7,7 +7,8 @@
 #include "Core/OrthographicApplicationMatrix.h"
 #include "Core/Input.h"
 #include "UI/UIManager.h"
-
+#include "DrawableCreator.h"
+#include "GPU-Side/Framebuffer.h"
 namespace Chess_Game
 {
     class Application : public std::enable_shared_from_this<Application>
@@ -23,6 +24,7 @@ namespace Chess_Game
         MouseInput& GetMouseInputManager() { return m_ApplicationMouseInput; }
         AssetLoader& GetAssetLoader(){ return *m_TextureAssetLoader; }
         UIManager& GetUIManager() { return *m_ApplicationUIManager; }
+        std::weak_ptr<DrawableCreator> GetDrawableCreator() { return m_ApplicationDrawableCreator; }
         std::weak_ptr<BatchRenderer> GetBatchRenderer() { return m_ApplicationBatchRenderer; }
         void SwitchCurrentApplicationScene(std::shared_ptr<SceneObject> new_scene) { m_ToLoadScene = new_scene; }
     private:
@@ -40,6 +42,7 @@ namespace Chess_Game
         std::unique_ptr<AssetLoader> m_TextureAssetLoader{};
         std::shared_ptr<UIManager> m_ApplicationUIManager{};
         std::shared_ptr<BatchRenderer> m_ApplicationBatchRenderer{};
+        std::shared_ptr<DrawableCreator> m_ApplicationDrawableCreator{};
     };
 
 

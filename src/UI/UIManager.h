@@ -9,21 +9,22 @@
 #include "Core/AssetLoader.h"
 #include "Core/Input.h"
 #include "Core/OrthographicApplicationMatrix.h"
-
+#include "GPU-Side/Framebuffer.h"
 namespace Chess_Game
 {
     class UIManager : public Listener
     {
     private:
         using ElementID = size_t;
-        static constexpr size_t kUIElementCount = 10;
+        static constexpr size_t kUIElementCount = 10; /// This might be removed if not used.
     public:
-        UIManager(Size2D window_size);
+        UIManager(Size2D window_size, std::shared_ptr<DrawableCreator>& drawable_creator);
         Size2D GetCurrentWindowSize()const { return m_CurrentWindowSize; }
         void RemoveWidget(ElementID widget_id);
         void DrawUI(std::shared_ptr<BatchRenderer> application_batch_renderer,
             AssetLoader& application_asset_loader);
-        void PollUIInput(const MouseInput& application_input, const OrthoViewportHandler& test);
+        void PollUIInput(const MouseInput& application_input,
+            std::shared_ptr<BatchRenderer> application_batch_renderer ,const OrthoViewportHandler& test);
         template<typename T>
         std::shared_ptr<T> CreateUIElement(const Margin& element_margin,
             AnchorPoint_ element_margin_anchor_point = AnchorPoint_kMiddle,
@@ -36,6 +37,9 @@ namespace Chess_Game
         std::vector<std::weak_ptr<UIElement>> m_UIElements{};
         Size2D m_CurrentWindowSize{};
         glm::mat4 m_ToNDCMatrix{};
+        std::shared_ptr<DrawableCreator> m_ApplicationDrawableCreator{};
+        std::unique_ptr<IntFramebuffer> m_MousePickingFramebuffer{};
+
     };
 
     template<typename T>
@@ -52,6 +56,7 @@ namespace Chess_Game
         ElementID id = m_IDQueue.front();
         m_IDQueue.pop();
         T* instance = new T(id,std::dynamic_pointer_cast<UIManager>(this->shared_from_this()),
+            *m_ApplicationDrawableCreator,
             element_margin, element_margin_anchor_point, m_CurrentWindowSize, element_scale);
 
         std::shared_ptr<T> result = std::shared_ptr<T>(instance);

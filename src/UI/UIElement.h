@@ -1,6 +1,8 @@
 #pragma once
 #include "Core/Drawable.h"
 #include "Core/ApplicationData.h"
+#include "Core/DrawableCreator.h"
+
 namespace Chess_Game
 {
     struct AxisAlignedBoundingBox
@@ -45,6 +47,7 @@ namespace Chess_Game
         friend class UIManager;
 
         UIElement(size_t element_id,std::weak_ptr<UIManager> ui_manager_ref,
+            DrawableCreator& drawable_creator,
             const Margin& element_margin, AnchorPoint_ element_margin_anchor_point,
             Size2D window_size,
             const glm::vec2& element_scale);

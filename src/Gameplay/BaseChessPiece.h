@@ -18,11 +18,11 @@ namespace Chess_Game
     class ChessPiece
     {
     public:
-        ChessPiece(BoardPosition start_position,const DrawableData& drawable_info):
+        ChessPiece(BoardPosition start_position,const std::shared_ptr< Drawable>& drawable):
             m_PiecePosition(start_position)
         {
             m_pieceBoardSpecificMovementRule.push_back(std::make_unique<CanMoveToTarget>());
-            m_PieceDrawable = std::make_shared<Drawable>(drawable_info);
+            m_PieceDrawable = drawable;
         }
         void SetPiecePosition(BoardPosition new_position) { m_PiecePosition = new_position; OnPositionChanged(); }
         BoardPosition GetPiecePosition()const { return m_PiecePosition; }
@@ -41,14 +41,14 @@ namespace Chess_Game
     class Queen : public ChessPiece
     {
     public:
-        Queen(BoardPosition start_position);
+        Queen(BoardPosition start_position, const std::shared_ptr< Drawable>& drawable);
         ChessPieceType_ GetChessPieceType()const override {return ChessPieceType_kQueen; }
     };
 
     class Pawn : public ChessPiece
     {
     public:
-        Pawn(BoardPosition start_position);
+        Pawn(BoardPosition start_position, const std::shared_ptr< Drawable>& drawable);
         ChessPieceType_ GetChessPieceType()const override { return ChessPieceType_kPawn; }
     private:
         void OnPositionChanged() override;
@@ -58,27 +58,27 @@ namespace Chess_Game
     class Knight : public ChessPiece
     {
     public:
-        Knight(BoardPosition start_position);
+        Knight(BoardPosition start_position, const std::shared_ptr< Drawable>& drawable);
         ChessPieceType_ GetChessPieceType()const override { return ChessPieceType_kKnight; }
     };
 
     class Bishop : public ChessPiece
     {
     public:
-        Bishop(BoardPosition start_position);
+        Bishop(BoardPosition start_position, const std::shared_ptr< Drawable>& drawable);
         ChessPieceType_ GetChessPieceType()const override { return ChessPieceType_kBishop; }
     };
 
     class Rook : public ChessPiece
     {
     public:
-        Rook(BoardPosition start_position);
+        Rook(BoardPosition start_position, const std::shared_ptr< Drawable>& drawable);
         ChessPieceType_ GetChessPieceType()const override { return ChessPieceType_kRook; }
     };
     class King : public ChessPiece
     {
     public:
-        King(BoardPosition start_position);
+        King(BoardPosition start_position, const std::shared_ptr< Drawable>& drawable);
         ChessPieceType_ GetChessPieceType()const override{ return ChessPieceType_kKing; }
     };
 

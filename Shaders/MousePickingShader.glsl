@@ -7,33 +7,33 @@ layout(location = 3) in vec2 uv;
 layout(location = 4) in vec3 color;
 layout(location = 5) in float texture_sampler_index;
 
-out vec3 VertexColor;
+flat out uint FragmentObjectIndex;
 flat out float TextureSamplerID;
 out vec2 FragUV;
+
 uniform mat4 orthographicProjection;
 void main()
 {
 	gl_Position = orthographicProjection*vec4(world_position,1);
-	VertexColor = color;
+	FragmentObjectIndex = object_index;
 	TextureSamplerID = texture_sampler_index;
 	FragUV = uv;
-
 }
 
 #Shader:Fragment
 #version 400 core
+layout(location = 0) out uint FragID;
 
-layout(location = 0) out vec4 FragColor;
-
-in vec3 VertexColor;
-
+out vec4 FragColor;
+flat in uint FragmentObjectIndex;
 flat in float TextureSamplerID;
 in vec2 FragUV;
-
 uniform sampler2D u_Textures[10];
+
 void main()
 {
 	int index_to_sample = int(TextureSamplerID);
-	vec4 sampled_pixel = texture(u_Textures[index_to_sample],FragUV);
-	FragColor = vec4(sampled_pixel.xyz* VertexColor,sampled_pixel.a);
+	float sampled_alpha= texture(u_Textures[index_to_sample],FragUV).a;
+	uint final_id = sampled_alpha == 0.0f ? uint(0) : FragmentObjectIndex;
+	FragID = final_id;
 }

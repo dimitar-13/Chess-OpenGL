@@ -1,10 +1,11 @@
 #Shader:Vertex
 #version 330 core
-layout(location = 0) in vec3 local_position;
-layout(location = 1) in vec3 world_position;
-layout(location = 2) in vec2 uv;
-layout(location = 3) in vec3 color;
-layout(location = 4) in float texture_sampler_index;
+layout(location = 0) in uint object_index;
+layout(location = 1) in vec3 local_position;
+layout(location = 2) in vec3 world_position;
+layout(location = 3) in vec2 uv;
+layout(location = 4) in vec3 color;
+layout(location = 5) in float texture_sampler_index;
 
 out vec3 in_FragColor;
 out vec3 in_FragLocalPos;

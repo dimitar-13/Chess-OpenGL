@@ -13,6 +13,8 @@ void main()
 
 #Shader:Fragment
 #version 330 core
+layout(location = 0) out vec4 FragColor;
+layout(location = 1) out uint FragID;
 
 out vec4 FragColor;
 in vec3 VertexColor;
@@ -20,4 +22,5 @@ in vec3 VertexColor;
 void main()
 {
 	FragColor = vec4(VertexColor,1);
+	FragID = 0;
 }

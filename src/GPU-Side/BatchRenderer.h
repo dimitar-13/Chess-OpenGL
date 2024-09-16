@@ -1,10 +1,12 @@
 #pragma once
 #include "Core/Chess_pch.h"
 #include "GPU-Side/TextureBatcher.h"
+#include "GPU-Side/Framebuffer.h"
 namespace Chess_Game
 {
     struct Vertex
     {
+        GLuint object_index{};
         glm::vec3 local_position{};
         glm::vec3 world_position{};
         glm::vec2 uv{};
@@ -40,15 +42,17 @@ namespace Chess_Game
         std::unique_ptr<ShaderClass> batch_shader{};
     };
 
-
     class BatchRenderer
     {
     public:
-        BatchRenderer();
-        void Push(const glm::vec3& position,const glm::vec2& scale,const glm::vec3& object_color, Texture texture_index = 0);
+        BatchRenderer(Size2D window_size);
+        void Push(size_t object_id,
+            const glm::vec3& position,const glm::vec2& scale,const glm::vec3& object_color, Texture texture_index = 0);
         void PushCircle(const glm::vec3& position, const glm::vec2& scale, const glm::vec3& object_color);
         void DrawCircleBatch(const glm::mat4& projection);
         void DrawTextureQuadBatch(const glm::mat4& projection);
+        void DrawTextureQuadBatchToIndexBuffer(IntFramebuffer& output_index_buffer,
+            const glm::mat4& projection);
         ~BatchRenderer();
     private:
         void SetupBatch(BatchData& batch_to_setup);
@@ -58,6 +62,7 @@ namespace Chess_Game
         BatchData m_TexturedQuadBatch{};
         BatchData m_CircleQuadBatch{};
         TextureBatcher m_TextureBatcher{};
+        std::unique_ptr<ShaderClass> m_MousePickingShader{};
     };
 
 }

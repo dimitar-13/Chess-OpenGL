@@ -26,26 +26,26 @@ void Chess_Game::ChessPlayer::PromotePawn(ChessPieceType_ replace_piece_type)
         return;
     }
 
-    switch (replace_piece_type)
-    {
-    case Chess_Game::ChessPieceType_kBishop:
-        new_class = new Bishop(pawn_position);
-        break;
-    case Chess_Game::ChessPieceType_kRook:
-        new_class = new Rook(pawn_position);
-        break;
-    case Chess_Game::ChessPieceType_kKnight:
-        new_class = new Knight(pawn_position);
-        break;
-    case Chess_Game::ChessPieceType_kQueen:
-        new_class = new Queen(pawn_position);
-        break;
-    default:
-        CHESS_LOG_ERROR("Invalid enum to replace the pawn.");
-        break;
-    }
-
-    m_PlayerPieces[array_index.index_value].reset(new_class);
+    //switch (replace_piece_type)
+    //{
+    //case Chess_Game::ChessPieceType_kBishop:
+    //    new_class = new Bishop(pawn_position);
+    //    break;
+    //case Chess_Game::ChessPieceType_kRook:
+    //    new_class = new Rook(pawn_position);
+    //    break;
+    //case Chess_Game::ChessPieceType_kKnight:
+    //    new_class = new Knight(pawn_position);
+    //    break;
+    //case Chess_Game::ChessPieceType_kQueen:
+    //    new_class = new Queen(pawn_position);
+    //    break;
+    //default:
+    //    CHESS_LOG_ERROR("Invalid enum to replace the pawn.");
+    //    break;
+    //}
+    //
+    //m_PlayerPieces[array_index.index_value].reset(new_class);
 }
 
 void Chess_Game::ChessPlayer::SelectPiece(BoardPosition piece_board_position)
