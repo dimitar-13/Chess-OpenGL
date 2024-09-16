@@ -2,12 +2,34 @@
 #include "Core/Application.h"
 #include "Logging/Logger.h"
 #include "Scene/MainMenuScene.h"
+#include "Core/DrawableCreator.h"
 void Chess_Game::DefaultChessScene::InitScene()
 {
+    auto GetTextureNameByPieceType = [](ChessPieceType_ type_of_piece)
+        {
+            switch (type_of_piece)
+            {       
+            case Chess_Game::ChessPieceType_kPawn:
+                return TextureName_kPawn;
+            case Chess_Game::ChessPieceType_kBishop:
+                return TextureName_kBishop;
+            case Chess_Game::ChessPieceType_kRook:
+                return TextureName_kRook;
+            case Chess_Game::ChessPieceType_kKnight:
+                return TextureName_kKnight;
+            case Chess_Game::ChessPieceType_kQueen:
+                return TextureName_kQueen;
+            case Chess_Game::ChessPieceType_kKing:
+                return TextureName_kKing;
+            default:
+                return TextureName_kPawn;
+            }
+        };
+
 
     if (auto application = m_Application.lock())
     {
-        m_PositionHelper = 
+        m_PositionHelper =
             std::make_shared<ScreenPositionHelper>(application->GetApplicationProjection().GetProjectionSize());
 
         application->AddEventListener(shared_from_this());
@@ -18,7 +40,7 @@ void Chess_Game::DefaultChessScene::InitScene()
 
 
         m_ResetButton = application->GetUIManager().CreateUIElement<Button>(button_margin,
-            AnchorPoint_kTopRight,glm::vec2(40.f));
+            AnchorPoint_kTopRight, glm::vec2(40.f));
 
         auto button_reset_callback_test = [this]() {
             if (auto application = m_Application.lock())
@@ -50,96 +72,106 @@ void Chess_Game::DefaultChessScene::InitScene()
         m_MainMenuButton->SetButtonCallback(to_main_menu_button_callback);
 
         m_MainMenuButton->SetButtonCustomTexture(TextureName_kHomeButton);
+
+
+        if (auto main_drawable_creator = application->GetDrawableCreator().lock())
+        {
+
+
+            m_ChessBoard = main_drawable_creator->CreateDrawable();
+
+            m_ChessBoard->SetPosition(glm::vec3(0.0f, 0.0f, -.5f));
+            m_ChessBoard->SetDrawableTextureName(TextureName_kBoard);
+            m_ChessBoard->SetScale(m_PositionHelper->GetBoardSize());
+            m_ChessBoard->SetColor(glm::vec3(1));
+
+
+            m_SceneObjects.push_back(m_ChessBoard);
+
+            std::vector<std::shared_ptr<ChessPiece>> white_team_vector;
+
+            // Setup White Pieces
+            white_team_vector.push_back(std::make_shared<Rook>(BoardPosition{ 'a', 1 }, main_drawable_creator->CreateDrawable()));
+
+            white_team_vector.push_back(std::make_shared<Knight>(BoardPosition{ 'b', 1 }, main_drawable_creator->CreateDrawable()));
+
+            white_team_vector.push_back(std::make_shared<Bishop>(BoardPosition{ 'c', 1 }, main_drawable_creator->CreateDrawable()));
+
+            white_team_vector.push_back(std::make_shared<Queen>(BoardPosition{ 'd', 1 }, main_drawable_creator->CreateDrawable()));
+
+            white_team_vector.push_back(std::make_shared<King>(BoardPosition{ 'e', 1 }, main_drawable_creator->CreateDrawable()));
+
+            white_team_vector.push_back(std::make_shared<Bishop>(BoardPosition{ 'f', 1 }, main_drawable_creator->CreateDrawable()));
+
+            white_team_vector.push_back(std::make_shared<Knight>(BoardPosition{ 'g', 1 }, main_drawable_creator->CreateDrawable()));
+
+            white_team_vector.push_back(std::make_shared<Rook>(BoardPosition{ 'h', 1 }, main_drawable_creator->CreateDrawable()));
+
+            // White Pawns
+            for (char file = 'a'; file <= 'h'; ++file) {
+                auto pawn = std::make_shared<Pawn>(BoardPosition{ file, 2 }, main_drawable_creator->CreateDrawable());
+                white_team_vector.push_back(pawn);
+            }
+            for (auto& piece : white_team_vector)
+            {
+                glm::vec3 piece_position = glm::vec3(m_PositionHelper->BoardToScreenPosition(piece->GetPiecePosition()), 0.f);
+
+                glm::vec2 scale = m_PositionHelper->SingleSquareSize();
+                auto piece_drawable = piece->GetPieceDrawable().lock();
+                m_SceneObjects.push_back(piece_drawable);
+
+                piece_drawable->SetPosition(piece_position);
+                piece_drawable->SetColor(glm::vec3(1));
+                piece_drawable->SetDrawableTextureName(GetTextureNameByPieceType(piece->GetChessPieceType()));
+
+            }
+
+            m_WhitePlayer = std::make_shared<ChessPlayer>(white_team_vector);
+
+            std::vector<std::shared_ptr<ChessPiece>> black_team_vector;
+
+            black_team_vector.push_back(std::make_shared<Rook>(BoardPosition{ 'a', 8 }, main_drawable_creator->CreateDrawable()));
+
+            black_team_vector.push_back(std::make_shared<Knight>(BoardPosition{ 'b', 8 }, main_drawable_creator->CreateDrawable()));
+
+            black_team_vector.push_back(std::make_shared<Bishop>(BoardPosition{ 'c', 8 }, main_drawable_creator->CreateDrawable()));
+
+            black_team_vector.push_back(std::make_shared<Queen>(BoardPosition{ 'd', 8 }, main_drawable_creator->CreateDrawable()));
+
+            black_team_vector.push_back(std::make_shared<King>(BoardPosition{ 'e', 8 }, main_drawable_creator->CreateDrawable()));
+
+            black_team_vector.push_back(std::make_shared<Bishop>(BoardPosition{ 'f', 8 }, main_drawable_creator->CreateDrawable()));
+
+            black_team_vector.push_back(std::make_shared<Knight>(BoardPosition{ 'g', 8 }, main_drawable_creator->CreateDrawable()));
+
+            black_team_vector.push_back(std::make_shared<Rook>(BoardPosition{ 'h', 8 }, main_drawable_creator->CreateDrawable()));
+
+            // Black Pawns
+            for (char file = 'a'; file <= 'h'; ++file) {
+                auto pawn = std::make_shared<Pawn>(BoardPosition{ file, 7 }, main_drawable_creator->CreateDrawable());
+                black_team_vector.push_back(pawn);
+            }
+
+            for (auto& piece : black_team_vector)
+            {
+                glm::vec3 piece_position =
+                    glm::vec3(m_PositionHelper->BoardToScreenPosition(piece->GetPiecePosition()), 0.f);
+
+                glm::vec2 scale = m_PositionHelper->SingleSquareSize();
+
+                auto piece_drawable = piece->GetPieceDrawable().lock();
+                m_SceneObjects.push_back(piece_drawable);
+
+                piece_drawable->SetPosition(piece_position);
+                piece_drawable->SetColor(glm::vec3(0));
+                piece_drawable->SetDrawableTextureName(GetTextureNameByPieceType(piece->GetChessPieceType()));
+
+            }
+        m_BlackPlayer = std::make_shared<ChessPlayer>(black_team_vector);
+        }
+
+        m_ChessGame = std::make_unique<ChessGame>(m_WhitePlayer, m_BlackPlayer);
     }
-    glm::vec3 board_position = glm::vec3(0.0f, 0.0f, -.5f);
-
-    m_ChessBoard =
-        std::make_shared<Drawable>(DrawableData{ TextureName_kBoard,board_position, glm::vec3(1),
-            m_PositionHelper->GetBoardSize() });
-
-    m_SceneObjects.push_back(m_ChessBoard);
-
-    std::vector<std::shared_ptr<ChessPiece>> white_team_vector;
-
-    // Setup White Pieces
-    white_team_vector.push_back(std::make_shared<Rook>(BoardPosition{ 'a', 1 }));
-
-    white_team_vector.push_back(std::make_shared<Knight>(BoardPosition{ 'b', 1 }));
-
-    white_team_vector.push_back(std::make_shared<Bishop>(BoardPosition{ 'c', 1 }));
-
-    white_team_vector.push_back(std::make_shared<Queen>(BoardPosition{ 'd', 1 }));
-
-    white_team_vector.push_back(std::make_shared<King>(BoardPosition{ 'e', 1 }));
-
-    white_team_vector.push_back(std::make_shared<Bishop>(BoardPosition{ 'f', 1 }));
-
-    white_team_vector.push_back(std::make_shared<Knight>(BoardPosition{ 'g', 1 }));
-
-    white_team_vector.push_back(std::make_shared<Rook>(BoardPosition{ 'h', 1 }));
-
-    // White Pawns
-    for (char file = 'a'; file <= 'h'; ++file) {
-        auto pawn = std::make_shared<Pawn>(BoardPosition{ file, 2 });
-        white_team_vector.push_back(pawn);
-    }
-    for (auto& piece : white_team_vector)
-    {
-        glm::vec3 piece_position = glm::vec3(m_PositionHelper->BoardToScreenPosition(piece->GetPiecePosition()), 0.f);
-
-        glm::vec2 scale = m_PositionHelper->SingleSquareSize();
-        auto piece_drawable = piece->GetPieceDrawable().lock();
-        m_SceneObjects.push_back(piece_drawable);
-
-        piece_drawable->SetPosition(piece_position);
-        piece_drawable->SetColor(glm::vec3(1));
-    }
-
-    m_WhitePlayer = std::make_shared<ChessPlayer>(white_team_vector);
-
-    std::vector<std::shared_ptr<ChessPiece>> black_team_vector;
-
-    black_team_vector.push_back(std::make_shared<Rook>(BoardPosition{ 'a', 8 }));
-
-    black_team_vector.push_back(std::make_shared<Knight>(BoardPosition{ 'b', 8 }));
-
-    black_team_vector.push_back(std::make_shared<Bishop>(BoardPosition{ 'c', 8 }));
-
-    black_team_vector.push_back(std::make_shared<Queen>(BoardPosition{ 'd', 8 }));
-
-    black_team_vector.push_back(std::make_shared<King>(BoardPosition{ 'e', 8 }));
-
-    black_team_vector.push_back(std::make_shared<Bishop>(BoardPosition{ 'f', 8 }));
-
-    black_team_vector.push_back(std::make_shared<Knight>(BoardPosition{ 'g', 8 }));
-
-    black_team_vector.push_back(std::make_shared<Rook>(BoardPosition{ 'h', 8 }));
-
-    // Black Pawns
-    for (char file = 'a'; file <= 'h'; ++file) {
-        auto pawn = std::make_shared<Pawn>(BoardPosition{ file, 7 });
-        black_team_vector.push_back(pawn);
-    }
-
-    for (auto& piece : black_team_vector)
-    {
-        glm::vec3 piece_position = 
-            glm::vec3(m_PositionHelper->BoardToScreenPosition(piece->GetPiecePosition()), 0.f);
-
-        glm::vec2 scale = m_PositionHelper->SingleSquareSize();
-
-        auto piece_drawable = piece->GetPieceDrawable().lock();
-        m_SceneObjects.push_back(piece_drawable);
-
-        piece_drawable->SetPosition(piece_position);
-        piece_drawable->SetColor(glm::vec3(0));
-    }
-    m_BlackPlayer = std::make_shared<ChessPlayer>(black_team_vector);
-
-    m_ChessGame = std::make_unique<ChessGame>(m_WhitePlayer, m_BlackPlayer);
-
-
-
 }
 
 void Chess_Game::DefaultChessScene::DrawScene(std::shared_ptr<BatchRenderer> application_batch_renderer)
@@ -152,7 +184,7 @@ void Chess_Game::DefaultChessScene::DrawScene(std::shared_ptr<BatchRenderer> app
         {
             if (auto drawable = drawable_weak_ptr.lock())
             {
-                application_batch_renderer->Push(
+                application_batch_renderer->Push(drawable->GetDrawableID(),
                     drawable->GetPosition(), drawable->GetScale(), drawable->GetColor(),
                     kApplicationAssets.GetTextureAsset(drawable->GetDrawableTextureName()));
             }

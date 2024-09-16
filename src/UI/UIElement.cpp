@@ -19,6 +19,7 @@ void Chess_Game::UIElement::SetMargin(const Margin& new_margin)
 }
 
 Chess_Game::UIElement::UIElement(size_t element_id, std::weak_ptr<UIManager> ui_manager_ref,
+    DrawableCreator& drawable_creator,
     const Margin& element_margin,
     AnchorPoint_ element_margin_anchor_point,
     Size2D window_size, const glm::vec2& element_scale) :
@@ -29,15 +30,15 @@ Chess_Game::UIElement::UIElement(size_t element_id, std::weak_ptr<UIManager> ui_
 
     CalculateMarginPosition(window_size);
 
-    DrawableData data;
-    data.color = glm::vec3(1);
-    data.position = glm::vec3(m_ElementWindowPos, 1);
-    data.scale = element_scale;
     m_ElementScale = element_scale;
 
     CalculateBoundingBox();
 
-    m_UIDrawable = std::make_shared<Drawable>(data);
+    m_UIDrawable = drawable_creator.CreateDrawable();
+    m_UIDrawable->SetColor(glm::vec3(1));
+    m_UIDrawable->SetScale(element_scale);
+    m_UIDrawable->SetPosition(glm::vec3(m_ElementWindowPos, 1));
+
 }
 
 Chess_Game::UIElement::~UIElement()

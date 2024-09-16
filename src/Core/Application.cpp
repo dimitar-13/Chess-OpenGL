@@ -25,11 +25,15 @@ Chess_Game::Application::Application():
 
 void Chess_Game::Application::RenderLoop()
 {
+    m_ApplicationDrawableCreator = std::make_shared<DrawableCreator>();
+
     m_TextureAssetLoader = std::make_unique<AssetLoader>();
 
-    m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>();
+    m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>(m_ApplicationWindow->GetWindowSize());
 
-    m_ApplicationUIManager = std::make_shared<UIManager>(m_ApplicationWindow->GetWindowSize());
+    m_ApplicationUIManager = 
+        std::make_shared<UIManager>(m_ApplicationWindow->GetWindowSize(),m_ApplicationDrawableCreator);
+
     this->AddEventListener(m_ApplicationUIManager);
 
     m_CurrentApplicationScene = std::make_shared<MainMenuScene>(this->weak_from_this());
@@ -37,8 +41,10 @@ void Chess_Game::Application::RenderLoop()
     m_CurrentApplicationScene->InitScene();
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);  
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+
+    //glBindFramebuffer(GL_FRAMEBUFFER, m_TestFramebuffer);
 
     while (m_isApplicationRunning) {
 
@@ -49,8 +55,8 @@ void Chess_Game::Application::RenderLoop()
         m_CurrentApplicationScene->OnUpdate();
         m_CurrentApplicationScene->DrawScene(m_ApplicationBatchRenderer);
 
-        m_ApplicationUIManager->DrawUI(m_ApplicationBatchRenderer, *m_TextureAssetLoader);
-        m_ApplicationUIManager->PollUIInput(m_ApplicationMouseInput,m_ApplicationProjection);
+        m_ApplicationUIManager->DrawUI(m_ApplicationBatchRenderer,*m_TextureAssetLoader);
+        m_ApplicationUIManager->PollUIInput(m_ApplicationMouseInput, m_ApplicationBatchRenderer,m_ApplicationProjection);
 
         m_ApplicationMouseInput.FlushInputPoll();
 
