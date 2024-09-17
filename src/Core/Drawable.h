@@ -28,7 +28,7 @@ namespace Chess_Game
         glm::vec3 m_Position{};
         glm::vec3 m_Color = glm::vec3(1);
         glm::vec2 m_Scale = glm::vec2(30.0f);
-        TextureName_ m_TextureName = TextureName_kBoard;
+        TextureName_ m_TextureName = TextureName_kWhiteTexture;
         std::shared_ptr<DrawableCreator> m_DrawableCreator{};
     };
 

@@ -38,8 +38,6 @@ namespace Chess_Game
         Size2D m_CurrentWindowSize{};
         glm::mat4 m_ToNDCMatrix{};
         std::shared_ptr<DrawableCreator> m_ApplicationDrawableCreator{};
-        std::unique_ptr<IntFramebuffer> m_MousePickingFramebuffer{};
-
     };
 
     template<typename T>

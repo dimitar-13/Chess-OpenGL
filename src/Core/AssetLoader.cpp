@@ -7,8 +7,8 @@ Chess_Game::AssetLoader::AssetLoader()
 {
     const TexturePathNamePair texture_paths [] =
     {
+        {" ",TextureName_kWhiteTexture},
         {"D:/c++/OpenGl/Chess-OpenGL/resources/Chess_board2.jpg",TextureName_kBoard},
-       // {"D:/c++/OpenGl/Chess-OpenGL/resources/pawn.png", TextureName_kPawn}
         {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/King.png",   TextureName_kKing},
         {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Knight.png", TextureName_kKnight},
         {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Pawn.png",   TextureName_kPawn},
@@ -32,8 +32,22 @@ Chess_Game::AssetLoader::AssetLoader()
     for (size_t i = 0; i < loaded_asset_count; i++)
     {
 
-        TextureReadData texture_data = ReadTexture(texture_paths[i].texture_path);
+        TextureReadData texture_data;
 
+        if (i == 0)
+        {
+            texture_data.is_texture_valid = true;
+            texture_data.texture_size = Size2D{1,1};
+            texture_data.texture_format = GL_RGBA;
+            texture_data.texture_source =
+            {
+                255,255,255,255
+            };
+        }
+        else
+        {
+            texture_data = ReadTexture(texture_paths[i].texture_path);
+        }
         if (!texture_data.is_texture_valid)
             continue;
 
