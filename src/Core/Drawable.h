@@ -23,6 +23,8 @@ namespace Chess_Game
         void SetColor(const glm::vec3& color) { m_Color = color; }
         TextureName_ GetDrawableTextureName()const { return m_TextureName; }
         void SetDrawableTextureName(TextureName_ new_texture_name) { m_TextureName = new_texture_name; }
+        void EnableDrawable(bool is_enabled) { m_IsEnabled = is_enabled; }
+        bool IsDrawableEnabled()const { return m_IsEnabled; }
     private:
         size_t m_DrawableID{};
         glm::vec3 m_Position{};
@@ -30,6 +32,7 @@ namespace Chess_Game
         glm::vec2 m_Scale = glm::vec2(30.0f);
         TextureName_ m_TextureName = TextureName_kWhiteTexture;
         std::shared_ptr<DrawableCreator> m_DrawableCreator{};
+        bool m_IsEnabled = true;
     };
 
 
