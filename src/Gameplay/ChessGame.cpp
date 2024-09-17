@@ -47,7 +47,8 @@ std::weak_ptr<Chess_Game::ChessPiece> Chess_Game::ChessGame::GetSelectedPiece()
     return std::weak_ptr<ChessPiece>();
 }
 
-bool Chess_Game::ChessGame::CanMove(BoardPosition new_position, std::shared_ptr<ChessPlayer> player_to_check)
+bool Chess_Game::ChessGame::CanMove(BoardPosition new_position, std::shared_ptr<ChessPlayer> player_to_check,
+    std::shared_ptr<ChessPlayer> opposite_player)
 {  
     if (!ChessBoard::IsNewPositionInBounds(new_position))
     {
@@ -71,7 +72,7 @@ bool Chess_Game::ChessGame::CanMove(BoardPosition new_position, std::shared_ptr<
         return false;
     }
     
-    if (!IsKingSafeAfterMove(new_position, player_to_check))
+    if (!IsKingSafeAfterMove(new_position, player_to_check, opposite_player))
     {
         CHESS_LOG_INFO("The piece cannot move in this position because the next position will result in a mate.");
         return false;
@@ -96,7 +97,7 @@ bool Chess_Game::ChessGame::CanMoveSelectedPiece(BoardPosition new_position)
 
             return false;
         }     
-        return CanMove(new_position, current_player);
+        return CanMove(new_position, current_player,GetNonActivePlayer());
     }
     return false;
 }
@@ -187,7 +188,7 @@ std::vector<Chess_Game::BoardPosition> Chess_Game::ChessGame::GetSelectedPieceAl
             for (horizontal = 'a'; horizontal <= 'h'; horizontal++)
             {
                 BoardPosition position_to_check = {static_cast<char>(horizontal) ,static_cast<char>(vertical) };
-                if (CanMove(position_to_check,current_player))
+                if (CanMove(position_to_check,current_player,GetNonActivePlayer()))
                 {
                     result.push_back(position_to_check);
                 }
@@ -200,7 +201,7 @@ std::vector<Chess_Game::BoardPosition> Chess_Game::ChessGame::GetSelectedPieceAl
 }
 
 bool Chess_Game::ChessGame::IsKingSafeAfterMove(BoardPosition new_position,
-    std::shared_ptr<ChessPlayer> current_player)
+    std::shared_ptr<ChessPlayer> current_player, std::shared_ptr<ChessPlayer> opposite_player)
 {
   
     if (auto selected_piece = current_player->GetSelectedPiece().lock())
@@ -216,9 +217,9 @@ bool Chess_Game::ChessGame::IsKingSafeAfterMove(BoardPosition new_position,
         bool result = true;
 
         m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, static_cast<BoardPositionFlags_>(0));
-        m_ChessBoardData.SetChessboardPositionFlag(new_position, static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPositionOcupied));
+        m_ChessBoardData.SetChessboardPositionFlag(new_position, current_position_flags);
 
-        for (const auto& piece : GetNonActivePlayer()->GetPlayerPieces())
+        for (const auto& piece : opposite_player->GetPlayerPieces())
         {
             if (piece->GetPiecePosition() == new_position &&
                 !(m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPieceImortal))
@@ -326,14 +327,14 @@ bool Chess_Game::ChessGame::IsKingCheckMated()
         auto player_to_check = GetNonActivePlayer();
 
         // - Move the king
-        if (CanKingResolveTheCheck(player_to_check))
+        if (CanKingResolveTheCheck(player_to_check, current_player))
         {
             return false;
         }
 
         //- Move piece to prevent check.
         //- Claim the piece causing the check
-        if (CanOtherPiecesResolveTheCheck(player_to_check))
+        if (CanOtherPiecesResolveTheCheck(player_to_check, current_player))
         {
             return false;
         }
@@ -343,7 +344,8 @@ bool Chess_Game::ChessGame::IsKingCheckMated()
     return true;
 }
 
-bool Chess_Game::ChessGame::CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> player_to_check)
+bool Chess_Game::ChessGame::CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> player_to_check,
+    std::shared_ptr<ChessPlayer> opposite_player)
 {
     constexpr BoardPosition kKingMovementOffsets[] = {
         {1,1},
@@ -359,7 +361,6 @@ bool Chess_Game::ChessGame::CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> 
     bool result = false;
 
     BoardPosition king_board_position = player_to_check->GetPlayerKing().GetPiecePosition();
-    BoardPositionFlags_ king_board_flags = m_ChessBoardData.GetChessboardPositionFlag(king_board_position);
 
     player_to_check->SelectPiece(king_board_position);
 
@@ -375,23 +376,18 @@ bool Chess_Game::ChessGame::CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> 
             continue;
         }
 
-        BoardPositionFlags_ previous_flags = m_ChessBoardData.GetChessboardPositionFlag(new_position);
-        m_ChessBoardData.SetChessboardPositionFlag(new_position, king_board_flags);
-
-        result = this->CanMove(new_position, player_to_check);
+        result = this->CanMove(new_position, player_to_check, opposite_player);
        
-        m_ChessBoardData.SetChessboardPositionFlag(new_position, previous_flags);
-        player_to_check->UnSelectPiece();
-
         if (result)
-        {
-            return result;
-        }
+            break;
     }
+
+    player_to_check->UnSelectPiece();
     return result;
 }
 
-bool Chess_Game::ChessGame::CanOtherPiecesResolveTheCheck(std::shared_ptr<ChessPlayer> player_to_check)
+bool Chess_Game::ChessGame::CanOtherPiecesResolveTheCheck(std::shared_ptr<ChessPlayer> player_to_check,
+    std::shared_ptr<ChessPlayer> opposite_player)
 {
     bool result = false;
     const KingCheckData& player_check_info = player_to_check->GetPlayerKingCheckData();
@@ -430,7 +426,7 @@ bool Chess_Game::ChessGame::CanOtherPiecesResolveTheCheck(std::shared_ptr<ChessP
         {          
             player_to_check->SelectPiece(piece_to_check->GetPiecePosition());
 
-            result = this->CanMove(position_to_check, player_to_check);
+            result = this->CanMove(position_to_check, player_to_check, opposite_player);
 
             if (result)
             {

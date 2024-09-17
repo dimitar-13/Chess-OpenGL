@@ -97,6 +97,7 @@ bool Chess_Game::ChessPlayer::CanSelectedPieceMove(BoardPosition new_position, C
         }
         return true;
     }
+    CHESS_LOG_INFO("Selected piece was empty.");
     return false;
 }
 

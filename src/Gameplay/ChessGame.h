@@ -17,14 +17,18 @@ namespace Chess_Game
         bool IsGameOver()const { return m_IsGameOver; }
         bool IsSelectedPieceChanged();
         std::vector<BoardPosition> GetSelectedPieceAllPossibleMoves();
-    private:
-        bool IsKingSafeAfterMove(BoardPosition new_position,std::shared_ptr<ChessPlayer> current_player);
+    public:
+        bool IsKingSafeAfterMove(BoardPosition new_position,std::shared_ptr<ChessPlayer> current_player,
+            std::shared_ptr<ChessPlayer> opposite_player);
         bool CanResolveCheck(BoardPosition new_position,std::shared_ptr<ChessPlayer> current_player);
         bool IsKingChecked();
         bool IsKingCheckMated();
-        bool CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> current_player);
-        bool CanOtherPiecesResolveTheCheck(std::shared_ptr<ChessPlayer> player_to_check);
-        bool CanMove(BoardPosition new_position, std::shared_ptr<ChessPlayer> player_to_check);
+        bool CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> current_player,
+            std::shared_ptr<ChessPlayer> opposite_player);
+        bool CanOtherPiecesResolveTheCheck(std::shared_ptr<ChessPlayer> player_to_check,
+            std::shared_ptr<ChessPlayer> opposite_player);
+        bool CanMove(BoardPosition new_position, std::shared_ptr<ChessPlayer> player_to_check,
+            std::shared_ptr<ChessPlayer> opposite_player);
         void CapturePiece(BoardPosition position_of_piece_to_capture);
         std::shared_ptr<ChessPlayer> GetNonActivePlayer();
         void SetupChessBoardBitMask();     
