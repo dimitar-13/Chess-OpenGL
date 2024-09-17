@@ -3,6 +3,7 @@ namespace Chess_Game
 {
     enum TextureName_
     {
+        TextureName_kWhiteTexture,
         TextureName_kBoard,
         TextureName_kPawn,
         TextureName_kKing,

@@ -2,6 +2,8 @@
 #include "Core/Chess_pch.h"
 #include "GPU-Side/TextureBatcher.h"
 #include "GPU-Side/Framebuffer.h"
+#include "Core/Drawable.h"
+#include "Core/AssetLoader.h"
 namespace Chess_Game
 {
     struct Vertex
@@ -40,29 +42,42 @@ namespace Chess_Game
         BatchGpuData gpu_data{};
         BatchRendererData render_data{};
         std::unique_ptr<ShaderClass> batch_shader{};
+        std::vector<std::weak_ptr<Drawable>> batch_drawables{};
+
     };
 
+    struct BatchDrawData
+    {
+        size_t vertex_count{};
+        size_t index_count{};
+    };
+    class Application;
     class BatchRenderer
     {
     public:
-        BatchRenderer(Size2D window_size);
-        void Push(size_t object_id,
-            const glm::vec3& position,const glm::vec2& scale,const glm::vec3& object_color, Texture texture_index = 0);
+        BatchRenderer(Size2D window_size, std::shared_ptr<AssetLoader> aplication_asset_loader);
+        void PushTexturedQuad(std::weak_ptr<Drawable> drawable) { m_TexturedQuadBatch.batch_drawables.push_back(drawable); }
         void PushCircle(const glm::vec3& position, const glm::vec2& scale, const glm::vec3& object_color);
         void DrawCircleBatch(const glm::mat4& projection);
-        void DrawTextureQuadBatch(const glm::mat4& projection);
-        void DrawTextureQuadBatchToIndexBuffer(IntFramebuffer& output_index_buffer,
-            const glm::mat4& projection);
+        void DrawTextureQuadBatch(const glm::mat4& projection,bool output_drawable_id = false);
+        std::shared_ptr<IntFramebuffer> GetIDFramebuffer() { return m_MousePickingFramebuffer; }
         ~BatchRenderer();
     private:
+        void PushDrawable(size_t object_id,
+            const glm::vec3& position, const glm::vec2& scale, const glm::vec3& object_color, Texture texture_index = 0);
+        void SortBatch(BatchData& batch_to_sort);
         void SetupBatch(BatchData& batch_to_setup);
         void BeginBatch(BatchData& batch_to_begin);
         void FreeBatchMemory(BatchData& batch_to_free);
+        BatchDrawData CalculateBatchDrawData(BatchData& batch_to_cacl);
+        void Draw(ShaderClass& shader_to_use, BatchData& batch_data_to_use);
     private:
+        std::shared_ptr<AssetLoader> m_ApplicationAssetLoader{};
         BatchData m_TexturedQuadBatch{};
         BatchData m_CircleQuadBatch{};
         TextureBatcher m_TextureBatcher{};
         std::unique_ptr<ShaderClass> m_MousePickingShader{};
+        std::shared_ptr<IntFramebuffer> m_MousePickingFramebuffer;
     };
 
 }

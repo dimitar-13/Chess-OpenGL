@@ -38,12 +38,11 @@ void Chess_Game::Application::StartRenderLoop()
     m_CurrentApplicationScene = std::make_shared<MainMenuScene>(this->weak_from_this());
     m_CurrentApplicationScene->InitScene();
 
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);  
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
     while (m_isApplicationRunning) {
-
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -77,7 +76,9 @@ void Chess_Game::Application::InitAppResource()
 
     m_ApplicationDrawableCreator = std::make_shared<DrawableCreator>();
     m_TextureAssetLoader = std::make_shared<AssetLoader>();
-    m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>(current_window_size);
+    m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>(current_window_size, m_TextureAssetLoader);
+    this->AddEventListener(m_ApplicationBatchRenderer->GetIDFramebuffer());
+
     m_ApplicationUIManager = std::make_shared<UIManager>(current_window_size, m_ApplicationDrawableCreator);
     this->AddEventListener(m_ApplicationUIManager);
 }

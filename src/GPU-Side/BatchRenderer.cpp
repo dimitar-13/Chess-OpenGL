@@ -1,6 +1,7 @@
 #include "BatchRenderer.h"
 #include "Core/Chess_pch.h"
 #include "Logging/Logger.h"
+#include "Core/Application.h"
 static const std::array<Chess_Game::Vertex,4> kBaseQuadVertexData = {
     //First triangle
     Chess_Game::Vertex{0,{-1.0f,1.0f,0.0f} ,{ -1.0f,1.0f,0.0f } , {0.0f,1.0f}, {1.0f,1.0f,1.0f},0.0f},
@@ -11,11 +12,13 @@ static const std::array<Chess_Game::Vertex,4> kBaseQuadVertexData = {
 };
 
 
-Chess_Game::BatchRenderer::BatchRenderer(Size2D window_size)
+Chess_Game::BatchRenderer::BatchRenderer(Size2D window_size, std::shared_ptr<AssetLoader> application_asset_loader)
+    :m_ApplicationAssetLoader(application_asset_loader)
 {
     SetupBatch(m_TexturedQuadBatch);
     SetupBatch(m_CircleQuadBatch);
 
+    m_MousePickingFramebuffer = std::make_shared<IntFramebuffer>(window_size);
 
     m_MousePickingShader =
         std::make_unique<ShaderClass>("D:/c++/OpenGl/Chess-OpenGL/Shaders/MousePickingShader.glsl");
@@ -27,7 +30,7 @@ Chess_Game::BatchRenderer::BatchRenderer(Size2D window_size)
         std::make_unique<ShaderClass>("D:/c++/OpenGl/Chess-OpenGL/Shaders/CircleShader.glsl");
  }
 
-void Chess_Game::BatchRenderer::Push(size_t object_id,const glm::vec3& position,
+void Chess_Game::BatchRenderer::PushDrawable(size_t object_id,const glm::vec3& position,
     const glm::vec2& scale, const glm::vec3& object_color, Texture texture_index)
 {
     size_t texture_binding_point = m_TextureBatcher.PushTextureForRendering(texture_index);
@@ -44,7 +47,7 @@ void Chess_Game::BatchRenderer::Push(size_t object_id,const glm::vec3& position,
     for (auto & vertex : quad_vertex_data_copy)
     {
         vertex.object_index = object_id;
-        vertex.world_position *= glm::vec3(scale.x, scale.y,1.0f);
+        vertex.world_position *= glm::vec3(scale.x, scale.y,0.0f);
         vertex.world_position += position;
         vertex.color = object_color;
         vertex.texture_sampler_index = static_cast<float>(texture_binding_point);
@@ -106,128 +109,122 @@ void Chess_Game::BatchRenderer::DrawCircleBatch(const glm::mat4& projection)
 {
     const char* projection_uniform_name = "orthographicProjection";
 
-    size_t vertex_data_size = 
-        (m_CircleQuadBatch.render_data.vertex_batch_pointer - m_CircleQuadBatch.render_data.vertex_batch_array) * sizeof(Vertex);
-    size_t index_data_size = 
-        (m_CircleQuadBatch.render_data.index_batch_pointer - m_CircleQuadBatch.render_data.index_batch_array) * sizeof(GLuint);
-    size_t index_count = 
-        (m_CircleQuadBatch.render_data.index_batch_pointer - m_CircleQuadBatch.render_data.index_batch_array);
-
-    if (index_count == 0) return;
-
     m_CircleQuadBatch.batch_shader->UseProgram();
     m_CircleQuadBatch.batch_shader->SetUniform4x4Matrix(projection_uniform_name, projection);
 
-    glBindVertexArray(m_CircleQuadBatch.gpu_data.vertex_attribute_array_handle);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_CircleQuadBatch.gpu_data.vertex_buffer_handle);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_data_size, m_CircleQuadBatch.render_data.vertex_batch_array);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_CircleQuadBatch.gpu_data.index_buffer_handle);
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, index_data_size, m_CircleQuadBatch.render_data.index_batch_array);
-
-    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, NULL);
-
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    Draw(*m_CircleQuadBatch.batch_shader, m_CircleQuadBatch);
 
     BeginBatch(m_CircleQuadBatch);
 }
 
-void Chess_Game::BatchRenderer::DrawTextureQuadBatch(const glm::mat4& projection)
+void Chess_Game::BatchRenderer::SortBatch(BatchData& batch_to_sort)
+{
+    std::sort(batch_to_sort.batch_drawables.begin(), batch_to_sort.batch_drawables.end(),
+        [](std::weak_ptr<Drawable>drawable_1, std::weak_ptr<Drawable>drawable_2)
+        {
+            if(drawable_1.expired()) return false;
+            if (drawable_2.expired()) return true;
+
+            std::shared_ptr<Drawable> drawable_1_shared = drawable_1.lock();
+            std::shared_ptr<Drawable> drawable_2_shared = drawable_2.lock();
+
+            return drawable_1_shared->GetPosition().z < drawable_2_shared->GetPosition().z;
+        });
+    for (const auto& drawable_weak : batch_to_sort.batch_drawables)
+    {
+        if (auto drawable_shared = drawable_weak.lock())
+        {
+            PushDrawable(drawable_shared->GetDrawableID(), drawable_shared->GetPosition(),
+                drawable_shared->GetScale(), drawable_shared->GetColor(),
+                m_ApplicationAssetLoader->GetTextureAsset(drawable_shared->GetDrawableTextureName()));
+        }
+    }
+}
+
+void Chess_Game::BatchRenderer::DrawTextureQuadBatch(const glm::mat4& projection,bool output_drawable_id)
 {
     const char* sampler_array_uniform_name = "u_Textures";
     const char* projection_uniform_name = "orthographicProjection";
 
-    size_t vertex_data_size = 
-        (m_TexturedQuadBatch.render_data.vertex_batch_pointer - m_TexturedQuadBatch.render_data.vertex_batch_array) * sizeof(Vertex);
-    size_t index_data_size = 
-        (m_TexturedQuadBatch.render_data.index_batch_pointer - m_TexturedQuadBatch.render_data.index_batch_array) * sizeof(GLuint);
-    size_t index_count = 
-        (m_TexturedQuadBatch.render_data.index_batch_pointer - m_TexturedQuadBatch.render_data.index_batch_array);
+    SortBatch(m_TexturedQuadBatch);
 
-    if (index_count == 0) return;
-
-    m_TexturedQuadBatch.batch_shader->UseProgram();
     m_TextureBatcher.BindTextures();
 
+    if (output_drawable_id)
+    {
+        m_MousePickingShader->UseProgram();
+        m_MousePickingShader->SetUniform4x4Matrix(projection_uniform_name, projection);
+        m_MousePickingShader->SetSampler2DArray(sampler_array_uniform_name, m_TextureBatcher.GetBoundTexturesSlots().data(),
+            m_TextureBatcher.GetBoundTexturesCount());
+
+        m_MousePickingFramebuffer->BindFramebuffer();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glDisable(GL_BLEND);
+        glDisable(GL_DITHER);
+
+        Draw(*m_MousePickingShader, m_TexturedQuadBatch);
+
+        IntFramebuffer::BindDefaultFramebuffer();
+
+        glEnable(GL_BLEND);
+        glEnable(GL_DITHER);
+    }
+
+
+    m_TexturedQuadBatch.batch_shader->UseProgram();
     m_TexturedQuadBatch.batch_shader->SetUniform4x4Matrix(projection_uniform_name, projection);
     m_TexturedQuadBatch.batch_shader->SetSampler2DArray(sampler_array_uniform_name, m_TextureBatcher.GetBoundTexturesSlots().data(),
         m_TextureBatcher.GetBoundTexturesCount());
 
-    glBindVertexArray(m_TexturedQuadBatch.gpu_data.vertex_attribute_array_handle);
+    Draw(*m_TexturedQuadBatch.batch_shader, m_TexturedQuadBatch);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_TexturedQuadBatch.gpu_data.vertex_buffer_handle);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_data_size, m_TexturedQuadBatch.render_data.vertex_batch_array);
+    BeginBatch(m_TexturedQuadBatch);
+    m_TextureBatcher.Flush();
+}
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_TexturedQuadBatch.gpu_data.index_buffer_handle);
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, index_data_size, m_TexturedQuadBatch.render_data.index_batch_array);
+Chess_Game::BatchDrawData Chess_Game::BatchRenderer::CalculateBatchDrawData(BatchData& batch_to_cacl)
+{
+    BatchDrawData result{};
+    result.vertex_count=
+        (batch_to_cacl.render_data.vertex_batch_pointer - batch_to_cacl.render_data.vertex_batch_array);
+    result.index_count =
+        (batch_to_cacl.render_data.index_batch_pointer - batch_to_cacl.render_data.index_batch_array);
+    return result;
 
-    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, NULL);
+}
+void Chess_Game::BatchRenderer::Draw(ShaderClass& shader_to_use, BatchData& batch_data_to_use)
+{
+    BatchDrawData draw_data = CalculateBatchDrawData(batch_data_to_use);
+
+    if (draw_data.index_count == 0) return;
+
+    glBindVertexArray(batch_data_to_use.gpu_data.vertex_attribute_array_handle);
+
+    glBindBuffer(GL_ARRAY_BUFFER, batch_data_to_use.gpu_data.vertex_buffer_handle);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, draw_data.vertex_count * sizeof(Vertex), batch_data_to_use.render_data.vertex_batch_array);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch_data_to_use.gpu_data.index_buffer_handle);
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, draw_data.index_count * sizeof(GLuint), batch_data_to_use.render_data.index_batch_array);
+
+    shader_to_use.UseProgram();
+    glDrawElements(GL_TRIANGLES, draw_data.index_count, GL_UNSIGNED_INT, NULL);
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    BeginBatch(m_TexturedQuadBatch);
-    m_TextureBatcher.Flush();
-}
-void Chess_Game::BatchRenderer::DrawTextureQuadBatchToIndexBuffer(IntFramebuffer& output_index_buffer,
-    const glm::mat4& projection)
-{
-    const char* sampler_array_uniform_name = "u_Textures";
-    const char* projection_uniform_name = "orthographicProjection";
-
-    size_t vertex_data_size =
-        (m_TexturedQuadBatch.render_data.vertex_batch_pointer - m_TexturedQuadBatch.render_data.vertex_batch_array) * sizeof(Vertex);
-    size_t index_data_size =
-        (m_TexturedQuadBatch.render_data.index_batch_pointer - m_TexturedQuadBatch.render_data.index_batch_array) * sizeof(GLuint);
-    size_t index_count =
-        (m_TexturedQuadBatch.render_data.index_batch_pointer - m_TexturedQuadBatch.render_data.index_batch_array);
-
-    if (index_count == 0) return;
-
-    m_TexturedQuadBatch.batch_shader->UseProgram();
-    m_TextureBatcher.BindTextures();
-
-    m_TexturedQuadBatch.batch_shader->SetUniform4x4Matrix(projection_uniform_name, projection);
-    m_TexturedQuadBatch.batch_shader->SetSampler2DArray(sampler_array_uniform_name, m_TextureBatcher.GetBoundTexturesSlots().data(),
-        m_TextureBatcher.GetBoundTexturesCount());
-
-    glBindVertexArray(m_TexturedQuadBatch.gpu_data.vertex_attribute_array_handle);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_TexturedQuadBatch.gpu_data.vertex_buffer_handle);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_data_size, m_TexturedQuadBatch.render_data.vertex_batch_array);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_TexturedQuadBatch.gpu_data.index_buffer_handle);
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, index_data_size, m_TexturedQuadBatch.render_data.index_batch_array);
-
-    glDisable(GL_BLEND);
-    glDisable(GL_DITHER);
-
-    output_index_buffer.BindFramebuffer();
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    m_MousePickingShader->UseProgram();
-    m_TextureBatcher.BindTextures();
-
-    m_MousePickingShader->SetUniform4x4Matrix(projection_uniform_name, projection);
-    m_MousePickingShader->SetSampler2DArray(sampler_array_uniform_name, m_TextureBatcher.GetBoundTexturesSlots().data(),
-        m_TextureBatcher.GetBoundTexturesCount());
-    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, NULL);
-
     IntFramebuffer::BindDefaultFramebuffer();
 
-    glEnable(GL_BLEND);
-    glEnable(GL_DITHER);
-
 }
+
+
 void Chess_Game::BatchRenderer::BeginBatch(BatchData& batch_to_begin)
 {
     batch_to_begin.render_data.vertex_batch_pointer = batch_to_begin.render_data.vertex_batch_array;
     batch_to_begin.render_data.index_batch_pointer = batch_to_begin.render_data.index_batch_array;
+
+    batch_to_begin.batch_drawables.clear();
 }
 
 

@@ -66,3 +66,12 @@ void Chess_Game::IntFramebuffer::ResizeFramebuffer(Size2D new_size)
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 }
+
+void Chess_Game::IntFramebuffer::OnEvent(const Event& e)
+{
+    if (e.GetEventType() == EventType_kWindowResize)
+    {
+        Size2D new_size = dynamic_cast<const WindowResizeEvent&>(e).GetWindowSize();
+        this->ResizeFramebuffer(new_size);
+    }
+}

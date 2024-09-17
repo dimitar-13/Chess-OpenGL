@@ -24,6 +24,7 @@ namespace Chess_Game
         std::shared_ptr<ChessPlayer> m_WhitePlayer{};
         std::shared_ptr<ChessPlayer> m_BlackPlayer{};
         std::shared_ptr<Drawable> m_ChessBoard{};
+        std::shared_ptr<Drawable> m_SelectedPieceVisualIndicatorDrawable{};
         std::weak_ptr<Drawable> m_SelectedPieceDrawable{};
         std::shared_ptr<Button> m_ResetButton{};
         std::shared_ptr<Button> m_MainMenuButton{};

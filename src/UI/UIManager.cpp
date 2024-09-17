@@ -4,8 +4,6 @@
 Chess_Game::UIManager::UIManager(Size2D window_size, std::shared_ptr<DrawableCreator>& drawable_creator):
     m_CurrentWindowSize(window_size),m_ApplicationDrawableCreator(drawable_creator)
 {
-    m_MousePickingFramebuffer = std::make_unique<IntFramebuffer>(window_size);
-
     for (size_t i = 0; i < kUIElementCount; i++)
     {
         m_IDQueue.push(i);
@@ -34,12 +32,10 @@ void Chess_Game::UIManager::DrawUI(std::shared_ptr<BatchRenderer> application_ba
         if (auto element = weak_element.lock())
         {
             auto drawable = element->GetDrawable().lock();
-            application_batch_renderer->Push(drawable->GetDrawableID(),drawable->GetPosition(), drawable->GetScale(),
-                drawable->GetColor(), application_asset_loader.GetTextureAsset(drawable->GetDrawableTextureName()));
+            application_batch_renderer->PushTexturedQuad(drawable);
         }
     }
-    application_batch_renderer->DrawTextureQuadBatchToIndexBuffer(*m_MousePickingFramebuffer,m_ToNDCMatrix);
-    application_batch_renderer->DrawTextureQuadBatch(m_ToNDCMatrix);
+    application_batch_renderer->DrawTextureQuadBatch(m_ToNDCMatrix,true);
 }
 
 void Chess_Game::UIManager::PollUIInput(const MouseInput& application_input,
@@ -57,7 +53,7 @@ void Chess_Game::UIManager::PollUIInput(const MouseInput& application_input,
                     glm::vec2(mouse_pos_bottom_left.x, mouse_pos_bottom_left.y)))
                 {
                     size_t drawable_id = 
-                        m_MousePickingFramebuffer->GetPixelData(mouse_pos_bottom_left.x,
+                        application_batch_renderer->GetIDFramebuffer()->GetPixelData(mouse_pos_bottom_left.x,
                         mouse_pos_bottom_left.y);
 
                     if(element->m_UIDrawable->GetDrawableID() == drawable_id)
@@ -76,7 +72,6 @@ void Chess_Game::UIManager::OnWindowSizeChanged(const WindowResizeEvent& e)
 {
     m_CurrentWindowSize = e.GetWindowSize();
     m_ToNDCMatrix = glm::ortho<float>(0, m_CurrentWindowSize.width, 0, m_CurrentWindowSize.height);
-    m_MousePickingFramebuffer->ResizeFramebuffer(m_CurrentWindowSize);
 
     for (auto& weak_element : m_UIElements)
     {
