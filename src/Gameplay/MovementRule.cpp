@@ -72,11 +72,11 @@ bool Chess_Game::PawnCaptureBoardSpecificMovementRule::CanMove(BoardPosition cur
 {  
     BoardPosition position_delta = new_position - current_position;
 
-    
+    bool is_new_position_taken = 
+        board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied;
+
     if (abs(position_delta.VerticalPosition) == abs(position_delta.horizontalPosition))
     {
-        bool is_new_position_taken = board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied;
-
         BoardPositionFlags_ current_piece_flags = board.GetChessboardPositionFlag(current_position);
         BoardPositionFlags_ new_position_flags = board.GetChessboardPositionFlag(new_position);
         bool is_current_piece_from_white_team = current_piece_flags & BoardPositionFlags_kIsPieceFromWhiteTeam;
@@ -85,7 +85,7 @@ bool Chess_Game::PawnCaptureBoardSpecificMovementRule::CanMove(BoardPosition cur
         return is_new_position_taken && is_current_piece_from_white_team != is_new_piece_from_white_team;
     }
     
-    return true;
+    return !is_new_position_taken;
 }
 
 bool Chess_Game::PawnStartingMovementRule::CanMove(BoardPosition current_position, BoardPosition new_position) const

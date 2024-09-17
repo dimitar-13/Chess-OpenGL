@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/SceneObject.h"
 #include "Gameplay/ChessGame.h"
+#include "Gameplay/GameControllers/ChessGameController.h"
 #include "GPU-Side/BatchRenderer.h"
 #include "Helpers/PositionHelper.h"
 #include "Core/EventListener.h"
@@ -19,10 +20,10 @@ namespace Chess_Game
         BoardPosition GetMouseInputBoardPosition(std::shared_ptr<Chess_Game::Application>& application);
         void DestroyScene() override;
         void OnEvent(const Event& e) override;
+        void OnSelectedPieceChanged(std::weak_ptr<ChessPiece> new_selected_piece);
+        void OnSelectedPieceMoved(std::shared_ptr<ChessPiece> selected_piece);
     private:
-        std::unique_ptr<ChessGame> m_ChessGame{};
-        std::shared_ptr<ChessPlayer> m_WhitePlayer{};
-        std::shared_ptr<ChessPlayer> m_BlackPlayer{};
+        std::unique_ptr<ChessGameController> m_ChessGameController;
         std::shared_ptr<Drawable> m_ChessBoard{};
         std::shared_ptr<Drawable> m_SelectedPieceVisualIndicatorDrawable{};
         std::weak_ptr<Drawable> m_SelectedPieceDrawable{};

@@ -3,51 +3,14 @@
 #include "ChessGame.h"
 
 Chess_Game::ChessGame::ChessGame(const std::shared_ptr<ChessPlayer>& white_player,
-    const std::shared_ptr<ChessPlayer>& black_player) :
-    m_WhiteTeamPlayer(white_player), m_BlackTeamPlayer(black_player)
+    const std::shared_ptr<ChessPlayer>& black_player):
+    m_ActivePlayer(white_player),m_NonActivePlayer(black_player)
 {
-
-    SetupChessBoardBitMask();
-
-    m_CurrentPlayer = m_WhiteTeamPlayer;
-
+    SetupChessBoardBitMask(white_player, black_player);
 }
 
-void Chess_Game::ChessGame::SelectPiece(BoardPosition piece_board_position)
-{
-    if (!ChessBoard::IsNewPositionInBounds(piece_board_position))
-    {
-        CHESS_LOG_INFO("The selected position is not in bounds.");
-        return;
-    }
-    if (auto current_player = m_CurrentPlayer.lock())
-    {
-        current_player->SelectPiece(piece_board_position);
-
-        m_IsSelectedPieceChanged = true;
-    }
-    return;
-}
-
-bool Chess_Game::ChessGame::IsPieceSelected()
-{
-    if (auto current_player = m_CurrentPlayer.lock())
-    {
-        return !current_player->GetSelectedPiece().expired();
-    }
-    return false;
-}
-
-std::weak_ptr<Chess_Game::ChessPiece> Chess_Game::ChessGame::GetSelectedPiece()
-{
-    if (auto current_player = m_CurrentPlayer.lock())
-    {
-        return current_player->GetSelectedPiece();
-    }
-    return std::weak_ptr<ChessPiece>();
-}
-
-bool Chess_Game::ChessGame::CanMove(BoardPosition new_position, std::shared_ptr<ChessPlayer> player_to_check)
+bool Chess_Game::ChessGame::CanMove(BoardPosition new_position, std::shared_ptr<ChessPlayer> player_to_check,
+    std::shared_ptr<ChessPlayer> opposite_player)
 {  
     if (!ChessBoard::IsNewPositionInBounds(new_position))
     {
@@ -65,13 +28,13 @@ bool Chess_Game::ChessGame::CanMove(BoardPosition new_position, std::shared_ptr<
         return false;
     }
     
-    if (!CanResolveCheck(new_position, player_to_check))
+    if (!CanResolveCheck(new_position))
     {
         CHESS_LOG_INFO("The next move must resolve the kings check.");
         return false;
     }
     
-    if (!IsKingSafeAfterMove(new_position, player_to_check))
+    if (!IsKingSafeAfterMove(new_position, player_to_check, opposite_player))
     {
         CHESS_LOG_INFO("The piece cannot move in this position because the next position will result in a mate.");
         return false;
@@ -83,130 +46,105 @@ bool Chess_Game::ChessGame::CanMove(BoardPosition new_position, std::shared_ptr<
     
 }
 
-bool Chess_Game::ChessGame::CanMoveSelectedPiece(BoardPosition new_position)
+
+void Chess_Game::ChessGame::MoveCurrentPlayerSelectedPiece(BoardPosition new_position)
 {
-    if (auto current_player = m_CurrentPlayer.lock())
-    {     
-        if (!current_player->GetSelectedPiece().expired() && 
-            current_player->GetSelectedPiece().lock()->GetPiecePosition() == new_position)
+    if (auto selected_piece = m_ActivePlayer->GetSelectedPiece().lock())
+    {
+
+        BoardPosition current_piece_position = selected_piece->GetPiecePosition();
+
+        BoardPositionFlags_ new_position_flag = BoardPositionFlags_kIsPositionOcupied;
+
+        BoardPositionFlags_ current_position_flag_piece_team =
+            m_ChessBoardData.GetChessboardPositionFlag(current_piece_position)
+            & BoardPositionFlags_kIsPieceFromWhiteTeam ?
+            BoardPositionFlags_kIsPieceFromWhiteTeam : BoardPositionFlags_kIsPieceFromBlackTeam;
+
+        ChessPieceType_ selected_piece_type = selected_piece->GetChessPieceType();
+
+        if (m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied)
         {
-            CHESS_LOG_INFO("Piece was unselected.");
-            current_player->UnSelectPiece();
-            m_IsSelectedPieceChanged = true;
-
-            return false;
-        }     
-        return CanMove(new_position, current_player);
-    }
-    return false;
-}
-
-void Chess_Game::ChessGame::MoveSelectedPiece(BoardPosition new_position)
-{
-    if (m_CurrentPlayer.expired())
-        return;
-
-    auto current_player = m_CurrentPlayer.lock();
-
-    if (current_player->GetSelectedPiece().expired())
-        return;
-        
-    auto selected_piece = current_player->GetSelectedPiece().lock();
-
-    BoardPosition current_piece_position = selected_piece->GetPiecePosition();
-
-    BoardPositionFlags_ new_position_flag = BoardPositionFlags_kIsPositionOcupied;
-
-    BoardPositionFlags_ current_position_flag_piece_team = 
-        m_ChessBoardData.GetChessboardPositionFlag(current_piece_position)
-        & BoardPositionFlags_kIsPieceFromWhiteTeam ?
-        BoardPositionFlags_kIsPieceFromWhiteTeam : BoardPositionFlags_kIsPieceFromBlackTeam;
-
-    ChessPieceType_ selected_piece_type = selected_piece->GetChessPieceType();
- 
-    if (m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied)
-    {
-        CapturePiece(new_position);
-    }
-
-    current_player->MoveSelectedPiece(new_position);
-
-    new_position_flag = selected_piece_type == ChessPieceType_kKing ?
-        static_cast<BoardPositionFlags_>(new_position_flag | BoardPositionFlags_kIsPieceImortal | current_position_flag_piece_team)
-        : static_cast<BoardPositionFlags_>(new_position_flag | current_position_flag_piece_team);
-
-    m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, static_cast<BoardPositionFlags_>(0));
-
-    m_ChessBoardData.SetChessboardPositionFlag(new_position, new_position_flag);
-
-    if (ChessBoard::IsPositionAtVerticalBoarder(new_position) && selected_piece_type == ChessPieceType_kPawn)
-    {
-        //Await this thread for the answer. 
-        //Reason why this should be on separate thread is that we don't want to block the input polling and 
-        // the rendering.
-
-        //Issue a draw for a selection box for the promote piece type.
-        //Wait for the answer in this thread and then proceed.
-
-        current_player->PromotePawn(ChessPieceType_kQueen);
-    }
-
-    if (IsKingChecked())
-    {
-        m_IsGameOver = IsKingCheckMated();
-    }
-
-    current_player->UnSelectPiece();
-    m_IsSelectedPieceChanged = true;
-    m_CurrentPlayer = GetNonActivePlayer();
-    
-}
-
-bool Chess_Game::ChessGame::IsSelectedPieceChanged()
-{
-    bool result = m_IsSelectedPieceChanged;
-    if (m_IsSelectedPieceChanged)
-        m_IsSelectedPieceChanged = false;
-    return result;
-}
-
-std::vector<Chess_Game::BoardPosition> Chess_Game::ChessGame::GetSelectedPieceAllPossibleMoves()
-{
-    if (m_CurrentPlayer.expired())
-        return std::vector<BoardPosition>();
-
-    auto current_player = m_CurrentPlayer.lock();
-
-    if (auto selected_piece = current_player->GetSelectedPiece().lock())
-    {
-        std::vector<BoardPosition> result{};
-
-        size_t vertical{}, horizontal{};
-        for (vertical = 1; vertical <= 8; vertical++)
-        {
-            for (horizontal = 'a'; horizontal <= 'h'; horizontal++)
-            {
-                BoardPosition position_to_check = {static_cast<char>(horizontal) ,static_cast<char>(vertical) };
-                if (CanMove(position_to_check,current_player))
-                {
-                    result.push_back(position_to_check);
-                }
-            }
+            CapturePiece(new_position);
         }
-        return result;
 
+        m_ActivePlayer->MoveSelectedPiece(new_position);
+
+        new_position_flag = selected_piece_type == ChessPieceType_kKing ?
+            static_cast<BoardPositionFlags_>(new_position_flag | BoardPositionFlags_kIsPieceImortal | current_position_flag_piece_team)
+            : static_cast<BoardPositionFlags_>(new_position_flag | current_position_flag_piece_team);
+
+        m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, static_cast<BoardPositionFlags_>(0));
+
+        m_ChessBoardData.SetChessboardPositionFlag(new_position, new_position_flag);
+
+        if (ChessBoard::IsPositionAtVerticalBoarder(new_position) && selected_piece_type == ChessPieceType_kPawn)
+        {
+            //Await this thread for the answer. 
+            //Reason why this should be on separate thread is that we don't want to block the input polling and 
+            // the rendering.
+
+            //Issue a draw for a selection box for the promote piece type.
+            //Wait for the answer in this thread and then proceed.
+
+            m_ActivePlayer->PromotePawn(ChessPieceType_kQueen);
+        }
+
+        if (IsKingChecked())
+        {
+            m_IsKingCheckMated = IsKingCheckMated();
+        }
     }
-    return std::vector<BoardPosition>();
+}
+std::vector<Chess_Game::BoardPosition> Chess_Game::ChessGame::GetSelectedPieceAllPossibleMoves(
+    std::shared_ptr<ChessPlayer> current_player,
+    std::shared_ptr<ChessPlayer> opposite_player)
+{
+    std::vector<BoardPosition> result{};
+  if (auto selected_piece = current_player->GetSelectedPiece().lock())
+  {
+      size_t vertical{}, horizontal{};
+      for (vertical = 1; vertical <= 8; vertical++)
+      {
+          for (horizontal = 'a'; horizontal <= 'h'; horizontal++)
+          {
+              BoardPosition position_to_check = {static_cast<char>(horizontal) ,static_cast<char>(vertical) };
+
+              if (CanMove(position_to_check,current_player, opposite_player))
+              {
+                  result.push_back(position_to_check);
+              }
+          }
+      }
+      return result;
+  }
+}
+
+void Chess_Game::ChessGame::UpdateChessGamePlayers(
+    const std::shared_ptr<ChessPlayer>& active_player,
+    const std::shared_ptr<ChessPlayer>& opposite_player)
+{
+    m_ActivePlayer = active_player;
+    m_NonActivePlayer = opposite_player;
+}
+
+std::vector<std::shared_ptr<Chess_Game::ChessPiece>> Chess_Game::ChessGame::GetAllChessboardPieces()
+{
+    std::vector<std::shared_ptr<ChessPiece>> player_1_pieces = m_ActivePlayer->GetPlayerPieces();
+    const std::vector<std::shared_ptr<ChessPiece>>& player_2_pieces = m_NonActivePlayer->GetPlayerPieces();
+    player_1_pieces.insert(player_1_pieces.end(), player_2_pieces.begin(), player_2_pieces.end());
+    return player_1_pieces;
 }
 
 bool Chess_Game::ChessGame::IsKingSafeAfterMove(BoardPosition new_position,
-    std::shared_ptr<ChessPlayer> current_player)
+    std::shared_ptr<ChessPlayer> player_to_check,
+    std::shared_ptr<ChessPlayer> opposite_player)
 {
   
-    if (auto selected_piece = current_player->GetSelectedPiece().lock())
+    if (auto selected_piece = player_to_check->GetSelectedPiece().lock())
     {
         BoardPosition kings_position = selected_piece->GetChessPieceType() == ChessPieceType_kKing ?
-            new_position : current_player->GetPlayerKing().GetPiecePosition();
+            new_position : player_to_check->GetPlayerKing().GetPiecePosition();
 
         BoardPosition current_piece_position = selected_piece->GetPiecePosition();
         BoardPositionFlags_ current_position_flags =
@@ -216,9 +154,9 @@ bool Chess_Game::ChessGame::IsKingSafeAfterMove(BoardPosition new_position,
         bool result = true;
 
         m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, static_cast<BoardPositionFlags_>(0));
-        m_ChessBoardData.SetChessboardPositionFlag(new_position, static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPositionOcupied));
+        m_ChessBoardData.SetChessboardPositionFlag(new_position, current_position_flags);
 
-        for (const auto& piece : GetNonActivePlayer()->GetPlayerPieces())
+        for (const auto& piece : opposite_player->GetPlayerPieces())
         {
             if (piece->GetPiecePosition() == new_position &&
                 !(m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPieceImortal))
@@ -244,26 +182,14 @@ bool Chess_Game::ChessGame::IsKingSafeAfterMove(BoardPosition new_position,
 
 void Chess_Game::ChessGame::CapturePiece(BoardPosition position_of_piece_to_capture)
 {
-    if (auto current_player = m_CurrentPlayer.lock())
-    {
-        current_player->IncreaseScore(1);
-        GetNonActivePlayer()->RemovePiece(position_of_piece_to_capture);
-
-        CHESS_LOG_INFO("Captured.");
-    }
+    m_ActivePlayer->IncreaseScore(1);
+    m_NonActivePlayer->RemovePiece(position_of_piece_to_capture);
+    CHESS_LOG_INFO("Captured.");
 }
 
-std::shared_ptr<Chess_Game::ChessPlayer> Chess_Game::ChessGame::GetNonActivePlayer()
-{
-    if (auto current_active_player = m_CurrentPlayer.lock())
-    {
-        return current_active_player == m_WhiteTeamPlayer ? m_BlackTeamPlayer : m_WhiteTeamPlayer;
-    }
 
-    return std::shared_ptr<ChessPlayer>();
-}
-
-void Chess_Game::ChessGame::SetupChessBoardBitMask()
+void Chess_Game::ChessGame::SetupChessBoardBitMask(std::shared_ptr<ChessPlayer> white_team_player,
+    std::shared_ptr<ChessPlayer> black_team_player)
 {
     BoardPositionFlags_ white_team_flags = static_cast<BoardPositionFlags_>(
         BoardPositionFlags_kIsPositionOcupied | BoardPositionFlags_kIsPieceFromWhiteTeam);
@@ -271,79 +197,71 @@ void Chess_Game::ChessGame::SetupChessBoardBitMask()
         BoardPositionFlags_kIsPositionOcupied | BoardPositionFlags_kIsPieceFromBlackTeam);
 
 
-    for (const auto& piece : m_WhiteTeamPlayer->GetPlayerPieces())
+    for (const auto& piece : white_team_player->GetPlayerPieces())
     {
         m_ChessBoardData.SetChessboardPositionFlag(piece->GetPiecePosition(), white_team_flags);
     }
-    for (const auto& piece : m_BlackTeamPlayer->GetPlayerPieces())
+    for (const auto& piece : black_team_player->GetPlayerPieces())
     {
         m_ChessBoardData.SetChessboardPositionFlag(piece->GetPiecePosition(), black_team_flags);
     }
 
-    m_ChessBoardData.SetChessboardPositionFlag(m_WhiteTeamPlayer->GetPlayerKing().GetPiecePosition(), 
+    m_ChessBoardData.SetChessboardPositionFlag(white_team_player->GetPlayerKing().GetPiecePosition(),
         static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPieceImortal | white_team_flags));
-    m_ChessBoardData.SetChessboardPositionFlag(m_BlackTeamPlayer->GetPlayerKing().GetPiecePosition(),
+    m_ChessBoardData.SetChessboardPositionFlag(black_team_player->GetPlayerKing().GetPiecePosition(),
         static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPieceImortal | black_team_flags));
 
 }
 
 bool Chess_Game::ChessGame::IsKingChecked()
-{
-    if (auto current_player = m_CurrentPlayer.lock())
+{    
+    BoardPosition king_to_check_board_position = m_NonActivePlayer->GetPlayerKing().GetPiecePosition();
+    KingCheckData check_data{};
+    
+    
+    for (const auto& piece : m_ActivePlayer->GetPlayerPieces())
     {
-        auto non_active_player = GetNonActivePlayer();
-
-        BoardPosition king_to_check_board_position = non_active_player->GetPlayerKing().GetPiecePosition();
-        KingCheckData check_data{};
-
-
-        for (const auto& piece : current_player->GetPlayerPieces())
+        if (piece->CanMove(king_to_check_board_position) &&
+            piece->CanMoveBoardSpecific(king_to_check_board_position, m_ChessBoardData))
         {
-            if (piece->CanMove(king_to_check_board_position) &&
-                piece->CanMoveBoardSpecific(king_to_check_board_position, m_ChessBoardData))
-            {
-                CHESS_LOG_INFO("The opposite team king has been checked.");
-                BoardPosition piece_position =  piece->GetPiecePosition();
-         
-                check_data.is_king_checked = true;
-                check_data.pieces_delivering_check.emplace_back(piece);
-            }
+            CHESS_LOG_INFO("The opposite team king has been checked.");
+            BoardPosition piece_position =  piece->GetPiecePosition();
+     
+            check_data.is_king_checked = true;
+            check_data.pieces_delivering_check.emplace_back(piece);
         }
-        if(check_data.is_king_checked)
-            non_active_player->SetPlayerKingCheckData(check_data);
-
-        return check_data.is_king_checked;
     }
-    return false;
+    if(check_data.is_king_checked)
+        m_NonActivePlayer->SetPlayerKingCheckData(check_data);
+    
+    return check_data.is_king_checked;
+    
 }
 
 bool Chess_Game::ChessGame::IsKingCheckMated()
 {
     CHESS_LOG_INFO("Checking for checkmate.");
-
-    if (auto current_player = m_CurrentPlayer.lock())
+   
+    // - Move the king
+    if (CanKingResolveTheCheck(m_NonActivePlayer, m_ActivePlayer))
     {
-        auto player_to_check = GetNonActivePlayer();
-
-        // - Move the king
-        if (CanKingResolveTheCheck(player_to_check))
-        {
-            return false;
-        }
-
-        //- Move piece to prevent check.
-        //- Claim the piece causing the check
-        if (CanOtherPiecesResolveTheCheck(player_to_check))
-        {
-            return false;
-        }
-
-        CHESS_LOG_INFO("King has been checkmated.");
+        return false;
     }
+    
+    //- Move piece to prevent check.
+    //- Claim the piece causing the check
+    if (CanOtherPiecesResolveTheCheck(m_NonActivePlayer, m_ActivePlayer))
+    {
+        return false;
+    }
+    
+    CHESS_LOG_INFO("King has been checkmated.");
+
     return true;
 }
 
-bool Chess_Game::ChessGame::CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> player_to_check)
+bool Chess_Game::ChessGame::CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> player_to_check,
+    std::shared_ptr<ChessPlayer> opposite_player)
 {
     constexpr BoardPosition kKingMovementOffsets[] = {
         {1,1},
@@ -359,7 +277,6 @@ bool Chess_Game::ChessGame::CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> 
     bool result = false;
 
     BoardPosition king_board_position = player_to_check->GetPlayerKing().GetPiecePosition();
-    BoardPositionFlags_ king_board_flags = m_ChessBoardData.GetChessboardPositionFlag(king_board_position);
 
     player_to_check->SelectPiece(king_board_position);
 
@@ -375,23 +292,18 @@ bool Chess_Game::ChessGame::CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> 
             continue;
         }
 
-        BoardPositionFlags_ previous_flags = m_ChessBoardData.GetChessboardPositionFlag(new_position);
-        m_ChessBoardData.SetChessboardPositionFlag(new_position, king_board_flags);
-
-        result = this->CanMove(new_position, player_to_check);
+        result = this->CanMove(new_position, player_to_check, opposite_player);
        
-        m_ChessBoardData.SetChessboardPositionFlag(new_position, previous_flags);
-        player_to_check->UnSelectPiece();
-
         if (result)
-        {
-            return result;
-        }
+            break;
     }
+
+    player_to_check->UnSelectPiece();
     return result;
 }
 
-bool Chess_Game::ChessGame::CanOtherPiecesResolveTheCheck(std::shared_ptr<ChessPlayer> player_to_check)
+bool Chess_Game::ChessGame::CanOtherPiecesResolveTheCheck(std::shared_ptr<ChessPlayer> player_to_check,
+    std::shared_ptr<ChessPlayer> opposite_player)
 {
     bool result = false;
     const KingCheckData& player_check_info = player_to_check->GetPlayerKingCheckData();
@@ -430,7 +342,7 @@ bool Chess_Game::ChessGame::CanOtherPiecesResolveTheCheck(std::shared_ptr<ChessP
         {          
             player_to_check->SelectPiece(piece_to_check->GetPiecePosition());
 
-            result = this->CanMove(position_to_check, player_to_check);
+            result = this->CanMove(position_to_check, player_to_check, opposite_player);
 
             if (result)
             {
@@ -443,13 +355,12 @@ bool Chess_Game::ChessGame::CanOtherPiecesResolveTheCheck(std::shared_ptr<ChessP
     return result;
 }
 
-bool Chess_Game::ChessGame::CanResolveCheck(BoardPosition new_position,
-    std::shared_ptr<ChessPlayer> current_player)
+bool Chess_Game::ChessGame::CanResolveCheck(BoardPosition new_position)
 {
-    if (auto selected_piece = current_player->GetSelectedPiece().lock())
+    if (auto selected_piece = m_ActivePlayer->GetSelectedPiece().lock())
     {
      
-        const KingCheckData& check_data = current_player->GetPlayerKingCheckData();
+        const KingCheckData& check_data = m_ActivePlayer->GetPlayerKingCheckData();
 
         if (!check_data.is_king_checked)
             return true;
@@ -459,7 +370,7 @@ bool Chess_Game::ChessGame::CanResolveCheck(BoardPosition new_position,
             m_ChessBoardData.GetChessboardPositionFlag(selected_piece->GetPiecePosition());
          
         BoardPosition king_position = selected_piece->GetChessPieceType() == ChessPieceType_kKing ?
-            new_position : current_player->GetPlayerKing().GetPiecePosition();
+            new_position : m_ActivePlayer->GetPlayerKing().GetPiecePosition();
 
         bool result = true;
         m_ChessBoardData.SetChessboardPositionFlag(new_position, selected_piece_flag);
