@@ -14,8 +14,9 @@ namespace Chess_Game
         TextureName_kButton,
         TextureName_kGameLogo,
         TextureName_kResetButton,
-        TextureName_kHomeButton
-
+        TextureName_kHomeButton,
+        TextureName_kPauseButton,
+        TextureName_kResumeButton
     };
 
     typedef unsigned int Texture;

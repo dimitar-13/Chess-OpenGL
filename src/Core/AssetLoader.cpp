@@ -18,7 +18,11 @@ Chess_Game::AssetLoader::AssetLoader()
         {"D:/c++/OpenGl/Chess-OpenGL/resources/Test_Button.png",                          TextureName_kButton },
         {"D:/c++/OpenGl/Chess-OpenGL/resources/Chess_logo.png",                           TextureName_kGameLogo},
         {"D:/c++/OpenGl/Chess-OpenGL/resources/RestButtonTest.png",                       TextureName_kResetButton},
-        {"D:/c++/OpenGl/Chess-OpenGL/resources/HomeButtonTest.png",                       TextureName_kHomeButton }
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/HomeButtonTest.png",                       TextureName_kHomeButton },
+        { "D:/c++/OpenGl/Chess-OpenGL/resources/PauseButtonTest.png",                     TextureName_kPauseButton },
+        { "D:/c++/OpenGl/Chess-OpenGL/resources/ResumeButtonTest.png",                    TextureName_kResumeButton }
+
+
     };
     size_t loaded_asset_count = sizeof(texture_paths)/ sizeof(texture_paths[0]);
 
@@ -34,7 +38,7 @@ Chess_Game::AssetLoader::AssetLoader()
 
         TextureReadData texture_data;
 
-        if (i == 0)
+        if (texture_paths[i].texture_name == TextureName_kWhiteTexture)
         {
             texture_data.is_texture_valid = true;
             texture_data.texture_size = Size2D{1,1};
