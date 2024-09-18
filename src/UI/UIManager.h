@@ -16,7 +16,7 @@ namespace Chess_Game
     {
     private:
         using ElementID = size_t;
-        static constexpr size_t kUIElementCount = 10; /// This might be removed if not used.
+        static constexpr size_t kUIElementCount = 20; /// This might be removed if not used.
     public:
         UIManager(Size2D window_size, std::shared_ptr<DrawableCreator>& drawable_creator);
         Size2D GetCurrentWindowSize()const { return m_CurrentWindowSize; }

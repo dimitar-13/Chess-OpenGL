@@ -38,7 +38,8 @@ namespace Chess_Game
     class UIElement
     {
     public:
-        virtual void SetVisibility(bool is_visible) { m_IsVisible = is_visible; }
+        virtual void SetVisibility(bool is_visible) { m_UIDrawable->EnableDrawable(is_visible); }
+        bool IsVisible() { return m_UIDrawable->IsDrawableEnabled(); }
         void SetScale(const glm::vec2& new_scale);
         void SetMargin(const Margin& new_margin);
         AxisAlignedBoundingBox& GetElementBoundingBox() { return m_ElementBoundingBox; }
@@ -56,12 +57,11 @@ namespace Chess_Game
         void UpdateWindowPosition(Size2D new_window_size);
         void CalculateMarginPosition(Size2D window_size);
         void CalculateBoundingBox();
-        std::weak_ptr<Drawable> GetDrawable() { return m_UIDrawable; }
+        std::shared_ptr<Drawable> GetDrawable() { return m_UIDrawable; }
     protected:
         std::shared_ptr<Drawable> m_UIDrawable{};
         AxisAlignedBoundingBox m_ElementBoundingBox{};
         size_t m_UIElementID{};
-        bool m_IsVisible = true; 
         Margin m_UIElementMargin;
         AnchorPoint_ m_ElementAnchorPoint;
         glm::vec2 m_ElementWindowPos{};

@@ -31,7 +31,7 @@ void Chess_Game::UIManager::DrawUI(std::shared_ptr<BatchRenderer> application_ba
     {
         if (auto element = weak_element.lock())
         {
-            auto drawable = element->GetDrawable().lock();
+            auto drawable = element->GetDrawable();
             application_batch_renderer->PushTexturedQuad(drawable);
         }
     }
