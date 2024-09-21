@@ -35,7 +35,7 @@ Chess_Game::Application::Application():
 
 void Chess_Game::Application::StartRenderLoop()
 {
-    m_CurrentApplicationScene = std::make_shared<MainMenuScene>(this->weak_from_this());
+    m_CurrentApplicationScene = std::make_shared<DefaultChessScene>(this->weak_from_this());
     m_CurrentApplicationScene->InitScene();
 
     //glEnable(GL_DEPTH_TEST);
@@ -80,6 +80,8 @@ void Chess_Game::Application::InitAppResource()
     this->AddEventListener(m_ApplicationBatchRenderer->GetIDFramebuffer());
 
     m_ApplicationUIManager = std::make_shared<UIManager>(current_window_size, m_ApplicationDrawableCreator);
+    m_ApplicationUIManager->CreateRootPanel();
+
     this->AddEventListener(m_ApplicationUIManager);
 }
 

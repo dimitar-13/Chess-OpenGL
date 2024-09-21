@@ -2,99 +2,95 @@
 #include "UIElement.h"
 #include "UIManager.h"
 
-void Chess_Game::UIElement::SetScale(const glm::vec2& new_scale)
-{
-    m_ElementScale = new_scale;
-}
-
-void Chess_Game::UIElement::SetMargin(const Margin& new_margin)
-{
-    m_UIElementMargin = new_margin;
-    if (auto ui_manager = m_UIManager.lock())
-    {
-        CalculateMarginPosition(ui_manager->GetCurrentWindowSize());
-        m_UIDrawable->SetPosition(glm::vec3(m_ElementWindowPos, 1));
-        CalculateBoundingBox();
-    }
-}
-
-Chess_Game::UIElement::UIElement(size_t element_id, std::weak_ptr<UIManager> ui_manager_ref,
+Chess_Game::Element::Element(size_t element_id,
+    std::weak_ptr<UIManager> ui_manager_ref,
     DrawableCreator& drawable_creator,
     const Margin& element_margin,
-    AnchorPoint_ element_margin_anchor_point,
-    Size2D window_size, const glm::vec2& element_scale) :
-    m_UIElementID(element_id), m_UIElementMargin(element_margin),
-    m_ElementAnchorPoint(element_margin_anchor_point),
+    const glm::vec2& element_scale):
+    m_ElementID(element_id), m_ElementMargin(element_margin),
     m_UIManager(ui_manager_ref)
 {
-
-    CalculateMarginPosition(window_size);
-
-    m_ElementScale = element_scale;
-
-    CalculateBoundingBox();
+    CalculateElementScreenPosition();
+    CalculateElementBoundingBox();
+    m_ElementPos = glm::vec2(0);
+    m_ElementSize = element_scale;
 
     m_UIDrawable = drawable_creator.CreateDrawable();
     m_UIDrawable->SetColor(glm::vec3(1));
     m_UIDrawable->SetScale(element_scale);
-    m_UIDrawable->SetPosition(glm::vec3(m_ElementWindowPos, 1));
+    m_UIDrawable->SetPosition(glm::vec3(m_ElementPos, 1));
+}
+
+void Chess_Game::Element::ResizeElement(Size2D new_size)
+{
+    m_ElementSize = glm::vec2(new_size.width, new_size.height);
+    m_UIDrawable->SetScale(m_ElementSize);
+    CalculateElementScreenPosition();
+
+    CalculateElementBoundingBox();
 
 }
 
-Chess_Game::UIElement::~UIElement()
+void Chess_Game::Element::SetMargin(const Margin& new_margin)
 {
-    if (auto ui_manager = m_UIManager.lock())
-    {
-        ui_manager->RemoveWidget(m_UIElementID);
-    }
+    m_ElementMargin = new_margin;
+
+    CalculateElementScreenPosition();
+    CalculateElementBoundingBox();
 }
 
-void Chess_Game::UIElement::UpdateWindowPosition(Size2D new_window_size)
+Chess_Game::Element::~Element()
 {
-    CalculateMarginPosition(new_window_size);
-    m_UIDrawable->SetPosition(glm::vec3(m_ElementWindowPos,1));
-    CalculateBoundingBox();
 }
 
-void Chess_Game::UIElement::CalculateMarginPosition(Size2D window_size)
+void Chess_Game::Element::OnParentSizeChanged()
 {
-    glm::vec2 anchor_point{};
+    CalculateElementScreenPosition();
+    CalculateElementBoundingBox();
+}
 
-    switch (m_ElementAnchorPoint)
-    {
-    case Chess_Game::AnchorPoint_kMiddle:
-        anchor_point = { window_size.width / 2.0f, window_size.height / 2.0f };
-        break;
-    case Chess_Game::AnchorPoint_kTopLeft:
-        anchor_point = { 0,window_size.height };
-        break;
-    case Chess_Game::AnchorPoint_kBottomLeft:
-        anchor_point = { window_size.width,0};
-        break;
-    case Chess_Game::AnchorPoint_kTopRight:
-        anchor_point = { window_size.width,window_size.height };
-        break;
-    case Chess_Game::AnchorPoint_kBottomRight:
-        anchor_point = {0,0 };
-        break;
-    default:
-        break;
-    }
-
-
-    glm::vec2 position{};
-
-    position.x = anchor_point.x + m_UIElementMargin.left - m_UIElementMargin.right;
-    position.y = anchor_point.y + m_UIElementMargin.bottom - m_UIElementMargin.top;
-
-    m_ElementWindowPos = position;
+void Chess_Game::Element::OnElementPositionChange(glm::vec2 new_position)
+{
+    m_ElementPos = new_position;
 
 }
 
-void Chess_Game::UIElement::CalculateBoundingBox()
+void Chess_Game::Element::CalculateElementScreenPosition()
 {
-    m_ElementBoundingBox.x = m_ElementWindowPos.x - m_ElementScale.x;
-    m_ElementBoundingBox.y = m_ElementWindowPos.y - m_ElementScale.y;
-    m_ElementBoundingBox.width = m_ElementWindowPos.x + m_ElementScale.x;
-    m_ElementBoundingBox.height = m_ElementWindowPos.y + m_ElementScale.y;
+    if (!m_Parent)
+        return;
+
+    glm::vec2 parent_size = m_Parent->GetElementSize();
+    glm::vec2 parent_pos = m_Parent->m_ElementPos;
+
+    float left_margin = m_ElementMargin.left * parent_size.x;
+    float right_margin = m_ElementMargin.right * parent_size.x;
+    float top_margin = m_ElementMargin.top * parent_size.y;
+    float bottom_margin = m_ElementMargin.bottom * parent_size.y;
+
+    glm::vec2 final_child_pos;
+    final_child_pos.x = parent_pos.x + left_margin; 
+    final_child_pos.y = parent_pos.y + top_margin;
+
+    Size2D available_size;
+    available_size.width = parent_size.x - (left_margin + right_margin);
+    available_size.height = parent_size.y - (top_margin + bottom_margin);
+
+    m_ElementPos = final_child_pos;
+
+    //m_ElementSize = available_size;
+
+    //m_UIDrawable->SetScale(glm::vec2(m_ElementSize.width, m_ElementSize.height));
+    m_UIDrawable->SetPosition(glm::vec3(m_ElementPos, 1));
+
+    OnElementPositionChange(final_child_pos);
+
+}
+
+void Chess_Game::Element::CalculateElementBoundingBox()
+{
+    m_BoundingBox.x = m_ElementPos.x - m_ElementPos.x;
+    m_BoundingBox.y = m_ElementPos.y - m_ElementPos.y;
+    m_BoundingBox.width = m_ElementPos.x + m_ElementPos.x;
+    m_BoundingBox.height = m_ElementPos.y + m_ElementPos.y;
 }
