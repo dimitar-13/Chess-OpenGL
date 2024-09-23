@@ -63,38 +63,39 @@ namespace Chess_Game
 
     class UIManager;
     class Panel;
-    class Element : public std::enable_shared_from_this <Element>
+    class Element : public std::enable_shared_from_this<Element>
     {
     protected:
         friend class UIManager;
         friend class Panel;
 
         Element(size_t element_id, std::weak_ptr<UIManager> ui_manager_ref,
-            DrawableCreator& drawable_creator,
-            const Margin& element_margin,
-            const glm::vec2& element_scale);
+            DrawableCreator& drawable_creator,const Margin& element_margin);
     public:
         void SetMargin(const Margin& new_margin);
         const Margin& GetMargin()const { return m_ElementMargin; }
-        void SetVisibility(bool is_visible) { m_IsElementEnabled = is_visible; m_UIDrawable->EnableDrawable(is_visible); }
-        glm::vec2 GetElementSize()const { return m_ElementSize; }
+        virtual void SetVisibility(bool is_visible);
+        bool GetElementVisibility()const { return m_IsElementEnabled; }
+        glm::vec2 GetElementSize()const { return m_CurrentElementSize; }
         virtual ~Element();
         size_t GetElementID()const { return m_ElementID; }
         std::shared_ptr<Drawable> GetDrawable() { return m_UIDrawable; }
+        const AxisAlignedBoundingBox& GetElementBoundingBox()const { return m_BoundingBox; }
         void OnParentSizeChanged();
         virtual void OnElementPositionChange(glm::vec2 new_position);
-        virtual void ResizeElement(Size2D new_size);
-
+        virtual void ResizeElement(glm::vec2 new_size);
+        virtual void OnElementPressed() {};
     private:
         void CalculateElementScreenPosition();
         void CalculateElementBoundingBox();
+        void UpdateDrawable();
     protected:
         size_t m_ElementID;
-        glm::vec2 m_ElementSize;
+        glm::vec2 m_CurrentElementSize;
         Margin m_ElementMargin;
         AxisAlignedBoundingBox m_BoundingBox;
         bool m_IsElementEnabled = true;
-        glm::vec2 m_ElementPos;
+        glm::vec2 m_ElementPos = glm::vec2(0);
         std::shared_ptr<Drawable> m_UIDrawable;
         std::weak_ptr<UIManager> m_UIManager;
         std::shared_ptr<Element> m_Parent;

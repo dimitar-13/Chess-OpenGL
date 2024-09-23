@@ -12,24 +12,23 @@ void Chess_Game::MainMenuScene::InitScene()
         Size2D win_size = application->GetApplicationWindow().GetWindowSize();
 
         Margin button_margin{};
-        button_margin.left = .5f;
-        button_margin.bottom = .5f;
-        button_margin.top = .5f;
+        button_margin.left = .3f;
+        button_margin.right = .3f;
+        button_margin.top = .4f;
+        button_margin.bottom = .4f;
 
         Margin logo_margin{};
-       // button_margin.bottom = 200.0f;
-        logo_margin.left = .5f;
-        logo_margin.bottom= .5f;
-        logo_margin.top= .5f;
+        logo_margin.left = .3f;
+        logo_margin.right = .3f;
+        logo_margin.top = .3f;
+        logo_margin.bottom = .5f;
 
 
         
-        m_StartButton = application->GetUIManager().CreateUIElement<Button>(
-            button_margin,glm::vec2(200,70));
+        m_StartButton = application->GetUIManager().CreateUIElement<Button>(button_margin);
         m_StartButton->SetButtonCustomTexture(TextureName_kButton);
 
-        m_GameLogoImage = application->GetUIManager().CreateUIElement<Image>(
-            logo_margin, glm::vec2(200, 200));
+        m_GameLogoImage = application->GetUIManager().CreateUIElement<Image>(logo_margin);
         m_GameLogoImage->SetImageTexture(TextureName_kGameLogo);
 
 

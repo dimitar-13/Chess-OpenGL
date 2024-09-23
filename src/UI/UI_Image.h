@@ -10,12 +10,10 @@ namespace Chess_Game
     private:
         Image(size_t element_id, std::weak_ptr<UIManager> ui_manager_ref,
             DrawableCreator& drawable_creator,
-            const Margin& element_margin,
-            const glm::vec2& element_scale)
+            const Margin& element_margin)
             :Element(element_id,ui_manager_ref,
                 drawable_creator,
-                element_margin,
-                element_scale)
+                element_margin)
         {}
 
     public:

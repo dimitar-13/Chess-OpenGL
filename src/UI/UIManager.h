@@ -28,8 +28,7 @@ namespace Chess_Game
         void PollUIInput(const MouseInput& application_input,
             std::shared_ptr<BatchRenderer> application_batch_renderer ,const OrthoViewportHandler& test);
         template<typename T>
-        std::shared_ptr<T> CreateUIElement(const Margin& element_margin,     
-            glm::vec2 element_scale = glm::vec2(1));
+        std::shared_ptr<T> CreateUIElement(const Margin& element_margin);
     private:
         void OnWindowSizeChanged(const WindowResizeEvent& e);
         void OnEvent(const Event& e) override;
@@ -43,8 +42,7 @@ namespace Chess_Game
     };
 
     template<typename T>
-    inline std::shared_ptr<T> UIManager::CreateUIElement(const Margin& element_margin,
-       glm::vec2 element_scale)
+    inline std::shared_ptr<T> UIManager::CreateUIElement(const Margin& element_margin)
     {
         static_assert(std::is_base_of_v<Element, T> == true && "Call must inherit from 'UIElement'.");
         if (m_IDQueue.size() == 0)
@@ -57,7 +55,7 @@ namespace Chess_Game
         m_IDQueue.pop();
         T* instance = new T(id,std::dynamic_pointer_cast<UIManager>(this->shared_from_this()),
             *m_ApplicationDrawableCreator,
-            element_margin, element_scale);
+            element_margin);
 
         std::shared_ptr<T> result = std::shared_ptr<T>(instance);
         std::weak_ptr<Element> element_weak_ptr_cast = std::dynamic_pointer_cast<Element>(result);

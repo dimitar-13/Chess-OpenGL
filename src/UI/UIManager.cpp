@@ -20,11 +20,13 @@ void Chess_Game::UIManager::CreateRootPanel()
     Panel* instance = new Panel(id,
         std::dynamic_pointer_cast<UIManager>(this->shared_from_this()),
         *m_ApplicationDrawableCreator,
-        { 0,0,0,0 }, glm::vec2(m_CurrentWindowSize.width, m_CurrentWindowSize.height));
+        { 0,0,0,0 });
+    instance->ResizeElement(glm::vec2(m_CurrentWindowSize.width, m_CurrentWindowSize.height));
 
     std::shared_ptr<Panel> result = std::shared_ptr<Panel>(instance);
     m_RootWindowPanel = result;
-    m_RootWindowPanel->SetVisibility(false);
+    m_RootWindowPanel->EnablePanelBackground(false);
+
 
     m_UIElements.push_back(std::dynamic_pointer_cast<Element>(result));
 }
@@ -67,16 +69,16 @@ void Chess_Game::UIManager::PollUIInput(const MouseInput& application_input,
         {
             if (auto element = weak_element.lock())
             {            
-               //if (element->GetElementBoundingBox().IsInsideBox(
-               //    glm::vec2(mouse_pos_bottom_left.x, mouse_pos_bottom_left.y)))
-               //{
-               //    size_t drawable_id = 
-               //        application_batch_renderer->GetIDFramebuffer()->GetPixelData(mouse_pos_bottom_left.x,
-               //        mouse_pos_bottom_left.y);
-               //
-               //    if(element->m_UIDrawable->GetDrawableID() == drawable_id)
-               //        element->OnWidgetPressed();
-               //}
+               if (element->GetElementBoundingBox().IsInsideBox(
+                   glm::vec2(mouse_pos_bottom_left.x, mouse_pos_bottom_left.y)))
+               {
+                   size_t drawable_id = 
+                       application_batch_renderer->GetIDFramebuffer()->GetPixelData(mouse_pos_bottom_left.x,
+                       mouse_pos_bottom_left.y);
+               
+                   if(element->m_UIDrawable->GetDrawableID() == drawable_id)
+                       element->OnElementPressed();
+               }
 
             }
         }
@@ -90,7 +92,9 @@ void Chess_Game::UIManager::OnWindowSizeChanged(const WindowResizeEvent& e)
 {
     m_CurrentWindowSize = e.GetWindowSize();
     m_ToNDCMatrix = glm::ortho<float>(0, m_CurrentWindowSize.width, 0, m_CurrentWindowSize.height);
-    m_RootWindowPanel->ResizeElement(Size2D{m_CurrentWindowSize.width,m_CurrentWindowSize.height });
+
+    glm::vec2 half_win_size = { m_CurrentWindowSize.width, m_CurrentWindowSize.height };
+    m_RootWindowPanel->ResizeElement(half_win_size);
 
     //for (auto& weak_element : m_UIElements)
     //{

@@ -159,131 +159,99 @@ void Chess_Game::DefaultChessScene::CreateSceneUI()
 {
     if (auto application = m_Application.lock())
     {
-       Margin panel_margin{};
-       panel_margin.left = .5;
-       panel_margin.top = .5;
+       Margin pause_button_margin{};
+       pause_button_margin.left = .9f;
+       pause_button_margin.bottom = .9f;
+       pause_button_margin.right = .01f;
+       pause_button_margin.top = .01f;
 
-       test_pawn_selection_group = application->GetUIManager().CreateUIElement<Panel>(panel_margin
-           , glm::vec2(170.f, 100.f));
+       m_PauseButton = application->GetUIManager().CreateUIElement<Button>(pause_button_margin);
 
-       Margin button_margin{};
-       button_margin.top = .5;
-       button_margin.right = 0;
+       auto invert_visibility = [this]()
+           {
+               test_button_group->SetVisibility(!test_button_group->GetElementVisibility());
 
-       static auto pawn_button = application->GetUIManager().CreateUIElement<Button>(button_margin
-           , glm::vec2(40.f));
-       pawn_button->SetButtonCustomTexture(TextureName_kPawn);
-       button_margin.left = .4;
-       static auto queen_button = application->GetUIManager().CreateUIElement<Button>(button_margin
-           , glm::vec2(40.f));
-       queen_button->SetButtonCustomTexture(TextureName_kQueen);
+           };
+       m_PauseButton->SetButtonCallback(invert_visibility);
 
-       button_margin.left = .6;
-       static auto bishop_button = application->GetUIManager().CreateUIElement<Button>(button_margin
-           , glm::vec2(40.f));
-       bishop_button->SetButtonCustomTexture(TextureName_kBishop);
+       m_PauseButton->SetButtonCustomTexture(TextureName_kPauseButton);
 
-       button_margin.left = .8;
-       static auto rook_button = application->GetUIManager().CreateUIElement<Button>(button_margin
-           , glm::vec2(40.f));
-       rook_button->SetButtonCustomTexture(TextureName_kRook);
-
-       test_pawn_selection_group->AddChildElement(pawn_button);
-       test_pawn_selection_group->AddChildElement(queen_button);
-       test_pawn_selection_group->AddChildElement(bishop_button);
-       test_pawn_selection_group->AddChildElement(rook_button);
+       Margin button_panel_margin {};
+       button_panel_margin.left = .2;
+       button_panel_margin.right = .2;
+       button_panel_margin.bottom = .2;
+       button_panel_margin.top = .2;
 
 
-       // Margin pause_button_margin{};
-       // pause_button_margin.left = .9f;
-       // pause_button_margin.top = .9f;
+       test_button_group = 
+           application->GetUIManager().CreateUIElement<Panel>(button_panel_margin);
+
+       test_button_group->SetVisibility(false);
+       test_button_group->EnablePanelBackground(true);
+
+       Margin reset_button_margin{};
+       reset_button_margin.left   = .4;
+       reset_button_margin.right  = .4;
+       reset_button_margin.top    = .1;
+       reset_button_margin.bottom = .7;
+
+       m_ResetButton = application->GetUIManager().CreateUIElement<Button>(reset_button_margin);
+
+       auto button_reset_callback_test = [this]() {
+           if (auto application = m_Application.lock())
+           {
+
+               std::shared_ptr<DefaultChessScene> new_scene = std::make_shared<DefaultChessScene>(m_Application);
+               application->SwitchCurrentApplicationScene(new_scene);
+           }
+           };
+
+       m_ResetButton->SetButtonCallback(button_reset_callback_test);
+
+       m_ResetButton->SetButtonCustomTexture(TextureName_kResetButton);
+
+       test_button_group->AddChildElement(m_ResetButton);
 
 
-       // m_PauseButton = application->GetUIManager().CreateUIElement<Button>(pause_button_margin
-       //     , glm::vec2(40.f));
-
-       // auto invert_visibility = [this]()
-       //     {
-       //         //bool current_invert_visibility = this->m_ResetButton->IsVisible();
-       //         //m_IsGamePaused = !m_IsGamePaused;
-       //         //this->m_ResetButton->SetVisibility(!current_invert_visibility);
-       //         //this->m_MainMenuButton->SetVisibility(!current_invert_visibility);
-       //         //this->m_ResumeButton->SetVisibility(!current_invert_visibility);
-       //         //this->m_PauseMenuBackground->SetVisibility(!current_invert_visibility);
-
-       //     };
-       // m_PauseButton->SetButtonCallback(invert_visibility);
-
-       // m_PauseButton->SetButtonCustomTexture(TextureName_kPauseButton);
-
-       // Margin panel_margin{};
-       // panel_margin.left = .5;
-       // panel_margin.top = .5;
-
-       //test_button_group = application->GetUIManager().CreateUIElement<Panel>(panel_margin
-       //     , glm::vec2(200.f,50.f));
+       Margin home_button_margin{};
+       home_button_margin.left = .4;
+       home_button_margin.right = .4;
+       home_button_margin.top = .4;
+       home_button_margin.bottom = .4;
 
 
+       m_MainMenuButton =
+           application->GetUIManager().CreateUIElement<Button>(home_button_margin);
+
+       auto to_main_menu_button_callback = [this]() {
+           if (auto application = m_Application.lock())
+           {
+               std::shared_ptr<MainMenuScene> main_menu_scene = std::make_shared<MainMenuScene>(m_Application);
+               application->SwitchCurrentApplicationScene(main_menu_scene);
+           }
+           };
 
 
-       // Margin reset_button_margin{};
+       m_MainMenuButton->SetButtonCallback(to_main_menu_button_callback);
 
-       // m_ResetButton = application->GetUIManager().CreateUIElement<Button>(reset_button_margin,
-       //      glm::vec2(40.f));
+       m_MainMenuButton->SetButtonCustomTexture(TextureName_kHomeButton);
 
-       // auto button_reset_callback_test = [this]() {
-       //     if (auto application = m_Application.lock())
-       //     {
-
-       //         std::shared_ptr<DefaultChessScene> new_scene = std::make_shared<DefaultChessScene>(m_Application);
-       //         application->SwitchCurrentApplicationScene(new_scene);
-       //     }
-       //     };
-
-       // m_ResetButton->SetButtonCallback(button_reset_callback_test);
-
-       // m_ResetButton->SetButtonCustomTexture(TextureName_kResetButton);
-
-       // test_button_group->AddChildElement(m_ResetButton);
+       test_button_group->AddChildElement(m_MainMenuButton);
 
 
+       Margin resume_button_margin{};
+       resume_button_margin.left = .4;
+       resume_button_margin.right = .4;
+       resume_button_margin.top = .7;
+       resume_button_margin.bottom = .1;
+    
+       m_ResumeButton = application->GetUIManager().CreateUIElement<Button>(resume_button_margin);
+       
+       m_ResumeButton->SetButtonCallback(invert_visibility);
+       
+       m_ResumeButton->SetButtonCustomTexture(TextureName_kResumeButton);
 
-
-       // //m_ResetButton->SetVisibility(false);
-
-       // Margin home_button_margin{};
-       // home_button_margin.left = .5;
-
-       // m_MainMenuButton = application->GetUIManager().CreateUIElement<Button>(home_button_margin,
-       //      glm::vec2(40.f));
-
-       // auto to_main_menu_button_callback = [this]() {
-       //     if (auto application = m_Application.lock())
-       //     {
-       //         std::shared_ptr<MainMenuScene> main_menu_scene = std::make_shared<MainMenuScene>(m_Application);
-       //         application->SwitchCurrentApplicationScene(main_menu_scene);
-       //     }
-       //     };
-
-
-       // m_MainMenuButton->SetButtonCallback(to_main_menu_button_callback);
-
-       // m_MainMenuButton->SetButtonCustomTexture(TextureName_kHomeButton);
-
-       // test_button_group->AddChildElement(m_MainMenuButton);
-
-
-       // //Margin resume_button_margin{};
-       // //resume_button_margin.left = 100.0f;
-       // //
-       // //m_ResumeButton = application->GetUIManager().CreateUIElement<Button>(resume_button_margin,
-       // //     glm::vec2(40.f));
-       // //
-       // //m_ResumeButton->SetButtonCallback(invert_visibility);
-       // //
-       // //m_ResumeButton->SetButtonCustomTexture(TextureName_kResumeButton);
-
-       // //m_ResumeButton->SetVisibility(false);
+       test_button_group->AddChildElement(m_ResumeButton);
 
     }
 }

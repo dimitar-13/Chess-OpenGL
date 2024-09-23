@@ -35,7 +35,7 @@ Chess_Game::Application::Application():
 
 void Chess_Game::Application::StartRenderLoop()
 {
-    m_CurrentApplicationScene = std::make_shared<DefaultChessScene>(this->weak_from_this());
+    m_CurrentApplicationScene = std::make_shared<MainMenuScene>(this->weak_from_this());
     m_CurrentApplicationScene->InitScene();
 
     //glEnable(GL_DEPTH_TEST);

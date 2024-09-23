@@ -5,6 +5,8 @@
 
 Chess_Game::AssetLoader::AssetLoader()
 {
+    constexpr float kBorderCol[] = { 0.0f,0.0f,0.0f,0.0f};
+
     const TexturePathNamePair texture_paths [] =
     {
         {" ",TextureName_kWhiteTexture},
@@ -61,10 +63,10 @@ Chess_Game::AssetLoader::AssetLoader()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-
-
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, kBorderCol);
+        
         glTexImage2D(GL_TEXTURE_2D, 0, texture_data.texture_format,
             texture_data.texture_size.width, texture_data.texture_size.height,
             0, texture_data.texture_format, GL_UNSIGNED_BYTE, texture_data.texture_source.data());
