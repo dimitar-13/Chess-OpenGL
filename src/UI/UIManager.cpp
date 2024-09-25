@@ -4,11 +4,37 @@
 Chess_Game::UIManager::UIManager(Size2D window_size, std::shared_ptr<DrawableCreator>& drawable_creator):
     m_CurrentWindowSize(window_size),m_ApplicationDrawableCreator(drawable_creator)
 {
+
     for (size_t i = 0; i < kUIElementCount; i++)
     {
         m_IDQueue.push(i);
     }
-    m_ToNDCMatrix = glm::ortho<float>(0, window_size.width, 0, window_size.height);
+    glm::vec2 half_win_size = { window_size.width, window_size.height };
+    half_win_size /= 2.0f;
+
+    m_ToNDCMatrix = glm::ortho<float>(-half_win_size.x, half_win_size.x,
+        -half_win_size.y, half_win_size.y);
+}
+
+void Chess_Game::UIManager::CreateRootPanel()
+{
+    ElementID id = m_IDQueue.front();
+    m_IDQueue.pop();
+
+    glm::vec2 half_win_size = { m_CurrentWindowSize.width, m_CurrentWindowSize.height };
+    half_win_size /= 2.0f;
+
+    Panel* instance = new Panel(id,
+        std::dynamic_pointer_cast<UIManager>(this->shared_from_this()),
+        *m_ApplicationDrawableCreator,glm::vec2(0), half_win_size);
+
+
+    std::shared_ptr<Panel> result = std::shared_ptr<Panel>(instance);
+    m_RootWindowPanel = result;
+    m_RootWindowPanel->EnablePanelBackground(false);
+
+
+    m_UIElements.push_back(std::dynamic_pointer_cast<Element>(result));
 }
 
 void Chess_Game::UIManager::RemoveWidget(ElementID widget_id)
@@ -44,43 +70,41 @@ void Chess_Game::UIManager::PollUIInput(const MouseInput& application_input,
     if (application_input.IsMouseButtonPressed(MouseButton_kLeftMouseButton))
     {
         auto& mouse_pos_bottom_left = application_input.GetMousePositionBottomLeft();
+        glm::vec2 mouse_to_matrix(mouse_pos_bottom_left.x, mouse_pos_bottom_left.y);
+        glm::vec2 half_window_size(m_CurrentWindowSize.width,m_CurrentWindowSize.height);
+        half_window_size /= 2.f;
+
+        mouse_to_matrix = mouse_to_matrix - half_window_size;
+
 
         for (auto& weak_element : m_UIElements)
         {
             if (auto element = weak_element.lock())
             {            
-                if (element->GetElementBoundingBox().IsInsideBox(
-                    glm::vec2(mouse_pos_bottom_left.x, mouse_pos_bottom_left.y)))
-                {
-                    size_t drawable_id = 
-                        application_batch_renderer->GetIDFramebuffer()->GetPixelData(mouse_pos_bottom_left.x,
-                        mouse_pos_bottom_left.y);
+               if (element->GetElementBoundingBox().IsInsideBox(mouse_to_matrix))
+               {       
 
-                    if(element->m_UIDrawable->GetDrawableID() == drawable_id)
-                        element->OnWidgetPressed();
-                }
+                   size_t drawable_id = application_batch_renderer->GetIDFramebuffer()->GetPixelData(
+                       mouse_pos_bottom_left.x, mouse_pos_bottom_left.y);
+
+                   if(element->m_UIDrawable->GetDrawableID() == drawable_id)
+                       element->OnElementPressed();
+               }
 
             }
         }
     }
-
-    //Check for input
-    //If input is on UI element invoke the on click callback.
 }
 
 void Chess_Game::UIManager::OnWindowSizeChanged(const WindowResizeEvent& e)
 {
     m_CurrentWindowSize = e.GetWindowSize();
-    m_ToNDCMatrix = glm::ortho<float>(0, m_CurrentWindowSize.width, 0, m_CurrentWindowSize.height);
+    glm::vec2 half_win_size = { m_CurrentWindowSize.width, m_CurrentWindowSize.height };
+    half_win_size /= 2.0f;
+    m_ToNDCMatrix = glm::ortho<float>(-half_win_size.x, half_win_size.x,
+                                      -half_win_size.y, half_win_size.y);
 
-    for (auto& weak_element : m_UIElements)
-    {
-        if (auto element = weak_element.lock())
-        {
-            element->UpdateWindowPosition(m_CurrentWindowSize);
-        }
-    }
-
+    m_RootWindowPanel->ResizeElement(half_win_size);
 }
 
 void Chess_Game::UIManager::OnEvent(const Event& e)

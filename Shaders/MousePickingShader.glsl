@@ -34,6 +34,8 @@ void main()
 {
 	int index_to_sample = int(TextureSamplerID);
 	float sampled_alpha= texture(u_Textures[index_to_sample],FragUV).a;
-	uint final_id = sampled_alpha == 0.0f ? uint(0) : FragmentObjectIndex;
+	if(sampled_alpha == 0.0f)
+		discard;
+	uint final_id = FragmentObjectIndex;
 	FragID = final_id;
 }

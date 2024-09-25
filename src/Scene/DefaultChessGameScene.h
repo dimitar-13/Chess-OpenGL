@@ -35,8 +35,8 @@ namespace Chess_Game
         std::shared_ptr<Button> m_ResetButton{};
         std::shared_ptr<Button> m_ResumeButton{};
         std::shared_ptr<Button> m_MainMenuButton{};
-        std::shared_ptr<Image> m_PauseMenuBackground{};
-
+        std::shared_ptr<Panel> m_PauseMenuGroup;
+        std::shared_ptr<Panel> test_pawn_selection_group;
         std::shared_ptr<ScreenPositionHelper> m_PositionHelper;
         std::vector<BoardPosition> m_SelectedPiecePossiblePositions{};
         bool m_IsGamePaused = false;

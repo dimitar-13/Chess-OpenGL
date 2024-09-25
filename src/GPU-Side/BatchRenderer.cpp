@@ -161,7 +161,7 @@ void Chess_Game::BatchRenderer::DrawTextureQuadBatch(const glm::mat4& projection
             m_TextureBatcher.GetBoundTexturesCount());
 
         m_MousePickingFramebuffer->BindFramebuffer();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         glDisable(GL_BLEND);
         glDisable(GL_DITHER);
@@ -177,7 +177,8 @@ void Chess_Game::BatchRenderer::DrawTextureQuadBatch(const glm::mat4& projection
 
     m_TexturedQuadBatch.batch_shader->UseProgram();
     m_TexturedQuadBatch.batch_shader->SetUniform4x4Matrix(projection_uniform_name, projection);
-    m_TexturedQuadBatch.batch_shader->SetSampler2DArray(sampler_array_uniform_name, m_TextureBatcher.GetBoundTexturesSlots().data(),
+    m_TexturedQuadBatch.batch_shader->SetSampler2DArray(sampler_array_uniform_name,
+        m_TextureBatcher.GetBoundTexturesSlots().data(),
         m_TextureBatcher.GetBoundTexturesCount());
 
     Draw(*m_TexturedQuadBatch.batch_shader, m_TexturedQuadBatch);

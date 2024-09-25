@@ -2,9 +2,18 @@
 #include "Core/Drawable.h"
 #include "Core/ApplicationData.h"
 #include "Core/DrawableCreator.h"
-
+#include "Core/OrthographicApplicationMatrix.h"
 namespace Chess_Game
 {
+    enum PositionPivot_
+    {
+        PositionPivot_kMiddle,
+        PositionPivot_kTopLeft,
+        PositionPivot_kTopRight,
+        PositionPivot_kBottomLeft,
+        PositionPivot_kBottomRight,
+    };
+
     struct AxisAlignedBoundingBox
     {
         float x{}, y{};
@@ -16,57 +25,54 @@ namespace Chess_Game
                 (screen_position.y >= y && screen_position.y <= height);
         }
     };
-    
-    enum AnchorPoint_
-    {
-        AnchorPoint_kMiddle,
-        AnchorPoint_kTopLeft,
-        AnchorPoint_kBottomLeft,
-        AnchorPoint_kTopRight,
-        AnchorPoint_kBottomRight,
-    };
 
-    struct Margin
-    {
-        float left{};
-        float right{};
-        float bottom{};
-        float top{};
-    };
 
     class UIManager;
-    class UIElement
+    class Panel;
+    class Element : public std::enable_shared_from_this<Element>
     {
-    public:
-        virtual void SetVisibility(bool is_visible) { m_UIDrawable->EnableDrawable(is_visible); }
-        bool IsVisible() { return m_UIDrawable->IsDrawableEnabled(); }
-        void SetScale(const glm::vec2& new_scale);
-        void SetMargin(const Margin& new_margin);
-        AxisAlignedBoundingBox& GetElementBoundingBox() { return m_ElementBoundingBox; }
-
     protected:
         friend class UIManager;
+        friend class Panel;
 
-        UIElement(size_t element_id,std::weak_ptr<UIManager> ui_manager_ref,
+        Element(size_t element_id, std::weak_ptr<UIManager> ui_manager_ref,
             DrawableCreator& drawable_creator,
-            const Margin& element_margin, AnchorPoint_ element_margin_anchor_point,
-            Size2D window_size,
-            const glm::vec2& element_scale);
-        virtual ~UIElement();
-        virtual void OnWidgetPressed() {};
-        void UpdateWindowPosition(Size2D new_window_size);
-        void CalculateMarginPosition(Size2D window_size);
-        void CalculateBoundingBox();
+            const glm::vec2& position,
+            const glm::vec2& element_size);
+    public:
+        void SetRelativePosition(const glm::vec2& new_pos);
+        void SetPositionPivot(PositionPivot_ new_pivot);
+        void ResizeElement(const glm::vec2& new_size);
+        void SetElementDepth(float depth_layer_value);
+        float GetElementDepth()const { return m_DepthLayer; }
+        PositionPivot_ GetPositionPivot()const { return m_ParentPosPivot; }
+        glm::vec2 GetRelativePos()const { return m_ElementRelativePos; }
+        virtual void SetVisibility(bool is_visible);
+        bool GetElementVisibility()const { return m_IsElementEnabled; }
+        glm::vec2 GetElementSize()const { return m_ElementSize; }
+        glm::vec2 GetPivotPos(PositionPivot_ pivot)const;
+        glm::vec2 GetScreenPos();
+        virtual ~Element();
+        size_t GetElementID()const { return m_ElementID; }
         std::shared_ptr<Drawable> GetDrawable() { return m_UIDrawable; }
+        const AxisAlignedBoundingBox& GetElementBoundingBox()const { return m_BoundingBox; }
+        virtual void OnElementPressed() {};
+    private:
+        void UpdateElement();
+        void CalculateElementBoundingBox(glm::vec2 screen_pos,glm::vec2 size);
     protected:
-        std::shared_ptr<Drawable> m_UIDrawable{};
-        AxisAlignedBoundingBox m_ElementBoundingBox{};
-        size_t m_UIElementID{};
-        Margin m_UIElementMargin;
-        AnchorPoint_ m_ElementAnchorPoint;
-        glm::vec2 m_ElementWindowPos{};
-        glm::vec2 m_ElementScale{};
-        std::weak_ptr<UIManager> m_UIManager{};
-
+        virtual void OnElementChanged() { UpdateElement(); };
+        virtual void EnableDrawable(bool is_visible) { m_UIDrawable->EnableDrawable(is_visible); }
+    protected:
+        size_t m_ElementID;
+        glm::vec2 m_ElementSize;
+        glm::vec2 m_ElementRelativePos = glm::vec2(0);
+        float m_DepthLayer = 0.0f;
+        AxisAlignedBoundingBox m_BoundingBox;
+        bool m_IsElementEnabled = true;
+        std::shared_ptr<Drawable> m_UIDrawable;
+        std::weak_ptr<UIManager> m_UIManager;
+        std::shared_ptr<Panel> m_Parent;
+        PositionPivot_ m_ParentPosPivot = PositionPivot_kMiddle;
     };
 }
