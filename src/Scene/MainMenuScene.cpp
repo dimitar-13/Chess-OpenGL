@@ -9,28 +9,26 @@ void Chess_Game::MainMenuScene::InitScene()
   
     if (auto application = m_Application.lock())
     {
-        Size2D win_size = application->GetApplicationWindow().GetWindowSize();
 
-        Margin button_margin{};
-        button_margin.left = .3f;
-        button_margin.right = .3f;
-        button_margin.top = .4f;
-        button_margin.bottom = .4f;
+        m_StartMenuPanel = application->GetUIManager().CreateUIElement<Panel>(
+                glm::vec2(0), glm::vec2(400));
 
-        Margin logo_margin{};
-        logo_margin.left = .3f;
-        logo_margin.right = .3f;
-        logo_margin.top = .3f;
-        logo_margin.bottom = .5f;
+        m_StartMenuPanel->EnablePanelBackground(true);
+        m_StartMenuPanel->SetPanelCustomTexture(TextureName_kUIGroupBackground);
 
+        m_StartButton = application->GetUIManager().
+            CreateUIElement<Button>(glm::vec2(0,-200.0f),glm::vec2(200,30.));
 
-        
-        m_StartButton = application->GetUIManager().CreateUIElement<Button>(button_margin);
         m_StartButton->SetButtonCustomTexture(TextureName_kButton);
 
-        m_GameLogoImage = application->GetUIManager().CreateUIElement<Image>(logo_margin);
+        m_StartMenuPanel->AddChildElement(m_StartButton);
+
+        m_GameLogoImage = application->GetUIManager().CreateUIElement<Image>
+            (glm::vec2(0, 40.0f), glm::vec2(300));
+
         m_GameLogoImage->SetImageTexture(TextureName_kGameLogo);
 
+        m_StartMenuPanel->AddChildElement(m_GameLogoImage);
 
         auto test_callback = [this]() 
             {
@@ -43,8 +41,6 @@ void Chess_Game::MainMenuScene::InitScene()
 
         m_StartButton->SetButtonCallback(test_callback);
     }
-
-
 }
 
 void Chess_Game::MainMenuScene::DrawScene(std::shared_ptr<BatchRenderer> application_batch_renderer)

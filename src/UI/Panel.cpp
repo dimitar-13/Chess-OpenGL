@@ -8,14 +8,12 @@ void Chess_Game::Panel::AddChildElement(std::weak_ptr<Element> child_to_add)
     {
         std::shared_ptr<Element> child_parent = shared_ptr_child->m_Parent;
         if(child_parent)
-            std::dynamic_pointer_cast<Panel>(m_Parent)->RemoveChildElement(child_to_add);
+            m_Parent->RemoveChildElement(child_to_add);
 
-        shared_ptr_child->m_Parent = shared_from_this();
-        shared_ptr_child->SetVisibility(m_IsElementEnabled);
-        shared_ptr_child->OnParentSizeChanged();
+        shared_ptr_child->m_Parent = std::dynamic_pointer_cast<Panel>(shared_from_this());
+        shared_ptr_child->UpdateElement();
+
         m_Childs.push_back(child_to_add);
-
-
     }
 
 }
@@ -40,24 +38,19 @@ void Chess_Game::Panel::RemoveChildElement(std::weak_ptr<Element> child_to_remov
 
 }
 
-void Chess_Game::Panel::ResizeElement(glm::vec2 new_size)
+void Chess_Game::Panel::OnElementChanged()
 {
-    Element::ResizeElement(new_size);
+    Element::OnElementChanged();
 
     UpdatePanelChilds();
 }
 
-void Chess_Game::Panel::OnElementPositionChange(glm::vec2 new_position)
-{
-    Element::OnElementPositionChange(new_position);
-
-    UpdatePanelChilds();
-}
 
 Chess_Game::Panel::Panel(size_t element_id,std::weak_ptr<UIManager> ui_manager_ref, 
-    DrawableCreator& drawable_creator, const Margin& element_margin):
-
-    Element(element_id, ui_manager_ref,drawable_creator,element_margin)
+    DrawableCreator& drawable_creator, 
+    const glm::vec2& element_pos, const glm::vec2& element_size):
+    Element(element_id, ui_manager_ref,
+        drawable_creator, element_pos, element_size)
 {
     EnablePanelBackground(m_HasBackground);
 };
@@ -69,21 +62,13 @@ void Chess_Game::Panel::UpdatePanelChilds()
     {
         if (auto child_shared_ref = child_weak_ref.lock())
         {
-            child_shared_ref->OnParentSizeChanged();
+            child_shared_ref->OnElementChanged();
         }
     }
 }
 
-void Chess_Game::Panel::SetVisibility(bool is_visible)
+void Chess_Game::Panel::SetVisibility(bool is_enabled)
 {
-    Element::SetVisibility(is_visible);
-
-    for (auto& child_weak_ref : m_Childs)
-    {
-        if (auto child_shared_ref = child_weak_ref.lock())
-        {
-            child_shared_ref->SetVisibility(is_visible);
-        }
-    }
+    Element::SetVisibility(is_enabled);
     this->m_UIDrawable->EnableDrawable(m_HasBackground && m_IsElementEnabled);
 }

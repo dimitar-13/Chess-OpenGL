@@ -5,49 +5,15 @@
 #include "Core/OrthographicApplicationMatrix.h"
 namespace Chess_Game
 {
-
-    //struct ClampedFloat
-    //{
-    //    ClampedFloat(float value)
-    //    {
-    //        clamped_value = glm::clamp(value, 0.0f, 1.0f);
-    //    }
-    //    void operator=(float value)
-    //    {
-    //        clamped_value = glm::clamp(value, 0.0f, 1.0f);
-    //    }
-    //    ClampedFloat& operator+=(ClampedFloat other)
-    //    {
-    //        clamped_value = glm::clamp(clamped_value + other.clamped_value, 0.0f, 1.0f);
-    //        return *this;
-    //    }
-    //    ClampedFloat& operator+=(float other)
-    //    {
-    //        clamped_value = glm::clamp(clamped_value + other, 0.0f, 1.0f);
-    //        return *this;
-    //    }
-    //    ClampedFloat operator+(ClampedFloat other) const
-    //    {
-    //        return ClampedFloat(glm::clamp(clamped_value + other.clamped_value, 0.0f, 1.0f));
-    //    }
-    //
-    //    ClampedFloat operator+(float other) const
-    //    {
-    //        return ClampedFloat(glm::clamp(clamped_value + other, 0.0f, 1.0f));
-    //    }
-    //
-    //    float clamped_value{};
-    //};
-
-
-
-    struct Margin
+    enum PositionPivot_
     {
-        float left{};
-        float right{};
-        float bottom{};
-        float top{};
+        PositionPivot_kMiddle,
+        PositionPivot_kTopLeft,
+        PositionPivot_kTopRight,
+        PositionPivot_kBottomLeft,
+        PositionPivot_kBottomRight,
     };
+
     struct AxisAlignedBoundingBox
     {
         float x{}, y{};
@@ -70,34 +36,43 @@ namespace Chess_Game
         friend class Panel;
 
         Element(size_t element_id, std::weak_ptr<UIManager> ui_manager_ref,
-            DrawableCreator& drawable_creator,const Margin& element_margin);
+            DrawableCreator& drawable_creator,
+            const glm::vec2& position,
+            const glm::vec2& element_size);
     public:
-        void SetMargin(const Margin& new_margin);
-        const Margin& GetMargin()const { return m_ElementMargin; }
+        void SetRelativePosition(const glm::vec2& new_pos);
+        void SetPositionPivot(PositionPivot_ new_pivot);
+        void ResizeElement(const glm::vec2& new_size);
+        void SetElementDepth(float depth_layer_value);
+        float GetElementDepth()const { return m_DepthLayer; }
+        PositionPivot_ GetPositionPivot()const { return m_ParentPosPivot; }
+        glm::vec2 GetRelativePos()const { return m_ElementRelativePos; }
         virtual void SetVisibility(bool is_visible);
         bool GetElementVisibility()const { return m_IsElementEnabled; }
-        glm::vec2 GetElementSize()const { return m_CurrentElementSize; }
+        glm::vec2 GetElementSize()const { return m_ElementSize; }
+        glm::vec2 GetPivotPos(PositionPivot_ pivot)const;
+        glm::vec2 GetScreenPos();
         virtual ~Element();
         size_t GetElementID()const { return m_ElementID; }
         std::shared_ptr<Drawable> GetDrawable() { return m_UIDrawable; }
         const AxisAlignedBoundingBox& GetElementBoundingBox()const { return m_BoundingBox; }
-        void OnParentSizeChanged();
-        virtual void OnElementPositionChange(glm::vec2 new_position);
-        virtual void ResizeElement(glm::vec2 new_size);
         virtual void OnElementPressed() {};
     private:
-        void CalculateElementScreenPosition();
-        void CalculateElementBoundingBox();
-        void UpdateDrawable();
+        void UpdateElement();
+        void CalculateElementBoundingBox(glm::vec2 screen_pos,glm::vec2 size);
+    protected:
+        virtual void OnElementChanged() { UpdateElement(); };
+        virtual void EnableDrawable(bool is_visible) { m_UIDrawable->EnableDrawable(is_visible); }
     protected:
         size_t m_ElementID;
-        glm::vec2 m_CurrentElementSize;
-        Margin m_ElementMargin;
+        glm::vec2 m_ElementSize;
+        glm::vec2 m_ElementRelativePos = glm::vec2(0);
+        float m_DepthLayer = 0.0f;
         AxisAlignedBoundingBox m_BoundingBox;
         bool m_IsElementEnabled = true;
-        glm::vec2 m_ElementPos = glm::vec2(0);
         std::shared_ptr<Drawable> m_UIDrawable;
         std::weak_ptr<UIManager> m_UIManager;
-        std::shared_ptr<Element> m_Parent;
+        std::shared_ptr<Panel> m_Parent;
+        PositionPivot_ m_ParentPosPivot = PositionPivot_kMiddle;
     };
 }

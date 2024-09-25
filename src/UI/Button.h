@@ -9,11 +9,11 @@ namespace Chess_Game
         friend class UIManager;
     private:
         Button(size_t element_id, std::weak_ptr<UIManager> ui_manager_ref,
-            DrawableCreator& drawable_creator,
-            const Margin& element_margin)
+            DrawableCreator& drawable_creator,const glm::vec2& position,
+            const glm::vec2& element_size)
             :Element(element_id,ui_manager_ref,
                 drawable_creator,
-                element_margin)
+                position, element_size)
         {}
         void OnElementPressed()override
         {

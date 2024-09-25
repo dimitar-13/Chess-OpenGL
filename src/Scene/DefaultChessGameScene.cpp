@@ -159,70 +159,57 @@ void Chess_Game::DefaultChessScene::CreateSceneUI()
 {
     if (auto application = m_Application.lock())
     {
-       Margin pause_button_margin{};
-       pause_button_margin.left = .9f;
-       pause_button_margin.bottom = .9f;
-       pause_button_margin.right = .01f;
-       pause_button_margin.top = .01f;
-
-       m_PauseButton = application->GetUIManager().CreateUIElement<Button>(pause_button_margin);
-
+        constexpr glm::vec2 kMenuButtonSize = glm::vec2{200,60.0f };
+      
+       m_PauseButton = 
+           application->GetUIManager().CreateUIElement<Button>(
+           glm::vec2(-70),glm::vec2(50));
+      
        auto invert_visibility = [this]()
            {
-               test_button_group->SetVisibility(!test_button_group->GetElementVisibility());
-
+               m_PauseMenuGroup->SetVisibility(!m_PauseMenuGroup->GetElementVisibility());
+      
            };
        m_PauseButton->SetButtonCallback(invert_visibility);
-
+      
        m_PauseButton->SetButtonCustomTexture(TextureName_kPauseButton);
-
-       Margin button_panel_margin {};
-       button_panel_margin.left = .2;
-       button_panel_margin.right = .2;
-       button_panel_margin.bottom = .2;
-       button_panel_margin.top = .2;
-
-
-       test_button_group = 
-           application->GetUIManager().CreateUIElement<Panel>(button_panel_margin);
-
-       test_button_group->SetVisibility(false);
-       test_button_group->EnablePanelBackground(true);
-
-       Margin reset_button_margin{};
-       reset_button_margin.left   = .4;
-       reset_button_margin.right  = .4;
-       reset_button_margin.top    = .1;
-       reset_button_margin.bottom = .7;
-
-       m_ResetButton = application->GetUIManager().CreateUIElement<Button>(reset_button_margin);
-
+       m_PauseButton->SetPositionPivot(PositionPivot_kTopRight);
+       
+       m_PauseMenuGroup = 
+           application->GetUIManager().CreateUIElement<Panel>(
+           glm::vec2(0),glm::vec2(400));
+      
+       m_PauseMenuGroup->SetVisibility(false);
+       m_PauseMenuGroup->EnablePanelBackground(true);
+      
+    
+       m_ResetButton =
+           application->GetUIManager().CreateUIElement<Button>(
+           glm::vec2(0), kMenuButtonSize);
+      
        auto button_reset_callback_test = [this]() {
            if (auto application = m_Application.lock())
            {
-
+      
                std::shared_ptr<DefaultChessScene> new_scene = std::make_shared<DefaultChessScene>(m_Application);
                application->SwitchCurrentApplicationScene(new_scene);
            }
            };
-
+      
        m_ResetButton->SetButtonCallback(button_reset_callback_test);
+      
+       m_ResetButton->SetButtonCustomTexture(TextureName_kButton);
+      
+       m_ResetButton->SetElementDepth(.5);
 
-       m_ResetButton->SetButtonCustomTexture(TextureName_kResetButton);
-
-       test_button_group->AddChildElement(m_ResetButton);
-
-
-       Margin home_button_margin{};
-       home_button_margin.left = .4;
-       home_button_margin.right = .4;
-       home_button_margin.top = .4;
-       home_button_margin.bottom = .4;
-
-
+       m_PauseMenuGroup->AddChildElement(m_ResetButton);
+      
+      
+   
        m_MainMenuButton =
-           application->GetUIManager().CreateUIElement<Button>(home_button_margin);
-
+           application->GetUIManager().CreateUIElement<Button>(
+           glm::vec2(0, 200.0f), kMenuButtonSize);
+      
        auto to_main_menu_button_callback = [this]() {
            if (auto application = m_Application.lock())
            {
@@ -230,45 +217,95 @@ void Chess_Game::DefaultChessScene::CreateSceneUI()
                application->SwitchCurrentApplicationScene(main_menu_scene);
            }
            };
-
-
+      
+      
        m_MainMenuButton->SetButtonCallback(to_main_menu_button_callback);
 
-       m_MainMenuButton->SetButtonCustomTexture(TextureName_kHomeButton);
+       m_MainMenuButton->SetElementDepth(.5);
 
-       test_button_group->AddChildElement(m_MainMenuButton);
-
-
-       Margin resume_button_margin{};
-       resume_button_margin.left = .4;
-       resume_button_margin.right = .4;
-       resume_button_margin.top = .7;
-       resume_button_margin.bottom = .1;
-    
-       m_ResumeButton = application->GetUIManager().CreateUIElement<Button>(resume_button_margin);
+       m_MainMenuButton->SetButtonCustomTexture(TextureName_kButton);
+      
+       m_PauseMenuGroup->AddChildElement(m_MainMenuButton);
+      
+       m_PauseMenuGroup->SetPanelCustomTexture(TextureName_kUIGroupBackground);
+     
+       m_ResumeButton = 
+           application->GetUIManager().CreateUIElement<Button>(
+               glm::vec2(0,-200.0f), kMenuButtonSize);
        
        m_ResumeButton->SetButtonCallback(invert_visibility);
        
-       m_ResumeButton->SetButtonCustomTexture(TextureName_kResumeButton);
+       m_PauseMenuGroup->SetElementDepth(.5);
 
-       test_button_group->AddChildElement(m_ResumeButton);
+       m_ResumeButton->SetButtonCustomTexture(TextureName_kButton);
+      
+       m_PauseMenuGroup->AddChildElement(m_ResumeButton);
 
+      //static std::shared_ptr<Panel> score_board_test_pane =
+      //    application->GetUIManager().CreateUIElement<Panel>(glm::vec2(100.f, -100.0f),
+      //        glm::vec2(100.0f));
+      //score_board_test_pane->SetPositionPivot(PositionPivot_kTopLeft);
+      //score_board_test_pane->EnablePanelBackground(true);
+      //
+      //static std::shared_ptr<Button> test_button_1 =
+      //    application->GetUIManager().CreateUIElement<Button>(
+      //        glm::vec2(-40,0), glm::vec2(30));
+      //
+      //test_button_1->SetButtonCustomTexture(TextureName_kPauseButton);
+      //
+      //static std::shared_ptr<Button> test_button_2 =
+      //    application->GetUIManager().CreateUIElement<Button>(
+      //        glm::vec2(40,0), glm::vec2(30));
+      //
+      //test_button_2->SetButtonCustomTexture(TextureName_kPauseButton);
+      //
+      //
+      //score_board_test_pane->AddChildElement(test_button_1);
+      //score_board_test_pane->AddChildElement(test_button_2);
+      //
+      //
+      //
+      //
+      //float piece_selection_size = 30.f;
+      //
+      //test_pawn_selection_group = application->GetUIManager().CreateUIElement<Panel>(
+      //    glm::vec2(0, 0), glm::vec2(150,40));
+      //
+      //test_pawn_selection_group->EnablePanelBackground(true);
+      //
+      //static std::shared_ptr<Button> queen_selection_button = 
+      //    application->GetUIManager().CreateUIElement<Button>(
+      //        glm::vec2((piece_selection_size + 100.0f), 0), glm::vec2(piece_selection_size));
+      //queen_selection_button->SetButtonCustomTexture(TextureName_kQueen);
+      //test_pawn_selection_group->AddChildElement(queen_selection_button);
+      //
+      //static std::shared_ptr<Button> rook_selection_button =
+      //    application->GetUIManager().CreateUIElement<Button>(
+      //        glm::vec2((piece_selection_size + 15.0f), 0), glm::vec2(piece_selection_size));
+      //
+      //rook_selection_button->SetButtonCustomTexture(TextureName_kRook);
+      //test_pawn_selection_group->AddChildElement(rook_selection_button);
+      //
+      //static std::shared_ptr<Button> bishop_selection_button =
+      //    application->GetUIManager().CreateUIElement<Button>(
+      //        glm::vec2(0, 0), glm::vec2(piece_selection_size));
+      //
+      //bishop_selection_button->SetButtonCustomTexture(TextureName_kBishop);
+      //test_pawn_selection_group->AddChildElement(bishop_selection_button);
+      //
+      //static std::shared_ptr<Button> knight_selection_button =
+      //    application->GetUIManager().CreateUIElement<Button>(
+      //        glm::vec2((piece_selection_size - 100.0f), 0), glm::vec2(piece_selection_size));
+      //knight_selection_button->SetButtonCustomTexture(TextureName_kKnight);
+      //
+      //test_pawn_selection_group->AddChildElement(knight_selection_button);
+      //
     }
 }
 
 void Chess_Game::DefaultChessScene::OnGameOver()
 {
-    Margin updated_margin{};
-    updated_margin.left = 100.0f;
-
-    //this->m_ResetButton->SetVisibility(true);
-    //this->m_ResetButton->SetMargin(updated_margin);
-    //this->m_MainMenuButton->SetVisibility(true);
-    updated_margin.right = updated_margin.left;
-    updated_margin.left = 0.0f;
-    this->m_MainMenuButton->SetMargin(updated_margin);
-
-    //this->m_PauseMenuBackground->SetVisibility(true);
+   
 }
 
 
@@ -311,15 +348,8 @@ void Chess_Game::DefaultChessScene::OnUpdate()
 
         if (application->GetMouseInputManager().IsMouseButtonPressed(MouseButton_kLeftMouseButton))
         {
-            //Margin panel_margin = test_button_group->GetMargin();
-            //panel_margin.left += .1;
-            //panel_margin.top += .1;
-            //
-            //test_button_group->SetMargin(panel_margin);
-
-
             BoardPosition mouse_to_board_postion = GetMouseInputBoardPosition(application);
-
+      
             m_ChessGameController->ProcessInput(mouse_to_board_postion);    
         }
 

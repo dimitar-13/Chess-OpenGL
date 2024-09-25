@@ -12,11 +12,9 @@ namespace Chess_Game
         TextureName_kBishop,
         TextureName_kQueen,
         TextureName_kButton,
-        TextureName_kGameLogo,
-        TextureName_kResetButton,
-        TextureName_kHomeButton,
         TextureName_kPauseButton,
-        TextureName_kResumeButton
+        TextureName_kGameLogo,
+        TextureName_kUIGroupBackground
     };
 
     typedef unsigned int Texture;

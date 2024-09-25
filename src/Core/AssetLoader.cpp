@@ -5,7 +5,6 @@
 
 Chess_Game::AssetLoader::AssetLoader()
 {
-    constexpr float kBorderCol[] = { 0.0f,0.0f,0.0f,0.0f};
 
     const TexturePathNamePair texture_paths [] =
     {
@@ -17,13 +16,10 @@ Chess_Game::AssetLoader::AssetLoader()
         {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Queen.png",  TextureName_kQueen},
         {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Rook.png",   TextureName_kRook},
         {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorChessPieces/OpenGameArt/Bishop.png", TextureName_kBishop },
-        {"D:/c++/OpenGl/Chess-OpenGL/resources/Test_Button.png",                          TextureName_kButton },
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorUI/tinyrpg_dragonregaliagui_v1_0/20240707dragonHeaderA.png",                          TextureName_kButton },
         {"D:/c++/OpenGl/Chess-OpenGL/resources/Chess_logo.png",                           TextureName_kGameLogo},
-        {"D:/c++/OpenGl/Chess-OpenGL/resources/RestButtonTest.png",                       TextureName_kResetButton},
-        {"D:/c++/OpenGl/Chess-OpenGL/resources/HomeButtonTest.png",                       TextureName_kHomeButton },
-        { "D:/c++/OpenGl/Chess-OpenGL/resources/PauseButtonTest.png",                     TextureName_kPauseButton },
-        { "D:/c++/OpenGl/Chess-OpenGL/resources/ResumeButtonTest.png",                    TextureName_kResumeButton }
-
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorUI/tinyrpg_dragonregaliagui_v1_0/20240707dragon9SlicesA.png",                       TextureName_kUIGroupBackground},
+        {"D:/c++/OpenGl/Chess-OpenGL/resources/VendorUI/tinyrpg_dragonregaliagui_v1_0/PauseButtonTest.png",TextureName_kPauseButton}
 
     };
     size_t loaded_asset_count = sizeof(texture_paths)/ sizeof(texture_paths[0]);
@@ -63,9 +59,8 @@ Chess_Game::AssetLoader::AssetLoader()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, kBorderCol);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         
         glTexImage2D(GL_TEXTURE_2D, 0, texture_data.texture_format,
             texture_data.texture_size.width, texture_data.texture_size.height,
