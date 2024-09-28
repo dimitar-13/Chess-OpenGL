@@ -22,6 +22,7 @@ namespace Chess_Game
         const OrthoViewportHandler& GetApplicationProjection() { return m_ApplicationProjection; }
         MouseInput& GetMouseInputManager() { return m_ApplicationMouseInput; }
         UIManager& GetUIManager() { return *m_ApplicationUIManager; }
+        std::shared_ptr<UIManager> UIManagerSharedPtrTest() { return m_ApplicationUIManager; }
         std::shared_ptr<AssetLoader> GetAssetLoader(){ return m_TextureAssetLoader; }
         std::shared_ptr<DrawableCreator> GetDrawableCreator() { return m_ApplicationDrawableCreator; }
         std::shared_ptr<BatchRenderer> GetBatchRenderer() { return m_ApplicationBatchRenderer; }

@@ -3,6 +3,10 @@
 #include "Logging/Logger.h"
 #include "Scene/MainMenuScene.h"
 #include "Core/DrawableCreator.h"
+#include <functional>
+#include <chrono>
+#include <thread>
+
 static constexpr float kBoardDepth = -.5f;
 static constexpr float kChessPieceVisualSelectionDepth = .0f;
 static constexpr float kChessPieceDepth = .5f;
@@ -34,8 +38,13 @@ void Chess_Game::DefaultChessScene::InitScene()
             }
         };
 
+
     if (auto application = m_Application.lock())
     {
+
+        m_PawnPromotionUIManager = 
+            std::make_unique<PawnPromotionSelectionUI>(application->UIManagerSharedPtrTest());
+
         m_PositionHelper =
             std::make_shared<ScreenPositionHelper>(application->GetApplicationProjection().GetProjectionSize());
 
@@ -84,7 +93,7 @@ void Chess_Game::DefaultChessScene::InitScene()
         }
         for (auto& piece : white_team_vector)
         {
-            glm::vec3 piece_position = glm::vec3(m_PositionHelper->BoardToScreenPosition(piece->GetPiecePosition()), kChessPieceDepth);
+            glm::vec3 piece_position = glm::vec3(m_PositionHelper->BoardToProjectionSpace(piece->GetPiecePosition()), kChessPieceDepth);
         
             glm::vec2 scale = m_PositionHelper->SingleSquareSize();
             auto piece_drawable = piece->GetPieceDrawable().lock();
@@ -125,7 +134,7 @@ void Chess_Game::DefaultChessScene::InitScene()
         for (auto& piece : black_team_vector)
         {
             glm::vec3 piece_position =
-                glm::vec3(m_PositionHelper->BoardToScreenPosition(piece->GetPiecePosition()), kChessPieceDepth);
+                glm::vec3(m_PositionHelper->BoardToProjectionSpace(piece->GetPiecePosition()), kChessPieceDepth);
         
             glm::vec2 scale = m_PositionHelper->SingleSquareSize();
         
@@ -149,9 +158,14 @@ void Chess_Game::DefaultChessScene::InitScene()
                 this->OnSelectedPieceMoved(new_selected_piece);
             };
 
+        auto Bind_OnPawnPromotion = [this](bool is_white_team,BoardPosition piece_position)
+            {
+                return this->OnPawnPromotion(is_white_team, piece_position);
+            };
+
         m_ChessGameController = 
             std::make_unique<ChessGameController>(white_team_player, black_team_player,
-                Bind_OnSelectedPieceChanged, Bind_OnSelectedPieceMoved);
+                Bind_OnSelectedPieceChanged, Bind_OnSelectedPieceMoved, Bind_OnPawnPromotion);
     }
 }
 
@@ -308,6 +322,86 @@ void Chess_Game::DefaultChessScene::OnGameOver()
    
 }
 
+std::shared_ptr<Chess_Game::ChessPiece> Chess_Game::DefaultChessScene::OnPawnPromotion(
+    bool is_white_team_pawn, BoardPosition new_pawn_pos)
+{
+    std::shared_ptr<ChessPiece> result{};
+    constexpr glm::vec2 kOffset = glm::vec2(0,10.0f);
+    std::condition_variable pawn_promotion_selection_condition_var;
+    std::mutex pawn_promotion_mutex;
+    TextureName_ texture_of_new_pice = TextureName_kWhiteTexture;
+    ChessPieceType_ selected_type = ChessPieceType_kUnknown;
+
+
+    if (auto application = m_Application.lock())
+    {
+        MousePos mouse_pos = application->GetMouseInputManager().GetMousePositionBottomLeft();
+        glm::vec2 board_to_screen_pos(mouse_pos.x, mouse_pos.y);
+        glm::vec2 screen_to_root_win_pos = 
+            application->GetUIManager().ConvertScreenToRootWindowPos(board_to_screen_pos);
+
+        screen_to_root_win_pos += kOffset;
+
+        m_PawnPromotionUIManager->SetPosition(screen_to_root_win_pos);
+        m_PawnPromotionUIManager->SwitchPromotionPieceTeamCol(is_white_team_pawn);
+        m_PawnPromotionUIManager->TogglePawnPromotionUI(true);
+
+        auto onPieceSelectionCallback = [&pawn_promotion_selection_condition_var, &pawn_promotion_mutex,&selected_type](ChessPieceType_ user_selected_type)
+            {
+                std::unique_lock<std::mutex> lock(pawn_promotion_mutex);
+                selected_type = user_selected_type;
+                pawn_promotion_selection_condition_var.notify_one();
+            };
+
+        m_PawnPromotionUIManager->SetCallback(onPieceSelectionCallback);
+
+        std::unique_lock<std::mutex> lock(pawn_promotion_mutex);
+
+        pawn_promotion_selection_condition_var.wait(lock,
+            [&selected_type] {return selected_type != ChessPieceType_kUnknown; });
+
+
+        std::shared_ptr<DrawableCreator> main_drawable_creator = application->GetDrawableCreator();
+
+        glm::vec3 piece_position =
+            glm::vec3(m_PositionHelper->BoardToProjectionSpace(new_pawn_pos), kChessPieceDepth);
+
+       
+;        switch (selected_type)
+        {
+        case ChessPieceType_kQueen:
+            texture_of_new_pice = TextureName_kQueen;
+            result = std::make_shared<Queen>(new_pawn_pos, main_drawable_creator->CreateDrawable());
+            break;
+        case ChessPieceType_kBishop:
+            texture_of_new_pice = TextureName_kBishop;
+            result = std::make_shared<Bishop>(new_pawn_pos, main_drawable_creator->CreateDrawable());
+            break;
+        case ChessPieceType_kKnight:
+            texture_of_new_pice = TextureName_kKnight;
+            result = std::make_shared<Knight>(new_pawn_pos, main_drawable_creator->CreateDrawable());
+            break;
+        case ChessPieceType_kRook:
+            texture_of_new_pice = TextureName_kRook;
+            result = std::make_shared<Rook>(new_pawn_pos, main_drawable_creator->CreateDrawable());
+            break;
+        default:
+            break;
+        }
+
+        auto piece_drawable = result->GetPieceDrawable().lock();
+        m_SceneObjects.push_back(piece_drawable);
+
+        piece_drawable->SetPosition(piece_position);
+        piece_drawable->SetColor(is_white_team_pawn ? glm::vec3(1) : glm::vec3(0));
+        piece_drawable->SetDrawableTextureName(texture_of_new_pice);
+
+        m_PawnPromotionUIManager->TogglePawnPromotionUI(false);
+    }
+    return result;
+
+}
+
 
 void Chess_Game::DefaultChessScene::DrawScene(std::shared_ptr<BatchRenderer> application_batch_renderer)
 {
@@ -331,7 +425,7 @@ void Chess_Game::DefaultChessScene::DrawScene(std::shared_ptr<BatchRenderer> app
         for (auto board_pos : m_SelectedPiecePossiblePositions)
         {
             glm::vec3 to_screen_pos =
-                glm::vec3(m_PositionHelper->BoardToScreenPosition(board_pos), kPossibleMoveVisualDepth);
+                glm::vec3(m_PositionHelper->BoardToProjectionSpace(board_pos), kPossibleMoveVisualDepth);
             application_batch_renderer->PushCircle(to_screen_pos, glm::vec2{15}, glm::vec3(0,0,1));
         }
         application_batch_renderer->DrawCircleBatch(application->GetApplicationProjection().GetMatrix());
@@ -349,8 +443,21 @@ void Chess_Game::DefaultChessScene::OnUpdate()
         if (application->GetMouseInputManager().IsMouseButtonPressed(MouseButton_kLeftMouseButton))
         {
             BoardPosition mouse_to_board_postion = GetMouseInputBoardPosition(application);
-      
-            m_ChessGameController->ProcessInput(mouse_to_board_postion);    
+
+         
+            auto processInputBind = [this](BoardPosition position)
+                {
+                    this->m_ChessGameController->ProcessInput(position);
+                };
+
+            if (!m_GameProcessInputThread.valid() ||
+                m_GameProcessInputThread.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            {
+                m_GameProcessInputThread = 
+                    std::async(std::launch::async, processInputBind, mouse_to_board_postion);
+            }
+
+            //m_ChessGameController->ProcessInput(mouse_to_board_postion);    
         }
 
         if (m_ChessGameController->IsGameOver())
@@ -388,7 +495,7 @@ void Chess_Game::DefaultChessScene::OnEvent(const Event& e)
             if (auto chess_piece_drawable = chess_board_piece->GetPieceDrawable().lock())
             {
                 glm::vec2 retrieved_pos = 
-                    m_PositionHelper->BoardToScreenPosition(chess_board_piece->GetPiecePosition());
+                    m_PositionHelper->BoardToProjectionSpace(chess_board_piece->GetPiecePosition());
 
                 glm::vec3 piece_position = glm::vec3(retrieved_pos.x, retrieved_pos.y, kChessPieceDepth);
                 chess_piece_drawable->SetPosition(piece_position);
@@ -420,7 +527,7 @@ void Chess_Game::DefaultChessScene::OnSelectedPieceChanged(std::weak_ptr<ChessPi
 void Chess_Game::DefaultChessScene::OnSelectedPieceMoved(std::shared_ptr<ChessPiece> selected_piece)
 {
    auto piece_drawable = selected_piece->GetPieceDrawable().lock();
-   glm::vec2 new_position = m_PositionHelper->BoardToScreenPosition(selected_piece->GetPiecePosition());
+   glm::vec2 new_position = m_PositionHelper->BoardToProjectionSpace(selected_piece->GetPiecePosition());
    piece_drawable->SetPosition(glm::vec3(new_position, kChessPieceDepth));
 
 }

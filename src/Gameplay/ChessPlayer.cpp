@@ -14,17 +14,17 @@ Chess_Game::ChessPlayer::ChessPlayer(const std::vector<std::shared_ptr<ChessPiec
 
 void Chess_Game::ChessPlayer::PromotePawn(ChessPieceType_ replace_piece_type)
 {
-    ChessPiece* new_class = nullptr;
-    auto ptr = m_SelectedPiece.lock();
-
-    BoardPosition pawn_position = ptr->GetPiecePosition();
-    OptionalIndex array_index = GetPieceArrayIndex(pawn_position);
-
-    if (!array_index.is_set)
-    {
-        CHESS_LOG_WARN("Was no able to find the pawn to be promoted.");
-        return;
-    }
+    //ChessPiece* new_class = nullptr;
+    //auto ptr = m_SelectedPiece.lock();
+    //
+    //BoardPosition pawn_position = ptr->GetPiecePosition();
+    //OptionalIndex array_index = GetPieceArrayIndex(pawn_position);
+    //
+    //if (!array_index.is_set)
+    //{
+    //    CHESS_LOG_WARN("Was no able to find the pawn to be promoted.");
+    //    return;
+    //}
 
     //switch (replace_piece_type)
     //{
@@ -58,6 +58,23 @@ void Chess_Game::ChessPlayer::SelectPiece(BoardPosition piece_board_position)
     }
 
     m_SelectedPiece = m_PlayerPieces[selected_piece_index.index_value];
+}
+
+void Chess_Game::ChessPlayer::SetSelectedPiece(std::shared_ptr<ChessPiece> new_piece)
+{
+    if (auto selected_piece = this->m_SelectedPiece.lock())
+    {
+
+        OptionalIndex selected_piece_index = 
+            GetPieceArrayIndex(selected_piece->GetPiecePosition());
+
+        if (!selected_piece_index.is_set)
+        {
+            return;
+        }
+        m_PlayerPieces[selected_piece_index.index_value] = new_piece;
+        this->m_SelectedPiece = new_piece;
+    }
 }
 
 void Chess_Game::ChessPlayer::RemovePiece(BoardPosition piece_board_position)

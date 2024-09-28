@@ -3,8 +3,10 @@
 #include "ChessGame.h"
 
 Chess_Game::ChessGame::ChessGame(const std::shared_ptr<ChessPlayer>& white_player,
-    const std::shared_ptr<ChessPlayer>& black_player):
-    m_ActivePlayer(white_player),m_NonActivePlayer(black_player)
+    const std::shared_ptr<ChessPlayer>& black_player,
+    const std::function<std::shared_ptr<ChessPiece>(bool, BoardPosition)>& pawn_promotion_callback):
+    m_ActivePlayer(white_player),m_NonActivePlayer(black_player),
+    m_OnPawnPromotion(pawn_promotion_callback)
 {
     SetupChessBoardBitMask(white_player, black_player);
 }
@@ -86,8 +88,12 @@ void Chess_Game::ChessGame::MoveCurrentPlayerSelectedPiece(BoardPosition new_pos
 
             //Issue a draw for a selection box for the promote piece type.
             //Wait for the answer in this thread and then proceed.
+            // 
 
-            m_ActivePlayer->PromotePawn(ChessPieceType_kQueen);
+            bool is_white_team = 
+                current_position_flag_piece_team & BoardPositionFlags_kIsPieceFromWhiteTeam;
+
+            m_ActivePlayer->SetSelectedPiece(m_OnPawnPromotion(is_white_team, new_position));
         }
 
         if (IsKingChecked())

@@ -1,6 +1,17 @@
 #include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "UIManager.h"
 
+glm::vec2 Chess_Game::UIManager::ConvertScreenToRootWindowPos(glm::vec2 screen_pos)
+{
+    glm::vec2 screen_to_root_window_pos(screen_pos.x, screen_pos.y);
+    glm::vec2 half_window_size(m_CurrentWindowSize.width, m_CurrentWindowSize.height);
+    half_window_size /= 2.f;
+
+    screen_to_root_window_pos -= half_window_size;
+
+    return screen_to_root_window_pos;
+}
+
 Chess_Game::UIManager::UIManager(Size2D window_size, std::shared_ptr<DrawableCreator>& drawable_creator):
     m_CurrentWindowSize(window_size),m_ApplicationDrawableCreator(drawable_creator)
 {
@@ -70,18 +81,15 @@ void Chess_Game::UIManager::PollUIInput(const MouseInput& application_input,
     if (application_input.IsMouseButtonPressed(MouseButton_kLeftMouseButton))
     {
         auto& mouse_pos_bottom_left = application_input.GetMousePositionBottomLeft();
-        glm::vec2 mouse_to_matrix(mouse_pos_bottom_left.x, mouse_pos_bottom_left.y);
-        glm::vec2 half_window_size(m_CurrentWindowSize.width,m_CurrentWindowSize.height);
-        half_window_size /= 2.f;
+        glm::vec2 mouse_screen_pos(mouse_pos_bottom_left.x, mouse_pos_bottom_left.y);
 
-        mouse_to_matrix = mouse_to_matrix - half_window_size;
-
+        glm::vec2 screen_to_root_win_pos = ConvertScreenToRootWindowPos(mouse_screen_pos);
 
         for (auto& weak_element : m_UIElements)
         {
             if (auto element = weak_element.lock())
             {            
-               if (element->GetElementBoundingBox().IsInsideBox(mouse_to_matrix))
+               if (element->GetElementBoundingBox().IsInsideBox(screen_to_root_win_pos))
                {       
 
                    size_t drawable_id = application_batch_renderer->GetIDFramebuffer()->GetPixelData(
