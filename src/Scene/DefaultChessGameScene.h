@@ -6,7 +6,8 @@
 #include "Helpers/PositionHelper.h"
 #include "Core/EventListener.h"
 #include "UI/UI_Image.h"
-
+#include "Gameplay/GameControllers/PawnPromotionUIManager.h"
+#include <future>
 namespace Chess_Game
 {
     class DefaultChessScene : public SceneObject, public Listener
@@ -26,6 +27,7 @@ namespace Chess_Game
         void OnSelectedPieceMoved(std::shared_ptr<ChessPiece> selected_piece);
         void CreateSceneUI();
         void OnGameOver();
+        std::shared_ptr<ChessPiece>OnPawnPromotion(bool is_white_team_pawn,BoardPosition new_pawn_pos);
     private:
         std::unique_ptr<ChessGameController> m_ChessGameController;
         std::shared_ptr<Drawable> m_ChessBoard{};
@@ -40,6 +42,10 @@ namespace Chess_Game
         std::shared_ptr<ScreenPositionHelper> m_PositionHelper;
         std::vector<BoardPosition> m_SelectedPiecePossiblePositions{};
         bool m_IsGamePaused = false;
+        std::future<void> m_GameProcessInputThread{};
+
+        std::unique_ptr<PawnPromotionSelectionUI> m_PawnPromotionUIManager;
+
     };
 
 }

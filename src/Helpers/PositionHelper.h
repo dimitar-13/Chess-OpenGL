@@ -10,7 +10,7 @@ namespace Chess_Game
     {
     public:
         ScreenPositionHelper(OrthographicMatrixBorder projection_border);
-        glm::vec2 BoardToScreenPosition(BoardPosition board_position)const;
+        glm::vec2 BoardToProjectionSpace(BoardPosition board_position)const;
         BoardPosition ScreenPositionToBoard(glm::vec2 orthographic_coordinates);
         void UpdateProjectionBorder(OrthographicMatrixBorder new_border);
         glm::vec2 GetBoardStart()const { return m_BoardStart; }

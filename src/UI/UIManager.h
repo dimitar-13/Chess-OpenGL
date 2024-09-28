@@ -19,6 +19,7 @@ namespace Chess_Game
         using ElementID = size_t;
         static constexpr size_t kUIElementCount = 40; /// This might be removed if not used.
     public:
+        glm::vec2 ConvertScreenToRootWindowPos(glm::vec2 screen_pos);
         UIManager(Size2D window_size, std::shared_ptr<DrawableCreator>& drawable_creator);
         void RemoveWidget(ElementID widget_id);
         void DrawUI(std::shared_ptr<BatchRenderer> application_batch_renderer,

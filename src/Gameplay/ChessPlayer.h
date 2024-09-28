@@ -30,6 +30,7 @@ namespace Chess_Game
         ChessPlayer(const std::vector<std::shared_ptr<ChessPiece>>& starting_pieces);
         void PromotePawn(ChessPieceType_ replace_piece_type);
         void SelectPiece(BoardPosition piece_board_position);
+        void SetSelectedPiece(std::shared_ptr<ChessPiece> new_piece);
         void UnSelectPiece() {m_SelectedPiece = std::weak_ptr<ChessPiece>();}
         void RemovePiece(BoardPosition piece_board_position);
         void MoveSelectedPiece(BoardPosition new_piece_position);

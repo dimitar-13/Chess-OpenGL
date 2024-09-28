@@ -14,7 +14,6 @@ void Chess_Game::ChessGameController::ProcessInput(BoardPosition new_position)
     {
         this->UnselectPiece();
         m_OnSelectedPieceChanged(m_PlayerCurrentController.GetActivePlayer()->GetSelectedPiece());
-
         return;
     }
 
@@ -56,6 +55,6 @@ bool Chess_Game::ChessGameController::CanMoveSelectedPiece(BoardPosition new_pos
 void Chess_Game::ChessGameController::MoveSelectedPiece(BoardPosition new_position)
 {
     m_ChessGame->MoveCurrentPlayerSelectedPiece(new_position);
-
+    
     m_OnSelectedPieceMoved(m_PlayerCurrentController.GetActivePlayer()->GetSelectedPiece().lock());
 }

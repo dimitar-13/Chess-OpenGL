@@ -135,12 +135,12 @@ void Chess_Game::BatchRenderer::SortBatch(BatchData& batch_to_sort)
         if (!drawable_weak.expired() && !drawable_weak.lock()->IsDrawableEnabled())
             continue;
 
-        auto drawable_shared = drawable_weak.lock();
-
-        PushDrawable(drawable_shared->GetDrawableID(), drawable_shared->GetPosition(),
-            drawable_shared->GetScale(), drawable_shared->GetColor(),
-            m_ApplicationAssetLoader->GetTextureAsset(drawable_shared->GetDrawableTextureName()));
-        
+        if (auto drawable_shared = drawable_weak.lock())
+        {
+            PushDrawable(drawable_shared->GetDrawableID(), drawable_shared->GetPosition(),
+                drawable_shared->GetScale(), drawable_shared->GetColor(),
+                m_ApplicationAssetLoader->GetTextureAsset(drawable_shared->GetDrawableTextureName()));
+        }
     }
 }
 

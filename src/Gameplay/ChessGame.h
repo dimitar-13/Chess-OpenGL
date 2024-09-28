@@ -8,7 +8,8 @@ namespace Chess_Game
     class ChessGame {
     public:
         ChessGame(const std::shared_ptr<ChessPlayer>& white_player,
-            const std::shared_ptr<ChessPlayer>& black_player);
+            const std::shared_ptr<ChessPlayer>& black_player,
+            const std::function<std::shared_ptr<ChessPiece>(bool, BoardPosition)>& pawn_promotion_callback);
         void MoveCurrentPlayerSelectedPiece(BoardPosition new_position);
         bool CanMoveSelectedPiece(BoardPosition new_position){ return CanMove(new_position,m_ActivePlayer,m_NonActivePlayer);}
         std::vector<BoardPosition> GetSelectedPieceAllPossibleMoves(std::shared_ptr<ChessPlayer> current_player,
@@ -37,5 +38,6 @@ namespace Chess_Game
         std::shared_ptr<ChessPlayer> m_ActivePlayer{};
         std::shared_ptr<ChessPlayer> m_NonActivePlayer{};
         bool m_IsKingCheckMated = false;
+        std::function<std::shared_ptr<ChessPiece>(bool, BoardPosition)> m_OnPawnPromotion{};
     };
 }
