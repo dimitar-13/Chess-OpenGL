@@ -4,8 +4,6 @@
 
 namespace Chess_Game
 {
-
-
     enum BoardPositionFlags_ : uint8_t
     {
         BoardPositionFlags_kIsPositionOcupied = 1 << 0,
@@ -19,7 +17,6 @@ namespace Chess_Game
     public:
         BoardPositionFlags_ GetChessboardPositionFlag(BoardPosition position);
         void SetChessboardPositionFlag(BoardPosition position, BoardPositionFlags_ bit_mask);
-
         static bool IsPositionAtVerticalBoarder(BoardPosition new_position);
         static bool IsNewPositionInBounds(BoardPosition new_position);
     private:

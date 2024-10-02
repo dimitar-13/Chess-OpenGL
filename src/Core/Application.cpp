@@ -74,12 +74,13 @@ void Chess_Game::Application::InitAppResource()
     Size2D current_window_size = m_ApplicationWindow->GetWindowSize();
 
     m_ApplicationDrawableCreator = std::make_shared<DrawableCreator>();
-    m_TextureAssetLoader = std::make_shared<AssetLoader>();
-    m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>(current_window_size, m_TextureAssetLoader);
-    this->AddEventListener(m_ApplicationBatchRenderer->GetIDFramebuffer());
-
     m_ApplicationUIManager = std::make_shared<UIManager>(current_window_size, m_ApplicationDrawableCreator);
 
+
+    m_TextureAssetLoader = std::make_shared<AssetLoader>();
+    m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>(current_window_size, m_TextureAssetLoader);
+
+    this->AddEventListener(m_ApplicationBatchRenderer->GetIDFramebuffer());
     this->AddEventListener(m_ApplicationUIManager);
 }
 
