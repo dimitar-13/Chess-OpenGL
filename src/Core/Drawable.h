@@ -7,12 +7,10 @@ namespace Chess_Game
     class DrawableCreator;
     class Drawable
     {
-        friend class DrawableCreator;
-    private:
+    public:
         Drawable(size_t drawable_id,const std::shared_ptr<DrawableCreator>& drawable_creator):
             m_DrawableID(drawable_id), m_DrawableCreator(drawable_creator)
         {}     
-    public:
         ~Drawable();
         glm::vec3 GetPosition()const { return m_Position; }
         const glm::vec3& GetColor()const { return m_Color; }
