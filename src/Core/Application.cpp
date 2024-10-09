@@ -3,6 +3,7 @@
 #include "Scene/DefaultChessGameScene.h"
 #include "Core/SceneObject.h"
 #include "Scene/MainMenuScene.h"
+#include "TextFont.h"
 
 static constexpr int kStartWindowWidth = 1000;
 static constexpr int kStartWindowHeight = 1000;
@@ -82,6 +83,7 @@ void Chess_Game::Application::InitAppResource()
 
     this->AddEventListener(m_ApplicationBatchRenderer->GetIDFramebuffer());
     this->AddEventListener(m_ApplicationUIManager);
+   
 }
 
 void Chess_Game::Application::OnEvent(const Event& e)

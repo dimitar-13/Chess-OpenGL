@@ -24,6 +24,7 @@ set(INPUT_HEADERS
 	AssetLoader.h
 	Chess_pch.h
 	DrawableCreator.h
+	MemoryPool.h
 )
 
 target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})

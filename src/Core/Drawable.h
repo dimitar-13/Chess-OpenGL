@@ -23,8 +23,12 @@ namespace Chess_Game
         void SetDrawableTextureName(TextureName_ new_texture_name) { m_TextureName = new_texture_name; }
         void EnableDrawable(bool is_enabled) { m_IsEnabled = is_enabled; }
         bool IsDrawableEnabled()const { return m_IsEnabled; }
+        void SetUVRegion(const TextureRegion& uv_region) { m_DrawableUVRegion = uv_region; }
+        const TextureRegion& GetUVRegion()const {return m_DrawableUVRegion; }
+
     private:
         size_t m_DrawableID{};
+        TextureRegion m_DrawableUVRegion;
         glm::vec3 m_Position{};
         glm::vec3 m_Color = glm::vec3(1);
         glm::vec2 m_Scale = glm::vec2(30.0f);

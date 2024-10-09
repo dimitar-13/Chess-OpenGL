@@ -29,7 +29,7 @@ void Chess_Game::TextureBatcher::Flush()
     m_CurrentFreeTextureSlotIndex = 0;
 }
 
-size_t Chess_Game::TextureBatcher::PushTextureForRendering(Texture texture_to_push)
+size_t Chess_Game::TextureBatcher::PushTextureForRendering(GLuint texture_to_push)
 {
     if (static_cast<size_t>(m_CurrentFreeTextureSlotIndex + 1) >= kShaderSamplerArrayBaseSize)
         return 0;

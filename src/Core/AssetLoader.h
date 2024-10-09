@@ -17,16 +17,17 @@ namespace Chess_Game
         TextureName_ texture_name{};
     };
 
+
     class AssetLoader
     {
     public:
         AssetLoader();
         ~AssetLoader();
-        Texture GetTextureAsset(TextureName_ name_of_texture);
+        GLuint GetTextureAsset(TextureName_ name_of_texture);
     private:
         TextureReadData ReadTexture(const char* texture_path);
     private:
-        std::unordered_map<TextureName_, Texture> m_AssetTextureHash{};
+        std::unordered_map<TextureName_, GLuint> m_AssetTextureHash{};
         std::vector<GLuint> m_AssetTextureArray{};
     };
 }

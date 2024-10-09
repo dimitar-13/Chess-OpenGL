@@ -39,6 +39,7 @@ void Chess_Game::DefaultChessScene::InitScene()
     if (auto application = m_Application.lock())
     {
 
+
         m_PauseMenuUIHelper = std::make_unique<PauseMenuUIHelper>(application);
 
         m_PawnPromotionUIManager = 

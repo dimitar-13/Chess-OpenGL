@@ -3,6 +3,8 @@
 #include "Core/ApplicationData.h"
 #include "Core/DrawableCreator.h"
 #include "Core/OrthographicApplicationMatrix.h"
+#include "gpu-side/BatchRenderer.h"
+
 namespace Chess_Game
 {
     enum PositionPivot_
@@ -60,6 +62,7 @@ namespace Chess_Game
     private:
         void UpdateElement();
         void CalculateElementBoundingBox(glm::vec2 screen_pos,glm::vec2 size);
+        virtual void Draw(BatchRenderer& batch_renderer);
     protected:
         virtual void OnElementChanged() { UpdateElement(); };
         virtual void EnableDrawable(bool is_visible) { m_UIDrawable->EnableDrawable(is_visible); }

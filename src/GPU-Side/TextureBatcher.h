@@ -20,9 +20,9 @@ namespace Chess_Game
         const std::array<SamplerBindingPoint,kShaderSamplerArrayBaseSize>& GetBoundTexturesSlots()const { return m_BindingPointsArray; }
         size_t GetBoundTexturesCount() { return m_TextureToBindingArrayIndexHash.size();}
         void Flush();
-        size_t PushTextureForRendering(Texture texture_to_push);
+        size_t PushTextureForRendering(GLuint texture_to_push);
     private:
-        std::unordered_map<Texture, BindingPointArrayIndex> m_TextureToBindingArrayIndexHash{};
+        std::unordered_map<GLuint, BindingPointArrayIndex> m_TextureToBindingArrayIndexHash{};
         std::array<SamplerBindingPoint, kShaderSamplerArrayBaseSize> m_BindingPointsArray{};
         BindingPointArrayIndex m_CurrentFreeTextureSlotIndex = 0;
     };

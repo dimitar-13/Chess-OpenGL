@@ -62,9 +62,10 @@ namespace Chess_Game
         void DrawTextureQuadBatch(const glm::mat4& projection,bool output_drawable_id = false);
         std::shared_ptr<IntFramebuffer> GetIDFramebuffer() { return m_MousePickingFramebuffer; }
         ~BatchRenderer();
-    private:
         void PushDrawable(size_t object_id,
-            const glm::vec3& position, const glm::vec2& scale, const glm::vec3& object_color, Texture texture_index = 0);
+            const glm::vec3& position, const glm::vec2& scale,
+            const glm::vec3& object_color,Texture texture_index = Texture());
+    private:
         void SortBatch(BatchData& batch_to_sort);
         void SetupBatch(BatchData& batch_to_setup);
         void BeginBatch(BatchData& batch_to_begin);

@@ -104,6 +104,11 @@ void Chess_Game::Element::CalculateElementBoundingBox(
     m_BoundingBox.height = screen_pos.y + size.y;
 }
 
+void Chess_Game::Element::Draw(BatchRenderer& batch_renderer)
+{
+    batch_renderer.PushTexturedQuad(m_UIDrawable);
+}
+
 void Chess_Game::Element::UpdateElement()
 {
     bool parent_visibility = true;

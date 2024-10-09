@@ -31,9 +31,9 @@ Chess_Game::BatchRenderer::BatchRenderer(Size2D window_size, std::shared_ptr<Ass
  }
 
 void Chess_Game::BatchRenderer::PushDrawable(size_t object_id,const glm::vec3& position,
-    const glm::vec2& scale, const glm::vec3& object_color, Texture texture_index)
+    const glm::vec2& scale, const glm::vec3& object_color,Texture texture)
 {
-    size_t texture_binding_point = m_TextureBatcher.PushTextureForRendering(texture_index);
+    size_t texture_binding_point = m_TextureBatcher.PushTextureForRendering(texture.texture_handle);
 
     GLuint quad_index_data[6] = {
         0,1,2,
@@ -52,7 +52,13 @@ void Chess_Game::BatchRenderer::PushDrawable(size_t object_id,const glm::vec3& p
         vertex.color = object_color;
         vertex.texture_sampler_index = static_cast<float>(texture_binding_point);
     }
- 
+    quad_vertex_data_copy[0].uv = { texture.texture_region.start.x,texture.texture_region.end.y };
+    quad_vertex_data_copy[1].uv = texture.texture_region.start;
+    quad_vertex_data_copy[2].uv = { texture.texture_region.end.x,texture.texture_region.start.y };
+    quad_vertex_data_copy[3].uv = texture.texture_region.end;
+
+
+
     memcpy(m_TexturedQuadBatch.render_data.vertex_batch_pointer, quad_vertex_data_copy, sizeof(quad_vertex_data_copy));
      
     m_TexturedQuadBatch.render_data.vertex_batch_pointer += BatchRendererData::kSingleQuadVertexCount;
@@ -137,9 +143,11 @@ void Chess_Game::BatchRenderer::SortBatch(BatchData& batch_to_sort)
 
         if (auto drawable_shared = drawable_weak.lock())
         {
+            Texture test_text;
+            test_text.texture_handle = m_ApplicationAssetLoader->GetTextureAsset(drawable_shared->GetDrawableTextureName());
+
             PushDrawable(drawable_shared->GetDrawableID(), drawable_shared->GetPosition(),
-                drawable_shared->GetScale(), drawable_shared->GetColor(),
-                m_ApplicationAssetLoader->GetTextureAsset(drawable_shared->GetDrawableTextureName()));
+                drawable_shared->GetScale(), drawable_shared->GetColor(), test_text);
         }
     }
 }

@@ -14,7 +14,9 @@ public:
         MemoryPool<T, _Size>& m_MemoryPool;
         constexpr void operator()(T* obj_to_destroy) const
         {
-            m_MemoryPool.DeAllocate(obj_to_destroy);
+            //FIX: Memory pool must be destroyed last.
+            
+            //m_MemoryPool.DeAllocate(obj_to_destroy);
         }
     };
 

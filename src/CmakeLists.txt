@@ -18,7 +18,11 @@ set_target_properties(${PROJECT_NAME}  PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin/Debug")
 set_target_properties(${PROJECT_NAME}  PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin/Release")
-  
+
+  set_target_properties(${PROJECT_NAME}  PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/Debug")
+set_target_properties(${PROJECT_NAME}  PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/Release")
 
 set(PROJECT_DEPENDENCY_FOLDER "${PROJECT_SOURCE_DIR}/../dependencies")
 
@@ -29,10 +33,17 @@ set(GLFW_RELEASE "${PROJECT_DEPENDENCY_FOLDER}/glfw/build/src/Release")
 set(GLFW_DEBUG   "${PROJECT_DEPENDENCY_FOLDER}/glfw/build/src/Debug")
 
 
+set(FREETYPE_RELEASE "${PROJECT_DEPENDENCY_FOLDER}/freeType/build/Release")
+set(FREETYPE_DEBUG  "${PROJECT_DEPENDENCY_FOLDER}/freeType/build/Debug")
+
+
+
+
 add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/glfw"  "${PROJECT_DEPENDENCY_FOLDER}/glfw/build")
 add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/glm"  "${PROJECT_DEPENDENCY_FOLDER}/glm/build")
 add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/glew/glew/glew-2.2.0/build/cmake" "${PROJECT_DEPENDENCY_FOLDER}/glew/glew/glew-2.2.0/build/cmake/build")
 add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/spdlog" "${PROJECT_DEPENDENCY_FOLDER}/spdlog/build")
+add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/freeType/freetype" "${PROJECT_DEPENDENCY_FOLDER}/freetype/build")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/Logging")
 add_subdirectory("${PROJECT_SOURCE_DIR}/Core")
@@ -63,12 +74,16 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/spdlog/include")
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/stbi_image")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/freeType/freetype/include")
 
 target_link_directories(${PROJECT_NAME} PUBLIC
     "$<$<CONFIG:Debug>:${GLEW_DEBUG}>"
     "$<$<CONFIG:Release>:${GLEW_RELEASE}>"
     "$<$<CONFIG:Debug>:${GLFW_DEBUG}>"
     "$<$<CONFIG:Release>:${GLFW_RELEASE}>"
+	"$<$<CONFIG:Debug>:${FREETYPE_DEBUG}>"
+    "$<$<CONFIG:Release>:${FREETYPE_RELEASE}>"
+
 )
 
 
@@ -80,6 +95,10 @@ target_link_libraries(${PROJECT_NAME}
 	
    "$<$<CONFIG:Release>:libglew32.lib>"
    "$<$<CONFIG:Debug>:libglew32d.lib>"
+
+    "$<$<CONFIG:Release>:freetype.lib>"
+   "$<$<CONFIG:Debug>:freetyped.lib>"
+
 )
 
-add_dependencies(${PROJECT_NAME} glfw glew_s glm)
+add_dependencies(${PROJECT_NAME} glfw glew_s glm freetype)
