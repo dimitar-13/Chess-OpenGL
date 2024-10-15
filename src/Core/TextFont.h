@@ -39,11 +39,11 @@ namespace Chess_Game
 
 
 
-    class TextFront
+    class TextFont
     {
     public:
-        TextFront();
-        ~TextFront();
+        TextFont();
+        ~TextFont();
         Texture GetGlyphCoords(unsigned char glyph);
         FontCharacterData GetGlyphMetrix(unsigned char glyph);
         size_t GetFontLineSpacing()const { return m_FontLineSpacing; }

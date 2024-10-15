@@ -15,7 +15,7 @@ Chess_Game::PauseMenuUIHelper::PauseMenuUIHelper(std::shared_ptr<Application> ap
 
     auto invert_visibility = [this]()
         {
-            m_PauseMenuGroup->SetVisibility(!m_PauseMenuGroup->GetElementVisibility());
+            m_PauseMenuGroup->EnableElement(!m_PauseMenuGroup->IsElementEnabled());
             m_IsPaused = !m_IsPaused;
         };
 
@@ -31,8 +31,8 @@ Chess_Game::PauseMenuUIHelper::PauseMenuUIHelper(std::shared_ptr<Application> ap
     m_PauseButton->SetPositionPivot(PositionPivot_kTopRight);
 
     m_PauseMenuGroup = ui_manager.CreateUIElement<Panel>(glm::vec2(0), glm::vec2(400));
-    m_PauseMenuGroup->SetVisibility(false);
-    m_PauseMenuGroup->EnablePanelBackground(true);
+    m_PauseMenuGroup->SetVisibility(true);
+    m_PauseMenuGroup->EnableElement(false);
     m_PauseMenuGroup->SetPanelCustomTexture(TextureName_kUIGroupBackground);
     m_PauseMenuGroup->SetElementDepth(.5);
 

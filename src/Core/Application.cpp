@@ -40,6 +40,8 @@ void Chess_Game::Application::StartRenderLoop()
     m_CurrentApplicationScene->InitScene();
 
     glEnable(GL_BLEND);  
+    //glEnable(GL_DEPTH_TEST);
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
     while (m_isApplicationRunning) {
@@ -50,14 +52,18 @@ void Chess_Game::Application::StartRenderLoop()
 
         m_CurrentApplicationScene->OnUpdate();
         m_CurrentApplicationScene->DrawScene(m_ApplicationBatchRenderer);
+        m_ApplicationBatchRenderer->FlushTextureBatch();
+
 
         m_ApplicationUIManager->DrawUI(m_ApplicationBatchRenderer,*m_TextureAssetLoader);
         m_ApplicationUIManager->PollUIInput(m_ApplicationMouseInput, m_ApplicationBatchRenderer,m_ApplicationProjection);
 
         m_ApplicationMouseInput.FlushInputPoll();
 
-        m_ApplicationWindow->OnUpdate();
+        m_ApplicationBatchRenderer->FlushTextureBatch();
 
+        m_ApplicationWindow->OnUpdate();
+        
         if (m_ToLoadScene != nullptr && m_CurrentApplicationScene != m_ToLoadScene)
         {
             m_CurrentApplicationScene->DestroyScene();

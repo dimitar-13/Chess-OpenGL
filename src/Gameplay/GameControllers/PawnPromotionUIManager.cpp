@@ -30,8 +30,7 @@ Chess_Game::PawnPromotionSelectionUI::PawnPromotionSelectionUI(
     
     m_PawnPromotionPanel = m_UIManager->CreateUIElement<Panel>(glm::vec2(0, 0), glm::vec2(150,40));
     
-    m_PawnPromotionPanel->EnablePanelBackground(true);
-    m_PawnPromotionPanel->SetVisibility(false);
+    m_PawnPromotionPanel->EnableElement(false);
     
     m_QueenSelectionButton =  m_UIManager->CreateUIElement<Button>(
             glm::vec2((piece_selection_size + 100.0f), 0), glm::vec2(piece_selection_size));
@@ -73,7 +72,7 @@ void Chess_Game::PawnPromotionSelectionUI::SetPromotionPosition()
 
 void Chess_Game::PawnPromotionSelectionUI::TogglePawnPromotionUI(bool is_enabled)
 {
-    m_PawnPromotionPanel->SetVisibility(is_enabled);
+    m_PawnPromotionPanel->EnableElement(is_enabled);
     //m_CurrentlySelectedType = ChessPieceType_kUnknown;
 }
 
@@ -81,8 +80,8 @@ void Chess_Game::PawnPromotionSelectionUI::SwitchPromotionPieceTeamCol(bool is_w
 {
     glm::vec3 current_team_col = is_white_team ? glm::vec3(1) : glm::vec3(0);
 
-    m_QueenSelectionButton->GetDrawable()->SetColor(current_team_col);
-    m_BishopSelectionButton->GetDrawable()->SetColor(current_team_col);
-    m_RookSelectionButton->GetDrawable()->SetColor(current_team_col);
-    m_KnightSelectionButton->GetDrawable()->SetColor(current_team_col);
+    //m_QueenSelectionButton->GetDrawable()->SetColor(current_team_col);
+    //m_BishopSelectionButton->GetDrawable()->SetColor(current_team_col);
+    //m_RookSelectionButton->GetDrawable()->SetColor(current_team_col);
+    //m_KnightSelectionButton->GetDrawable()->SetColor(current_team_col);
 }

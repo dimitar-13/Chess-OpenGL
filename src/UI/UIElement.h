@@ -37,8 +37,8 @@ namespace Chess_Game
         friend class UIManager;
         friend class Panel;
 
-        Element(size_t element_id, std::weak_ptr<UIManager> ui_manager_ref,
-            DrawableCreator& drawable_creator,
+        Element(std::weak_ptr<UIManager> ui_manager_ref,
+            std::shared_ptr<DrawableCreator> drawable_creator,
             const glm::vec2& position,
             const glm::vec2& element_size);
     public:
@@ -49,14 +49,15 @@ namespace Chess_Game
         float GetElementDepth()const { return m_DepthLayer; }
         PositionPivot_ GetPositionPivot()const { return m_ParentPosPivot; }
         glm::vec2 GetRelativePos()const { return m_ElementRelativePos; }
-        virtual void SetVisibility(bool is_visible);
-        bool GetElementVisibility()const { return m_IsElementEnabled; }
-        glm::vec2 GetElementSize()const { return m_ElementSize; }
+        void SetVisibility(bool is_visible);
+        void EnableElement(bool is_enabled);
+        bool IsElementVisible()const { return m_WidgetDrawable->m_IsEnabled; }
+        bool IsElementEnabled()const { return m_IsElementEnabled; }
+        glm::vec2 GetElementSize()const { return m_WidgetDrawable->m_Scale; }
         glm::vec2 GetPivotPos(PositionPivot_ pivot)const;
         glm::vec2 GetScreenPos();
         virtual ~Element();
-        size_t GetElementID()const { return m_ElementID; }
-        std::shared_ptr<Drawable> GetDrawable() { return m_UIDrawable; }
+        size_t GetElementID()const { return m_WidgetDrawable->GetDrawableID(); }
         const AxisAlignedBoundingBox& GetElementBoundingBox()const { return m_BoundingBox; }
         virtual void OnElementPressed() {};
     private:
@@ -65,17 +66,15 @@ namespace Chess_Game
         virtual void Draw(BatchRenderer& batch_renderer);
     protected:
         virtual void OnElementChanged() { UpdateElement(); };
-        virtual void EnableDrawable(bool is_visible) { m_UIDrawable->EnableDrawable(is_visible); }
+        virtual void EnableDrawable(bool is_visible) { m_WidgetDrawable->m_IsEnabled = is_visible; };
     protected:
-        size_t m_ElementID;
-        glm::vec2 m_ElementSize;
         glm::vec2 m_ElementRelativePos = glm::vec2(0);
         float m_DepthLayer = 0.0f;
         AxisAlignedBoundingBox m_BoundingBox;
-        bool m_IsElementEnabled = true;
-        std::shared_ptr<Drawable> m_UIDrawable;
         std::weak_ptr<UIManager> m_UIManager;
         std::shared_ptr<Panel> m_Parent;
         PositionPivot_ m_ParentPosPivot = PositionPivot_kMiddle;
+        std::shared_ptr<Drawable> m_WidgetDrawable;
+        bool m_IsElementEnabled = true;
     };
 }

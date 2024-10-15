@@ -46,13 +46,16 @@ void Chess_Game::Panel::OnElementChanged()
 }
 
 
-Chess_Game::Panel::Panel(size_t element_id,std::weak_ptr<UIManager> ui_manager_ref, 
-    DrawableCreator& drawable_creator, 
+Chess_Game::Panel::Panel(std::weak_ptr<UIManager> ui_manager_ref,
+    std::shared_ptr<DrawableCreator> drawable_creator,
     const glm::vec2& element_pos, const glm::vec2& element_size):
-    Element(element_id, ui_manager_ref,
-        drawable_creator, element_pos, element_size)
+    Element(ui_manager_ref, drawable_creator, element_pos, element_size)
 {
-    EnablePanelBackground(m_HasBackground);
+    //m_PanelDrawable = drawable_creator.CreateDrawable();
+    glm::vec2 screen_pos = this->GetRelativePos();
+
+   // m_PanelDrawable->SetPosition(glm::vec3(screen_pos, m_DepthLayer));
+
 };
 
 
@@ -65,10 +68,4 @@ void Chess_Game::Panel::UpdatePanelChilds()
             child_shared_ref->OnElementChanged();
         }
     }
-}
-
-void Chess_Game::Panel::SetVisibility(bool is_enabled)
-{
-    Element::SetVisibility(is_enabled);
-    this->m_UIDrawable->EnableDrawable(m_HasBackground && m_IsElementEnabled);
 }

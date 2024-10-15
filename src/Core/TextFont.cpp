@@ -6,7 +6,7 @@
 
 static const char* kApplicationFontPath = "D:/c++/OpenGl/Chess-OpenGL/resources/fonts/arial.ttf";
 
-Chess_Game::TextFront::TextFront()
+Chess_Game::TextFont::TextFont()
 {
     FontLoader font_loader(kApplicationFontPath);
 
@@ -23,12 +23,12 @@ Chess_Game::TextFront::TextFront()
 
 }
 
-Chess_Game::TextFront::~TextFront()
+Chess_Game::TextFont::~TextFont()
 {
     glDeleteTextures(1, &m_GlyphAtlas);
 }
 
-Chess_Game::Texture Chess_Game::TextFront::GetGlyphCoords(unsigned char glyph)
+Chess_Game::Texture Chess_Game::TextFont::GetGlyphCoords(unsigned char glyph)
 {
     if (m_FontCharacterHash.find(glyph) == m_FontCharacterHash.end())
     {
@@ -43,7 +43,7 @@ Chess_Game::Texture Chess_Game::TextFront::GetGlyphCoords(unsigned char glyph)
     return result;
 }
 
-Chess_Game::FontCharacterData Chess_Game::TextFront::GetGlyphMetrix(unsigned char glyph)
+Chess_Game::FontCharacterData Chess_Game::TextFont::GetGlyphMetrix(unsigned char glyph)
 {
     if (m_FontCharacterHash.find(glyph) == m_FontCharacterHash.end())
     {
