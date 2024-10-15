@@ -2,6 +2,7 @@
 #include "Core/SceneObject.h"
 #include "UI/Button.h"
 #include "UI/UI_Image.h"
+#include "UI/TextUI.h"
 namespace Chess_Game
 {
     class MainMenuScene : public SceneObject
@@ -20,5 +21,6 @@ namespace Chess_Game
         std::shared_ptr<Button> m_StartButton{};
         std::shared_ptr<Image> m_GameLogoImage{};
         std::shared_ptr<Panel> m_StartMenuPanel{};
+        std::shared_ptr<TextUI> m_GameNameUIText{};
     };
 }

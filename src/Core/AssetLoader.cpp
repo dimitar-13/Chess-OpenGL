@@ -76,12 +76,12 @@ Chess_Game::AssetLoader::~AssetLoader()
     glDeleteTextures(m_AssetTextureArray.size(), m_AssetTextureArray.data());
 }
 
-Chess_Game::Texture Chess_Game::AssetLoader::GetTextureAsset(TextureName_ name_of_texture)
+GLuint Chess_Game::AssetLoader::GetTextureAsset(TextureName_ name_of_texture)
 {
     if (m_AssetTextureHash.find(name_of_texture) == m_AssetTextureHash.end())
     {
         CHESS_LOG_WARN("Invalid enum or texture failed to load.");
-        return Texture();
+        return 0;
     }
 
     return m_AssetTextureHash.at(name_of_texture);

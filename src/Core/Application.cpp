@@ -3,6 +3,7 @@
 #include "Scene/DefaultChessGameScene.h"
 #include "Core/SceneObject.h"
 #include "Scene/MainMenuScene.h"
+#include "TextFont.h"
 
 static constexpr int kStartWindowWidth = 1000;
 static constexpr int kStartWindowHeight = 1000;
@@ -39,6 +40,8 @@ void Chess_Game::Application::StartRenderLoop()
     m_CurrentApplicationScene->InitScene();
 
     glEnable(GL_BLEND);  
+    //glEnable(GL_DEPTH_TEST);
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
     while (m_isApplicationRunning) {
@@ -49,14 +52,18 @@ void Chess_Game::Application::StartRenderLoop()
 
         m_CurrentApplicationScene->OnUpdate();
         m_CurrentApplicationScene->DrawScene(m_ApplicationBatchRenderer);
+        m_ApplicationBatchRenderer->FlushTextureBatch();
+
 
         m_ApplicationUIManager->DrawUI(m_ApplicationBatchRenderer,*m_TextureAssetLoader);
         m_ApplicationUIManager->PollUIInput(m_ApplicationMouseInput, m_ApplicationBatchRenderer,m_ApplicationProjection);
 
         m_ApplicationMouseInput.FlushInputPoll();
 
-        m_ApplicationWindow->OnUpdate();
+        m_ApplicationBatchRenderer->FlushTextureBatch();
 
+        m_ApplicationWindow->OnUpdate();
+        
         if (m_ToLoadScene != nullptr && m_CurrentApplicationScene != m_ToLoadScene)
         {
             m_CurrentApplicationScene->DestroyScene();
@@ -74,13 +81,15 @@ void Chess_Game::Application::InitAppResource()
     Size2D current_window_size = m_ApplicationWindow->GetWindowSize();
 
     m_ApplicationDrawableCreator = std::make_shared<DrawableCreator>();
-    m_TextureAssetLoader = std::make_shared<AssetLoader>();
-    m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>(current_window_size, m_TextureAssetLoader);
-    this->AddEventListener(m_ApplicationBatchRenderer->GetIDFramebuffer());
-
     m_ApplicationUIManager = std::make_shared<UIManager>(current_window_size, m_ApplicationDrawableCreator);
 
+
+    m_TextureAssetLoader = std::make_shared<AssetLoader>();
+    m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>(current_window_size, m_TextureAssetLoader);
+
+    this->AddEventListener(m_ApplicationBatchRenderer->GetIDFramebuffer());
     this->AddEventListener(m_ApplicationUIManager);
+   
 }
 
 void Chess_Game::Application::OnEvent(const Event& e)

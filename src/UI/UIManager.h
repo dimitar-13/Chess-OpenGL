@@ -21,7 +21,7 @@ namespace Chess_Game
     public:
         glm::vec2 ConvertScreenToRootWindowPos(glm::vec2 screen_pos);
         UIManager(Size2D window_size, std::shared_ptr<DrawableCreator>& drawable_creator);
-        void RemoveWidget(ElementID widget_id);
+        void RemoveWidget();
         void DrawUI(std::shared_ptr<BatchRenderer> application_batch_renderer,
             AssetLoader& application_asset_loader);
         void PollUIInput(const MouseInput& application_input,
@@ -29,17 +29,18 @@ namespace Chess_Game
         template<typename T>
         std::shared_ptr<T> CreateUIElement(const glm::vec2 element_pos,
             const glm::vec2 element_size);
+        std::shared_ptr<TextFont> GetDefaultTextFont() { return m_DefaultTextFont; }
     private:
         void OnWindowSizeChanged(const WindowResizeEvent& e);
         void OnEvent(const Event& e) override;
         void CreateRootPanel();
     private:
-        std::queue<ElementID> m_IDQueue{};
         std::vector<std::weak_ptr<Element>> m_UIElements{};
         Size2D m_CurrentWindowSize{};
         glm::mat4 m_ToNDCMatrix{};
         std::shared_ptr<DrawableCreator> m_ApplicationDrawableCreator{};
         std::shared_ptr<Panel> m_RootWindowPanel;
+        std::shared_ptr<TextFont> m_DefaultTextFont;
     };
 
     template<typename T>
@@ -47,19 +48,13 @@ namespace Chess_Game
         const glm::vec2 element_size)
     {
         static_assert(std::is_base_of_v<Element, T> == true && "Call must inherit from 'UIElement'.");
-        if (m_IDQueue.size() == 0)
-        {
-            assert(!(m_IDQueue.size() == 0) && "Max UI count reached.");
-            return std::shared_ptr<T>();
-        }
 
         if (!m_RootWindowPanel)
             CreateRootPanel();
 
-        ElementID id = m_IDQueue.front();
-        m_IDQueue.pop();
-        T* instance = new T(id,std::dynamic_pointer_cast<UIManager>(this->shared_from_this()),
-            *m_ApplicationDrawableCreator,element_pos, element_size);
+        T* instance = new T(std::dynamic_pointer_cast<UIManager>(
+            this->shared_from_this()),m_ApplicationDrawableCreator,
+            element_pos, element_size);
 
         std::shared_ptr<T> result = std::shared_ptr<T>(instance);
         std::weak_ptr<Element> element_weak_ptr_cast = std::dynamic_pointer_cast<Element>(result);

@@ -3,10 +3,13 @@
 
 Chess_Game::DrawableCreator::DrawableCreator()
 {
-    for (size_t i = 1; i < DrawableCreator::kMaxDrawableCount+1; i++)
+    size_t kObjectCount = DrawableCreator::kMaxDrawableCount;
+
+    for (size_t i = 1; i < kObjectCount +1; i++)
     {
         m_DrawableIndexPool.push(i);
     }
+    m_DrawablesHash.reserve(kObjectCount);
 }
 
 std::shared_ptr<Chess_Game::Drawable> Chess_Game::DrawableCreator::CreateDrawable()
@@ -14,8 +17,9 @@ std::shared_ptr<Chess_Game::Drawable> Chess_Game::DrawableCreator::CreateDrawabl
     size_t drawable_id = m_DrawableIndexPool.front();
     m_DrawableIndexPool.pop();
 
-    Drawable* drawable = new Drawable(drawable_id,shared_from_this());
-    std::shared_ptr<Drawable> result(drawable);
+    std::shared_ptr<Drawable> result =
+        m_DrawableMemoryPool.AllocateShared(drawable_id, shared_from_this());
+
     m_DrawablesHash.emplace(drawable_id,result);
     return result;
 }

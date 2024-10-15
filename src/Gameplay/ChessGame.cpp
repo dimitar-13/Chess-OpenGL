@@ -1,6 +1,7 @@
 #include "ChessBoard.h"
 #include "Logging/Logger.h"
 #include "ChessGame.h"
+#include <thread>
 
 Chess_Game::ChessGame::ChessGame(const std::shared_ptr<ChessPlayer>& white_player,
     const std::shared_ptr<ChessPlayer>& black_player,
@@ -19,17 +20,17 @@ bool Chess_Game::ChessGame::CanMove(BoardPosition new_position, std::shared_ptr<
         return false;
     }
 
-    if (!player_to_check->CanSelectedPieceMove(new_position, m_ChessBoardData))
-    {
-        return false;
-    }
-    
     if (m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPieceImortal)
     {
         CHESS_LOG_INFO("You can't capture the king.");
         return false;
     }
-    
+
+    if (!player_to_check->CanSelectedPieceMove(new_position, m_ChessBoardData))
+    {
+        return false;
+    }
+ 
     if (!CanResolveCheck(new_position))
     {
         CHESS_LOG_INFO("The next move must resolve the kings check.");
@@ -157,6 +158,7 @@ bool Chess_Game::ChessGame::IsKingSafeAfterMove(BoardPosition new_position,
             m_ChessBoardData.GetChessboardPositionFlag(current_piece_position);
         BoardPositionFlags_ new_position_flags =
             m_ChessBoardData.GetChessboardPositionFlag(new_position);
+
         bool result = true;
 
         m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, static_cast<BoardPositionFlags_>(0));

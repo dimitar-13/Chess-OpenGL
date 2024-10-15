@@ -16,41 +16,36 @@ Chess_Game::UIManager::UIManager(Size2D window_size, std::shared_ptr<DrawableCre
     m_CurrentWindowSize(window_size),m_ApplicationDrawableCreator(drawable_creator)
 {
 
-    for (size_t i = 0; i < kUIElementCount; i++)
-    {
-        m_IDQueue.push(i);
-    }
     glm::vec2 half_win_size = { window_size.width, window_size.height };
     half_win_size /= 2.0f;
 
     m_ToNDCMatrix = glm::ortho<float>(-half_win_size.x, half_win_size.x,
         -half_win_size.y, half_win_size.y);
+
+
+    m_DefaultTextFont =std::make_shared<TextFont>();
 }
 
 void Chess_Game::UIManager::CreateRootPanel()
 {
-    ElementID id = m_IDQueue.front();
-    m_IDQueue.pop();
-
     glm::vec2 half_win_size = { m_CurrentWindowSize.width, m_CurrentWindowSize.height };
     half_win_size /= 2.0f;
 
-    Panel* instance = new Panel(id,
-        std::dynamic_pointer_cast<UIManager>(this->shared_from_this()),
-        *m_ApplicationDrawableCreator,glm::vec2(0), half_win_size);
+    Panel* instance = 
+        new Panel(std::dynamic_pointer_cast<UIManager>(this->shared_from_this()),
+            m_ApplicationDrawableCreator,
+       glm::vec2(0), half_win_size);
 
 
     std::shared_ptr<Panel> result = std::shared_ptr<Panel>(instance);
     m_RootWindowPanel = result;
-    m_RootWindowPanel->EnablePanelBackground(false);
-
+    m_RootWindowPanel->SetVisibility(false);
 
     m_UIElements.push_back(std::dynamic_pointer_cast<Element>(result));
 }
 
-void Chess_Game::UIManager::RemoveWidget(ElementID widget_id)
+void Chess_Game::UIManager::RemoveWidget()
 {
-    m_IDQueue.push(widget_id);
     for (size_t i =0; i < m_UIElements.size();i++)
     {
         if (m_UIElements[i].expired())
@@ -68,11 +63,12 @@ void Chess_Game::UIManager::DrawUI(std::shared_ptr<BatchRenderer> application_ba
     {
         if (auto element = weak_element.lock())
         {
-            auto drawable = element->GetDrawable();
-            application_batch_renderer->PushTexturedQuad(drawable);
+            element->Draw(*application_batch_renderer);
         }
     }
     application_batch_renderer->DrawTextureQuadBatch(m_ToNDCMatrix,true);
+    application_batch_renderer->DrawTextBatch(m_ToNDCMatrix);
+
 }
 
 void Chess_Game::UIManager::PollUIInput(const MouseInput& application_input,
@@ -92,11 +88,11 @@ void Chess_Game::UIManager::PollUIInput(const MouseInput& application_input,
                if (element->GetElementBoundingBox().IsInsideBox(screen_to_root_win_pos))
                {       
 
-                   size_t drawable_id = application_batch_renderer->GetIDFramebuffer()->GetPixelData(
+                  size_t drawable_id = application_batch_renderer->GetIDFramebuffer()->GetPixelData(
                        mouse_pos_bottom_left.x, mouse_pos_bottom_left.y);
 
-                   if(element->m_UIDrawable->GetDrawableID() == drawable_id)
-                       element->OnElementPressed();
+                  if(element->GetElementID() == drawable_id)
+                      element->OnElementPressed();
                }
 
             }

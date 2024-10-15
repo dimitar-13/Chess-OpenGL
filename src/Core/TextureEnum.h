@@ -17,5 +17,18 @@ namespace Chess_Game
         TextureName_kUIGroupBackground
     };
 
-    typedef unsigned int Texture;
+    struct TextureRegion
+    {
+        glm::vec2 start = glm::vec2(0.0f);
+        glm::vec2 end = glm::vec2(1.0f);
+    };
+
+    struct Texture
+    {
+        GLuint texture_handle;
+        TextureRegion texture_region;
+    };
+
+
+    //typedef unsigned int Texture;
 }
