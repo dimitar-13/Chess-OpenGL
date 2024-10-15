@@ -73,6 +73,7 @@ void Chess_Game::PawnPromotionSelectionUI::SetPromotionPosition()
 void Chess_Game::PawnPromotionSelectionUI::TogglePawnPromotionUI(bool is_enabled)
 {
     m_PawnPromotionPanel->EnableElement(is_enabled);
+
     //m_CurrentlySelectedType = ChessPieceType_kUnknown;
 }
 

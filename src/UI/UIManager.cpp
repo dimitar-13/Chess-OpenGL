@@ -84,10 +84,12 @@ void Chess_Game::UIManager::PollUIInput(const MouseInput& application_input,
         for (auto& weak_element : m_UIElements)
         {
             if (auto element = weak_element.lock())
-            {            
+            {       
+                if (!element->IsElementEnabled() || !element->IsElementVisible())
+                    continue;
+
                if (element->GetElementBoundingBox().IsInsideBox(screen_to_root_win_pos))
                {       
-
                   size_t drawable_id = application_batch_renderer->GetIDFramebuffer()->GetPixelData(
                        mouse_pos_bottom_left.x, mouse_pos_bottom_left.y);
 
