@@ -1,7 +1,8 @@
 set(INPUT_SOURCES
 	UIElement.cpp
 	UIManager.cpp
-	Panel.h
+	TextUI.cpp
+	Panel.cpp
 )
 
 
@@ -10,7 +11,7 @@ set(INPUT_HEADERS
 	Button.h
 	UI_Image.h
 	UIElement.h
-	Panel.cpp
-
+	TextUI.h
+	Panel.h
 )
 target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})

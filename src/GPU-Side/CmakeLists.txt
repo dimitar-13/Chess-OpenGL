@@ -10,6 +10,7 @@ set(INPUT_HEADERS
 	BatchRenderer.h
 	TextureBatcher.h
 	Framebuffer.h
+	BatchPipeline.h
 )
 
 target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})

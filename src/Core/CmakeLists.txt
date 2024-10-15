@@ -6,6 +6,7 @@ set(INPUT_SOURCES
 	AssetLoader.cpp
 	Drawable.cpp
 	DrawableCreator.cpp
+	TextFont.cpp
 )
 
 
@@ -25,6 +26,7 @@ set(INPUT_HEADERS
 	Chess_pch.h
 	DrawableCreator.h
 	MemoryPool.h
+	TextFont.h
 )
 
 target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})
