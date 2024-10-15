@@ -10,6 +10,9 @@ Chess_Game::DrawableCreator::DrawableCreator()
         m_DrawableIndexPool.push(i);
     }
     m_DrawablesHash.reserve(kObjectCount);
+
+    m_DrawableMemoryPool = 
+        std::make_shared<MemoryPool<Drawable, kMaxDrawableCount>>();
 }
 
 std::shared_ptr<Chess_Game::Drawable> Chess_Game::DrawableCreator::CreateDrawable()
@@ -18,7 +21,7 @@ std::shared_ptr<Chess_Game::Drawable> Chess_Game::DrawableCreator::CreateDrawabl
     m_DrawableIndexPool.pop();
 
     std::shared_ptr<Drawable> result =
-        m_DrawableMemoryPool.AllocateShared(drawable_id, shared_from_this());
+        m_DrawableMemoryPool->AllocateShared(drawable_id, shared_from_this());
 
     m_DrawablesHash.emplace(drawable_id,result);
     return result;

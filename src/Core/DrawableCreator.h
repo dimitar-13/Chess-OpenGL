@@ -16,6 +16,6 @@ namespace Chess_Game
     private:
         std::queue<size_t> m_DrawableIndexPool{};
         std::unordered_map<size_t,std::weak_ptr<Drawable>> m_DrawablesHash{};
-        MemoryPool<Drawable, kMaxDrawableCount> m_DrawableMemoryPool;
+        std::shared_ptr<MemoryPool<Drawable, kMaxDrawableCount>> m_DrawableMemoryPool;
     };
 }
