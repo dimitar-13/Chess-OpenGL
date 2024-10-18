@@ -18,11 +18,17 @@ void Chess_Game::MainMenuScene::InitScene()
        m_StartMenuPanel->SetPanelCustomTexture(TextureName_kUIGroupBackground);
        
        m_StartButton = application->GetUIManager().
-           CreateUIElement<Button>(glm::vec2(0,-200.0f),glm::vec2(200,30.));   
+           CreateUIElement<Button>(glm::vec2(0,-200.0f),glm::vec2(200,55.));   
        m_StartButton->SetButtonCustomTexture(TextureName_kButton);    
        m_StartButton->SetElementDepth(0.);
        m_StartMenuPanel->AddChildElement(m_StartButton);
        
+       m_StartText = application->GetUIManager().
+           CreateUIElement<TextUI>(glm::vec2(-50.0f, -206.0f), glm::vec3(1));
+       m_StartText->SetText("Start");
+       m_StartText->SetElementDepth(0.1);
+       m_StartMenuPanel->AddChildElement(m_StartText);
+
        m_GameLogoImage = application->GetUIManager().CreateUIElement<Image>
            (glm::vec2(0, 40.0f), glm::vec2(300));       
        m_GameLogoImage->SetImageTexture(TextureName_kGameLogo);
@@ -53,12 +59,6 @@ void Chess_Game::MainMenuScene::InitScene()
 
 void Chess_Game::MainMenuScene::DrawScene(std::shared_ptr<BatchRenderer> application_batch_renderer)
 {
-    static std::shared_ptr<TextFont> test_font =
-        std::make_shared<TextFont>();
-    auto asset_loader = m_Application.lock()->GetAssetLoader();
-    
-    application_batch_renderer->DrawTextBatch(m_Application.lock()->GetApplicationProjection().GetMatrix());
-
 }
 
 void Chess_Game::MainMenuScene::OnUpdate()

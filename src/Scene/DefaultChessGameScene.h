@@ -37,6 +37,7 @@ namespace Chess_Game
         std::unique_ptr<PawnPromotionSelectionUI> m_PawnPromotionUIManager;
         std::unique_ptr<PauseMenuUIHelper> m_PauseMenuUIHelper;
         std::future<void> m_GameProcessInputThread{};
+        bool m_IsGameOver = false;
     };
 
 }
