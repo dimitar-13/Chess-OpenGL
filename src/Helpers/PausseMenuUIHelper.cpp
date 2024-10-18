@@ -34,22 +34,57 @@ Chess_Game::PauseMenuUIHelper::PauseMenuUIHelper(std::shared_ptr<Application> ap
     m_PauseMenuGroup->SetVisibility(true);
     m_PauseMenuGroup->EnableElement(false);
     m_PauseMenuGroup->SetPanelCustomTexture(TextureName_kUIGroupBackground);
-    m_PauseMenuGroup->SetElementDepth(.5);
+    m_PauseMenuGroup->SetElementDepth(.6);
 
     m_ResetButton = ui_manager.CreateUIElement<Button>(glm::vec2(0), kMenuButtonSize);
     m_ResetButton->SetButtonCallback(button_reset_callback_test);
     m_ResetButton->SetButtonCustomTexture(TextureName_kButton);
-    m_ResetButton->SetElementDepth(.5);
+    m_ResetButton->SetElementDepth(.7);
     m_PauseMenuGroup->AddChildElement(m_ResetButton);
 
-    m_MainMenuButton = ui_manager.CreateUIElement<Button>(glm::vec2(0, 200.0f), kMenuButtonSize);
+    m_ResetText = ui_manager.CreateUIElement<TextUI>(glm::vec2(-65.0f, -5.0f), glm::vec3(1));
+    m_ResetText->SetText("Reset");
+    m_ResetText->SetElementDepth(.7);
+    m_PauseMenuGroup->AddChildElement(m_ResetText);
+
+    m_MainMenuButton = ui_manager.CreateUIElement<Button>(glm::vec2(0, -200.0f), kMenuButtonSize);
     m_MainMenuButton->SetButtonCallback(to_main_menu_button_callback);
-    m_MainMenuButton->SetElementDepth(.5);
+    m_MainMenuButton->SetElementDepth(.6);
     m_MainMenuButton->SetButtonCustomTexture(TextureName_kButton);
     m_PauseMenuGroup->AddChildElement(m_MainMenuButton);
 
-    m_ResumeButton = ui_manager.CreateUIElement<Button>(glm::vec2(0, -200.0f), kMenuButtonSize);
+    m_PauseText = ui_manager.CreateUIElement<TextUI>(glm::vec2(-85.0f, 195.0f), glm::vec3(1));
+    m_PauseText->SetText("Resume");
+    m_PauseText->SetElementDepth(.7);
+    m_PauseMenuGroup->AddChildElement(m_PauseText);
+
+    m_ResumeButton = ui_manager.CreateUIElement<Button>(glm::vec2(0, 200.0f), kMenuButtonSize);
     m_ResumeButton->SetButtonCallback(invert_visibility);
     m_ResumeButton->SetButtonCustomTexture(TextureName_kButton);
+    m_ResumeButton->SetElementDepth(.6);
     m_PauseMenuGroup->AddChildElement(m_ResumeButton);
+
+    m_ToMainMenu = ui_manager.CreateUIElement<TextUI>(glm::vec2(-115.0f, -205.0f), glm::vec3(1));
+    m_ToMainMenu->SetText("Main menu");
+    m_ToMainMenu->SetElementDepth(.7);
+    m_PauseMenuGroup->AddChildElement(m_ToMainMenu);
+
+}
+
+void Chess_Game::PauseMenuUIHelper::OnGameOverScreen(std::shared_ptr<Application> application)
+{
+    m_PauseMenuGroup->AddChildElement(m_GameOverText);
+
+    m_PauseMenuGroup->RemoveChildElement(m_PauseText);
+    m_PauseText->EnableElement(false);
+    m_PauseMenuGroup->RemoveChildElement(m_ResumeButton);
+    m_ResumeButton->EnableElement(false);
+
+    m_GameOverText =
+        application->GetUIManager().CreateUIElement<TextUI>(glm::vec2(-230.0f, 180.0f), glm::vec2(2.0));
+    m_GameOverText->SetText("Game over");
+    m_GameOverText->SetElementDepth(.6);
+    m_PauseMenuGroup->AddChildElement(m_GameOverText);
+
+    m_PauseMenuGroup->EnableElement(true);
 }

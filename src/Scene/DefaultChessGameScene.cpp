@@ -188,7 +188,11 @@ void Chess_Game::DefaultChessScene::InitScene()
 
 void Chess_Game::DefaultChessScene::OnGameOver()
 {
-   
+    if (!m_IsGameOver)
+    {
+        m_PauseMenuUIHelper->OnGameOverScreen(m_Application.lock());
+        m_IsGameOver = true;
+    }
 }
 
 std::shared_ptr<Chess_Game::ChessPiece> Chess_Game::DefaultChessScene::OnPawnPromotion(
@@ -345,7 +349,6 @@ void Chess_Game::DefaultChessScene::OnUpdate()
                     std::async(std::launch::async, processInputBind, mouse_to_board_postion);
             }
         }
-
         if (m_ChessGameController->IsGameOver())
         {
             OnGameOver();

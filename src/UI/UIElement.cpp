@@ -96,9 +96,14 @@ void Chess_Game::Element::EnableElement(bool is_enabled)
 
 Chess_Game::Element::~Element()
 {
+    if (m_Parent)
+    {
+        m_Parent->RemoveChildElement(this->GetElementID());
+    }
+
     if (auto ui_manger = m_UIManager.lock())
     {
-        ui_manger->RemoveWidget();
+        ui_manger->RemoveWidget(this->GetElementID());
     }
 }
 

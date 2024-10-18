@@ -41,25 +41,27 @@ void Chess_Game::UIManager::CreateRootPanel()
     m_RootWindowPanel = result;
     m_RootWindowPanel->SetVisibility(false);
 
-    m_UIElements.push_back(std::dynamic_pointer_cast<Element>(result));
+    m_DrawableIDHash.emplace(result->GetElementID(), std::dynamic_pointer_cast<Element>(result));
 }
 
-void Chess_Game::UIManager::RemoveWidget()
+void Chess_Game::UIManager::RemoveWidget(size_t widget_drawable_id)
 {
-    for (size_t i =0; i < m_UIElements.size();i++)
+    if (m_DrawableIDHash.find(widget_drawable_id) == m_DrawableIDHash.end())
     {
-        if (m_UIElements[i].expired())
-        {        
-           m_UIElements.erase(m_UIElements.begin() + i);
-           break;         
-        }
+        CHESS_LOG_WARN("Attempt at removing a not existing widget.");
     }
+    else
+    {
+        m_DrawableIDHash.erase(widget_drawable_id);
+    }
+
+
 }
 
 void Chess_Game::UIManager::DrawUI(std::shared_ptr<BatchRenderer> application_batch_renderer,
     AssetLoader& application_asset_loader)
 {
-    for (auto& weak_element : m_UIElements)
+    for (auto [key,weak_element]:m_DrawableIDHash)
     {
         if (auto element = weak_element.lock())
         {
@@ -81,7 +83,7 @@ void Chess_Game::UIManager::PollUIInput(const MouseInput& application_input,
 
         glm::vec2 screen_to_root_win_pos = ConvertScreenToRootWindowPos(mouse_screen_pos);
 
-        for (auto& weak_element : m_UIElements)
+        for (auto [key, weak_element] : m_DrawableIDHash)
         {
             if (auto element = weak_element.lock())
             {       

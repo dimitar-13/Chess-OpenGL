@@ -21,7 +21,7 @@ namespace Chess_Game
     public:
         glm::vec2 ConvertScreenToRootWindowPos(glm::vec2 screen_pos);
         UIManager(Size2D window_size, std::shared_ptr<DrawableCreator>& drawable_creator);
-        void RemoveWidget();
+        void RemoveWidget(size_t widget_drawable_id);
         void DrawUI(std::shared_ptr<BatchRenderer> application_batch_renderer,
             AssetLoader& application_asset_loader);
         void PollUIInput(const MouseInput& application_input,
@@ -35,7 +35,7 @@ namespace Chess_Game
         void OnEvent(const Event& e) override;
         void CreateRootPanel();
     private:
-        std::vector<std::weak_ptr<Element>> m_UIElements{};
+        std::unordered_map<size_t,std::weak_ptr<Element>> m_DrawableIDHash{};
         Size2D m_CurrentWindowSize{};
         glm::mat4 m_ToNDCMatrix{};
         std::shared_ptr<DrawableCreator> m_ApplicationDrawableCreator{};
@@ -60,7 +60,7 @@ namespace Chess_Game
         std::weak_ptr<Element> element_weak_ptr_cast = std::dynamic_pointer_cast<Element>(result);
 
         m_RootWindowPanel->AddChildElement(element_weak_ptr_cast);
-        m_UIElements.push_back(element_weak_ptr_cast);
+        m_DrawableIDHash.emplace(instance->GetElementID(), element_weak_ptr_cast);
 
         return result;
     }
