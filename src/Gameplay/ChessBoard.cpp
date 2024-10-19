@@ -28,13 +28,13 @@ void Chess_Game::ChessBoard::SetChessboardPositionFlag(BoardPosition position, B
         chessboard_bit_mask[index] = bit_mask;
 }
 
-bool Chess_Game::ChessBoard::IsPositionAtVerticalBoarder(BoardPosition new_position)
+bool Chess_Game::ChessBoard::IsPositionAtVerticalBoarder(BoardPosition position_to_check)
 {
-    return new_position.VerticalPosition == 8 || new_position.VerticalPosition == 1;
+    return position_to_check.VerticalPosition == 8 || position_to_check.VerticalPosition == 1;
 }
 
-bool Chess_Game::ChessBoard::IsNewPositionInBounds(BoardPosition new_position)
+bool Chess_Game::ChessBoard::IsNewPositionInBounds(BoardPosition position_to_check)
 {
-    return (new_position.VerticalPosition <= 8 && new_position.VerticalPosition >= 1) &&
-           (new_position.horizontalPosition <= 'h' && new_position.horizontalPosition >= 'a');
+    return (position_to_check.VerticalPosition <= 8 && position_to_check.VerticalPosition >= 1) &&
+           (position_to_check.horizontalPosition <= 'h' && position_to_check.horizontalPosition >= 'a');
 }

@@ -5,6 +5,10 @@
 #include <future>
 namespace Chess_Game
 {
+
+    /**
+     * @brief  
+     */
     class ChessGame {
     public:
         ChessGame(const std::shared_ptr<ChessPlayer>& white_player,

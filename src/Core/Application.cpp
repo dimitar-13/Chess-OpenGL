@@ -12,14 +12,11 @@ Chess_Game::Application::Application():
     m_ApplicationProjection({ Viewport{0,0, kStartWindowWidth, kStartWindowHeight} })
 {
     const char* kWindowTittle = "Chess";
-
-    Chess_Game::WindowCreateInfo window_create_info{};
-    window_create_info.windowHeight = kStartWindowHeight;
-    window_create_info.windowWidth = kStartWindowWidth;
-    window_create_info.windowTittle = kWindowTittle;
-    window_create_info.windowOnEventCallback = std::bind(&Application::OnEvent, this, std::placeholders::_1);
+    constexpr Size2D kDefaultWindowSize = { kStartWindowWidth,kStartWindowHeight };
+    std::function<void(const Event&)>windowOnEventCallback = 
+        std::bind(&Application::OnEvent, this, std::placeholders::_1);
    
-    m_ApplicationWindow = std::make_unique<Window>(window_create_info);
+    m_ApplicationWindow = std::make_unique<Window>(kDefaultWindowSize, kWindowTittle, windowOnEventCallback);
 
     if (!m_ApplicationWindow->IsWindowValid())
         return;

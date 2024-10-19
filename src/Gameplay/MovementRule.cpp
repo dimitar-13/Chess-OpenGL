@@ -45,7 +45,7 @@ bool Chess_Game::BlockableBoardSpecificMovementRule::CanMove(BoardPosition curre
         next_position.VerticalPosition += move_direction.VerticalPosition;
         next_position.horizontalPosition += move_direction.horizontalPosition;
     
-        if (board.GetChessboardPositionFlag(next_position) & BoardPositionFlags_kIsPositionOcupied)
+        if (board.GetChessboardPositionFlag(next_position) & BoardPositionFlags_kIsPositionOccupied)
             return false;
     }
     
@@ -55,7 +55,7 @@ bool Chess_Game::BlockableBoardSpecificMovementRule::CanMove(BoardPosition curre
 bool Chess_Game::CanMoveToTarget::CanMove(BoardPosition current_position,
     BoardPosition new_position, ChessBoard& board) const
 {    
-    if (!(board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied))
+    if (!(board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOccupied))
     {
         return true;
     }
@@ -73,7 +73,7 @@ bool Chess_Game::PawnCaptureBoardSpecificMovementRule::CanMove(BoardPosition cur
     BoardPosition position_delta = new_position - current_position;
 
     bool is_new_position_taken = 
-        board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied;
+        board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOccupied;
 
     if (abs(position_delta.VerticalPosition) == abs(position_delta.horizontalPosition))
     {
