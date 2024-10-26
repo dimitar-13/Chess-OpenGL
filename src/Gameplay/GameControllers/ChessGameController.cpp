@@ -1,6 +1,19 @@
 #include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "ChessGameController.h"
 
+Chess_Game::ChessGameController::ChessGameController(std::shared_ptr<ChessPlayer> white_team_player,
+    std::shared_ptr<ChessPlayer> black_team_player,
+    const std::function<void(std::weak_ptr<ChessPiece>)>& selected_piece_changed_callback,
+    const std::function<void(std::shared_ptr<ChessPiece>)>& selected_piece_moved_callback,
+    const std::function<std::shared_ptr<ChessPiece>(bool, BoardPosition)>& pawn_promotion_callback):
+    m_PlayerCurrentController(white_team_player, black_team_player),
+    m_OnSelectedPieceChanged(selected_piece_changed_callback),
+    m_OnSelectedPieceMoved(selected_piece_moved_callback)
+{
+    m_ChessGame = std::make_unique<ChessGame>(white_team_player,
+        black_team_player, pawn_promotion_callback);
+}
+
 void Chess_Game::ChessGameController::ProcessInput(BoardPosition new_position)
 {
     if (!this->IsPieceSelected())
@@ -10,7 +23,7 @@ void Chess_Game::ChessGameController::ProcessInput(BoardPosition new_position)
         return;
     }
 
-    if (this->GetSelectedPiece().lock()->GetPiecePosition() == new_position)
+    if (this->GetSelectedPiece()->GetPiecePosition() == new_position)
     {
         this->UnselectPiece();
         m_OnSelectedPieceChanged(m_PlayerCurrentController.GetActivePlayer()->GetSelectedPiece());

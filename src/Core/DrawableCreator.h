@@ -5,6 +5,14 @@
 #include "MemoryPool.h"
 namespace Chess_Game
 {
+    /**
+     * @brief Drawable register for creating drawables.
+     *
+     * The class provides a way to create drawable and return a shared ref to it.
+     * When a drawable is created an ID is assigned to it. The class keeps a weak ref to the 
+     * classes.
+     * 
+     */
     class DrawableCreator : public std::enable_shared_from_this<DrawableCreator>
     {
     private:

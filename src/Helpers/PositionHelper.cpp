@@ -8,7 +8,7 @@ Chess_Game::ScreenPositionHelper::ScreenPositionHelper(OrthographicMatrixBorder 
 
 glm::vec2 Chess_Game::ScreenPositionHelper::BoardToProjectionSpace(BoardPosition board_position)const
 {
-    glm::vec2 offset = { board_position.horizontalPosition - 'a',board_position.VerticalPosition - 1};
+    glm::vec2 offset = { board_position.horizontal_position - 'a',board_position.vertical_position - 1};
     glm::vec2 square_to_center_offset = m_SingleSquareSize / 2.0f;
     glm::vec2 result = m_BoardStart + square_to_center_offset + (m_SingleSquareSize * offset);
 

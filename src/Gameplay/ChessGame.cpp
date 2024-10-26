@@ -292,8 +292,8 @@ bool Chess_Game::ChessGame::CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> 
     {
         BoardPosition new_position = king_board_position;
 
-        new_position.VerticalPosition += offset.VerticalPosition;
-        new_position.horizontalPosition += offset.horizontalPosition;
+        new_position.vertical_position += offset.vertical_position;
+        new_position.horizontal_position += offset.horizontal_position;
 
         if (!ChessBoard::IsNewPositionInBounds(new_position))
         {
@@ -330,15 +330,15 @@ bool Chess_Game::ChessGame::CanOtherPiecesResolveTheCheck(std::shared_ptr<ChessP
 
         BoardPosition direction = king_board_position - start_pos;
 
-        size_t length = std::max(abs(direction.VerticalPosition),abs(direction.horizontalPosition));
+        size_t length = std::max(abs(direction.vertical_position),abs(direction.horizontal_position));
 
         direction = BoardPosition::Normalize(direction);
 
         for (size_t i = 0; i < length; i++)
         {
             BoardPosition new_position{};
-            new_position.VerticalPosition = start_pos.VerticalPosition + (direction.VerticalPosition * i);
-            new_position.horizontalPosition = start_pos.horizontalPosition + (direction.horizontalPosition * i);
+            new_position.vertical_position = start_pos.vertical_position + (direction.vertical_position * i);
+            new_position.horizontal_position = start_pos.horizontal_position + (direction.horizontal_position * i);
 
             check_line_points.push_back(new_position);
         }

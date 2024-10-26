@@ -51,7 +51,7 @@ void Chess_Game::MainMenuScene::InitScene()
                 }
            };
        
-       m_StartButton->SetButtonCallback(test_callback);
+       m_StartButton->SetButtonOnClickCallback(test_callback);
 
        
     }

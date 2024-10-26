@@ -29,53 +29,39 @@ Chess_Game::PawnPromotionSelectionUI::PawnPromotionSelectionUI(
     float piece_selection_size = 30.f;
     
     m_PawnPromotionPanel = 
-        m_UIManager->CreateUIElement<Panel>(glm::vec2(0, 0), glm::vec2(150,40));
-    
+        m_UIManager->CreateUIElement<Panel>(glm::vec2(0, 0), glm::vec2(150,40)); 
     m_PawnPromotionPanel->EnableElement(false);
     
     m_QueenSelectionButton =  m_UIManager->CreateUIElement<Button>(
             glm::vec2(110.0f, 0), glm::vec2(piece_selection_size));
-
     m_QueenSelectionButton->SetButtonCustomTexture(TextureName_kQueen);
-    m_QueenSelectionButton->SetButtonCallback(queen_callback_bind);
-
+    m_QueenSelectionButton->SetButtonOnClickCallback(queen_callback_bind);
     m_PawnPromotionPanel->AddChildElement(m_QueenSelectionButton);
 
 
     m_RookSelectionButton = m_UIManager->CreateUIElement<Button>(
-            glm::vec2(45.0f, 0), glm::vec2(piece_selection_size));
-    
+            glm::vec2(45.0f, 0), glm::vec2(piece_selection_size));  
     m_RookSelectionButton->SetButtonCustomTexture(TextureName_kRook);
-    m_RookSelectionButton->SetButtonCallback(rook_callback_bind);
-
+    m_RookSelectionButton->SetButtonOnClickCallback(rook_callback_bind);
     m_PawnPromotionPanel->AddChildElement(m_RookSelectionButton);
 
     m_BishopSelectionButton = m_UIManager->CreateUIElement<Button>(
-            glm::vec2(-30.0f , 0), glm::vec2(piece_selection_size));
-    
+            glm::vec2(-30.0f , 0), glm::vec2(piece_selection_size));  
     m_BishopSelectionButton->SetButtonCustomTexture(TextureName_kBishop);
-    m_BishopSelectionButton->SetButtonCallback(bishop_callback_bind);
+    m_BishopSelectionButton->SetButtonOnClickCallback(bishop_callback_bind);
     m_PawnPromotionPanel->AddChildElement(m_BishopSelectionButton);
     
     m_KnightSelectionButton = m_UIManager->CreateUIElement<Button>(
             glm::vec2((piece_selection_size - 140.0f), 0), glm::vec2(piece_selection_size));
-
     m_KnightSelectionButton->SetButtonCustomTexture(TextureName_kKnight);
-    m_KnightSelectionButton->SetButtonCallback(knight_callback_bind);
-
+    m_KnightSelectionButton->SetButtonOnClickCallback(knight_callback_bind);
     m_PawnPromotionPanel->AddChildElement(m_KnightSelectionButton);
-
 }
 
-void Chess_Game::PawnPromotionSelectionUI::SetPromotionPosition()
-{
-}
 
 void Chess_Game::PawnPromotionSelectionUI::TogglePawnPromotionUI(bool is_enabled)
 {
     m_PawnPromotionPanel->EnableElement(is_enabled);
-
-    //m_CurrentlySelectedType = ChessPieceType_kUnknown;
 }
 
 void Chess_Game::PawnPromotionSelectionUI::SwitchPromotionPieceTeamCol(bool is_white_team)
