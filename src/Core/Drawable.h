@@ -24,6 +24,12 @@ namespace Chess_Game
     class Drawable
     {
     public:
+        /**
+         * @brief Constructs a drawable.
+         *
+         * @param drawable_id ID of the drawable.
+         * @param drawable_creator Drawable creator.
+         */
         Drawable(size_t drawable_id,const std::shared_ptr<DrawableCreator>& drawable_creator):
             m_DrawableID(drawable_id), m_DrawableCreator(drawable_creator){}
         /**
