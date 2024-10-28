@@ -1,7 +1,6 @@
 #include "ChessBoard.h"
 #include "Logging/Logger.h"
 #include "ChessGame.h"
-#include <thread>
 
 Chess_Game::ChessGame::ChessGame(const std::shared_ptr<ChessPlayer>& white_player,
     const std::shared_ptr<ChessPlayer>& black_player,

@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Chess_pch.h"
+#include "Pch/Chess_pch.h"
 #include "TextureEnum.h"
 #include "Logging/Logger.h"
 namespace Chess_Game

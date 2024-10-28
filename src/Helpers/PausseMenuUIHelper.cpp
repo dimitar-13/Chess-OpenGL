@@ -1,4 +1,3 @@
-#include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "PausseMenuUIHelper.h"
 #include "Scene/DefaultChessGameScene.h"
 #include "Scene/MainMenuScene.h"
@@ -64,10 +63,10 @@ Chess_Game::PauseMenuUIHelper::PauseMenuUIHelper(std::shared_ptr<Application> ap
     m_ResumeButton->SetElementDepth(.6);
     m_PauseMenuGroup->AddChildElement(m_ResumeButton);
 
-    m_ToMainMenu = ui_manager.CreateUIElement<TextUI>(glm::vec2(-115.0f, -205.0f), glm::vec3(1));
-    m_ToMainMenu->SetText("Main menu");
-    m_ToMainMenu->SetElementDepth(.7);
-    m_PauseMenuGroup->AddChildElement(m_ToMainMenu);
+    m_MainMenuText = ui_manager.CreateUIElement<TextUI>(glm::vec2(-115.0f, -205.0f), glm::vec3(1));
+    m_MainMenuText->SetText("Main menu");
+    m_MainMenuText->SetElementDepth(.7);
+    m_PauseMenuGroup->AddChildElement(m_MainMenuText);
 
 }
 

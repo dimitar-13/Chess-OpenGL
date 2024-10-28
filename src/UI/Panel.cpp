@@ -1,6 +1,5 @@
-#include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "Panel.h"
-#include "Core/Chess_pch.h"
+#include "Pch/Chess_pch.h"
 
 void Chess_Game::Panel::AddChildElement(std::shared_ptr<Element> child_to_add)
 {

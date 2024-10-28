@@ -1,7 +1,6 @@
 #pragma once
-#include "Core/Chess_pch.h"
+#include "Pch/Chess_pch.h"
 #include "BaseChessPiece.h"
-#include <future>
 namespace Chess_Game
 {
     /**

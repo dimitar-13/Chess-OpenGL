@@ -1,6 +1,6 @@
 #pragma once
+#include "Pch/Chess_pch.h"
 #include "BoardPosition.h"
-#include "Core/Chess_pch.h"
 
 namespace Chess_Game
 {

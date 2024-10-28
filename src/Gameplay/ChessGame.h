@@ -1,8 +1,8 @@
 #pragma once
+#include "Pch/Chess_pch.h"
 #include "BaseChessPiece.h"
 #include "ChessPlayer.h"
-#include "Core/Chess_pch.h"
-#include <future>
+
 namespace Chess_Game
 {
 

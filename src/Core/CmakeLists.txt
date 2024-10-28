@@ -13,7 +13,6 @@ set(INPUT_SOURCES
 set(INPUT_HEADERS
 	Application.h
 	ApplicationData.h
-	Attachable.h
 	Drawable.h
 	SceneObject.h
 	Window.h
@@ -23,7 +22,6 @@ set(INPUT_HEADERS
 	OrthographicApplicationMatrix.h
 	Input.h
 	AssetLoader.h
-	Chess_pch.h
 	DrawableCreator.h
 	MemoryPool.h
 	TextFont.h

@@ -3,9 +3,6 @@
 #include "Logging/Logger.h"
 #include "Scene/MainMenuScene.h"
 #include "Core/DrawableCreator.h"
-#include <functional>
-#include <chrono>
-#include <thread>
 #include "Core/TextFont.h"
 #include "UI/TextUI.h"
 
@@ -45,7 +42,7 @@ void Chess_Game::DefaultChessScene::InitScene()
         m_PauseMenuUIHelper = std::make_unique<PauseMenuUIHelper>(application);
 
         m_PawnPromotionUIManager = 
-            std::make_unique<PawnPromotionSelectionUI>(application->UIManagerSharedPtrTest());
+            std::make_unique<PawnPromotionSelectionUI>(application->GetApplicationUIManager());
 
         m_PositionHelper =
             std::make_shared<ScreenPositionHelper>(application->GetApplicationProjection().GetOrthographicProjectionSize());

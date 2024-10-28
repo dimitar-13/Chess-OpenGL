@@ -1,4 +1,5 @@
 #pragma once
+#include "Pch/Chess_pch.h"
 #include "Core/Drawable.h"
 #include "Core/ApplicationData.h"
 #include "Core/DrawableCreator.h"

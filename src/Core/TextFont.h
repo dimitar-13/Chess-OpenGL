@@ -1,8 +1,6 @@
 #pragma once
+#include "Pch/Chess_pch.h"
 #include "TextureEnum.h"
-#include <ft2build.h>
-#include "Chess_pch.h"
-#include FT_FREETYPE_H 
 
 namespace Chess_Game
 {

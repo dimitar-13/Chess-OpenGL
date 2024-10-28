@@ -1,5 +1,4 @@
 #include "BatchRenderer.h"
-#include "Core/Chess_pch.h"
 #include "Logging/Logger.h"
 #include "Core/Application.h"
 

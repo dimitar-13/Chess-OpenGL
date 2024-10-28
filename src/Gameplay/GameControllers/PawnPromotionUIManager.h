@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Chess_pch.h"
+#include "Pch/Chess_pch.h"
 #include "UI/UIManager.h"
 #include "UI/Button.h"
 #include "UI/Panel.h"

@@ -1,3 +1,5 @@
+#include "Pch/Chess_pch.h"
+
 #include "ShaderClass.h"
 #include "Logging/Logger.h"
 Chess_Game::ShaderClass::ShaderClass(const char* shader_file_path)

@@ -1,4 +1,5 @@
 #pragma once
+#include "Pch/Chess_pch.h"
 #include "BoardPosition.h"
 #include "MovementRule.h"
 #include "Core/Drawable.h"

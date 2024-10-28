@@ -1,4 +1,3 @@
-#include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "PawnPromotionUIManager.h"
 
 Chess_Game::PawnPromotionSelectionUI::PawnPromotionSelectionUI(

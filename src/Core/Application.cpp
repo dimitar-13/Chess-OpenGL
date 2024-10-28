@@ -52,7 +52,7 @@ void Chess_Game::Application::StartRenderLoop()
         m_ApplicationBatchRenderer->FlushTextureBatch();
 
 
-        m_ApplicationUIManager->DrawUI(m_ApplicationBatchRenderer,*m_TextureAssetLoader);
+        m_ApplicationUIManager->DrawUI(m_ApplicationBatchRenderer);
         m_ApplicationUIManager->PollUIInput(m_ApplicationMouseInput, m_ApplicationBatchRenderer,m_ApplicationProjection);
 
         m_ApplicationMouseInput.FlushInputPoll();
@@ -80,7 +80,6 @@ void Chess_Game::Application::InitAppResource()
     m_ApplicationDrawableCreator = std::make_shared<DrawableCreator>();
     m_ApplicationUIManager = std::make_shared<UIManager>(current_window_size, m_ApplicationDrawableCreator);
 
-
     m_TextureAssetLoader = std::make_shared<AssetLoader>();
     m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>(current_window_size, m_TextureAssetLoader);
 
@@ -100,7 +99,7 @@ void Chess_Game::Application::OnEvent(const Event& e)
   
     dynamic_cast<Listener&>(m_ApplicationMouseInput).OnEvent(e);
 
-    for (const auto& weak_listener : m_ActiveEventListeners)
+    for (const auto& weak_listener : m_RegisteredEventListeners)
     {
         if (auto& listener = weak_listener.lock())
         {

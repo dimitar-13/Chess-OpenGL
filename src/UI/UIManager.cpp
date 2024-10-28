@@ -1,4 +1,3 @@
-#include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "UIManager.h"
 
 glm::vec2 Chess_Game::UIManager::ConvertScreenToRootWindowPos(const glm::vec2& screen_pos)
@@ -61,8 +60,7 @@ void Chess_Game::UIManager::RemoveWidget(size_t widget_drawable_id)
 
 }
 
-void Chess_Game::UIManager::DrawUI(std::shared_ptr<BatchRenderer> application_batch_renderer,
-    AssetLoader& application_asset_loader)
+void Chess_Game::UIManager::DrawUI(std::shared_ptr<BatchRenderer> application_batch_renderer)
 {
     for (auto [key,weak_element]:m_DrawableIDHash)
     {

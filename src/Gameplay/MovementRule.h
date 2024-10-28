@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Chess_pch.h"
+#include "Pch/Chess_pch.h"
 #include "BoardPosition.h"
 #include "ChessBoard.h"
 

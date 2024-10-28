@@ -1,8 +1,5 @@
-#include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "TextFont.h"
 #include "Logging/Logger.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb_image_write.h>
 
 Chess_Game::TextFont::TextFont(const char* font_path_to_load)
 {

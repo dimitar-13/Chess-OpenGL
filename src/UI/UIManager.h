@@ -1,16 +1,9 @@
 #pragma once
+#include "Pch/Chess_pch.h"
 #include "UIElement.h"
 #include "Panel.h"
-#include "Button.h"
 #include "GPU-Side/BatchRenderer.h"
-#include <type_traits>
-#include <queue>
-#include <iostream>
-#include <assert.h>
-#include "Core/AssetLoader.h"
 #include "Core/Input.h"
-#include "Core/OrthographicApplicationMatrix.h"
-#include "GPU-Side/Framebuffer.h"
 namespace Chess_Game
 {
     /**
@@ -118,10 +111,8 @@ namespace Chess_Game
          * After that it draws both QuadBatch and TextBatch using a special UI ortho matrix.
          * 
          * @param application_batch_renderer Application batch renderer.
-         * @param application_asset_loader Application asset loader.
          */
-        void DrawUI(std::shared_ptr<BatchRenderer> application_batch_renderer,
-            AssetLoader& application_asset_loader);
+        void DrawUI(std::shared_ptr<BatchRenderer> application_batch_renderer);
         /**
          * @brief Checks if a UI button was pressed using mouse picking.
          *

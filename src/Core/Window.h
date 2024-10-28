@@ -1,7 +1,7 @@
 #pragma once
-#include "Chess_pch.h"
-#include"Core/ApplicationData.h"
-#include"Core/Event/Event.h"
+#include "Pch/Chess_pch.h"
+#include "Core/ApplicationData.h"
+#include "Core/Event/Event.h"
 namespace Chess_Game
 {
     /**
