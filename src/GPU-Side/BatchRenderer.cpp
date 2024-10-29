@@ -1,5 +1,4 @@
 #include "BatchRenderer.h"
-#include "Core/Chess_pch.h"
 #include "Logging/Logger.h"
 #include "Core/Application.h"
 
@@ -143,8 +142,8 @@ void Chess_Game::BatchRenderer::DrawCircleBatch(const glm::mat4& projection)
 {
    const char* projection_uniform_name = "orthographicProjection";
   
-   m_CircleQuadBatch.batch_shader->UseProgram();
-   m_CircleQuadBatch.batch_shader->SetUniform4x4Matrix(projection_uniform_name, projection);
+   m_CircleQuadBatch.GetPipelineShader().UseProgram();
+   m_CircleQuadBatch.GetPipelineShader().SetUniform4x4Matrix(projection_uniform_name, projection);
 
    m_CircleQuadBatch.Draw();
 
@@ -159,9 +158,9 @@ void Chess_Game::BatchRenderer::DrawTextBatch(const glm::mat4& projection)
 
     m_TextureBatcher.BindTextures();
 
-    m_TextQuadBatch.batch_shader->UseProgram();
-    m_TextQuadBatch.batch_shader->SetUniform4x4Matrix(projection_uniform_name, projection);
-    m_TextQuadBatch.batch_shader->SetSampler2DArray(sampler_array_uniform_name,
+    m_TextQuadBatch.GetPipelineShader().UseProgram();
+    m_TextQuadBatch.GetPipelineShader().SetUniform4x4Matrix(projection_uniform_name, projection);
+    m_TextQuadBatch.GetPipelineShader().SetSampler2DArray(sampler_array_uniform_name,
         m_TextureBatcher.GetBoundTexturesSlots().data(), m_TextureBatcher.GetBoundTexturesCount());
 
     m_TextQuadBatch.Draw();
@@ -191,9 +190,9 @@ void Chess_Game::BatchRenderer::DrawTextureQuadBatch(const glm::mat4& projection
     IntFramebuffer::BindDefaultFramebuffer();
 
 
-    m_TexturedQuadBatch.batch_shader->UseProgram();
-    m_TexturedQuadBatch.batch_shader->SetUniform4x4Matrix(projection_uniform_name, projection);
-    m_TexturedQuadBatch.batch_shader->SetSampler2DArray(sampler_array_uniform_name,
+    m_TexturedQuadBatch.GetPipelineShader().UseProgram();
+    m_TexturedQuadBatch.GetPipelineShader().SetUniform4x4Matrix(projection_uniform_name, projection);
+    m_TexturedQuadBatch.GetPipelineShader().SetSampler2DArray(sampler_array_uniform_name,
         m_TextureBatcher.GetBoundTexturesSlots().data(),m_TextureBatcher.GetBoundTexturesCount());
 
     m_TexturedQuadBatch.Draw();

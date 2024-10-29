@@ -10,6 +10,12 @@
 #include<functional>
 #include<fstream>
 #include<string_view>
+#include<queue>
+#include<unordered_set>
+#include<future>
+#include<thread>
+#include <type_traits>
+#include <assert.h>
 
 //GLM
 #include<glm/glm.hpp>
@@ -24,3 +30,7 @@
 //Spd log
 #include<spdlog/spdlog.h>
 #include<spdlog/sinks/stdout_color_sinks.h>
+
+// Free type
+#include <ft2build.h>
+#include FT_FREETYPE_H 

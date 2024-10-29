@@ -12,42 +12,6 @@ Chess_Game::ChessPlayer::ChessPlayer(const std::vector<std::shared_ptr<ChessPiec
     }
 }
 
-void Chess_Game::ChessPlayer::PromotePawn(ChessPieceType_ replace_piece_type)
-{
-    //ChessPiece* new_class = nullptr;
-    //auto ptr = m_SelectedPiece.lock();
-    //
-    //BoardPosition pawn_position = ptr->GetPiecePosition();
-    //OptionalIndex array_index = GetPieceArrayIndex(pawn_position);
-    //
-    //if (!array_index.is_set)
-    //{
-    //    CHESS_LOG_WARN("Was no able to find the pawn to be promoted.");
-    //    return;
-    //}
-
-    //switch (replace_piece_type)
-    //{
-    //case Chess_Game::ChessPieceType_kBishop:
-    //    new_class = new Bishop(pawn_position);
-    //    break;
-    //case Chess_Game::ChessPieceType_kRook:
-    //    new_class = new Rook(pawn_position);
-    //    break;
-    //case Chess_Game::ChessPieceType_kKnight:
-    //    new_class = new Knight(pawn_position);
-    //    break;
-    //case Chess_Game::ChessPieceType_kQueen:
-    //    new_class = new Queen(pawn_position);
-    //    break;
-    //default:
-    //    CHESS_LOG_ERROR("Invalid enum to replace the pawn.");
-    //    break;
-    //}
-    //
-    //m_PlayerPieces[array_index.index_value].reset(new_class);
-}
-
 void Chess_Game::ChessPlayer::SelectPiece(BoardPosition piece_board_position)
 {
     OptionalIndex selected_piece_index = GetPieceArrayIndex(piece_board_position);

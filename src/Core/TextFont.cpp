@@ -1,19 +1,14 @@
-#include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "TextFont.h"
 #include "Logging/Logger.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb_image_write.h>
 
-static const char* kApplicationFontPath = "D:/c++/OpenGl/Chess-OpenGL/resources/fonts/arial.ttf";
-
-Chess_Game::TextFont::TextFont()
+Chess_Game::TextFont::TextFont(const char* font_path_to_load)
 {
-    FontLoader font_loader(kApplicationFontPath);
+    FontLoader font_loader(font_path_to_load);
 
     font_loader.LoadFontDataInMemory(0,48, m_GlyphAtlas);
     if (!font_loader.IsLoadedSuccessfully())
     {
-        CHESS_LOG_ERROR("Failed to load defualt text font.");
+        CHESS_LOG_ERROR("Failed to load default text font.");
         return;
     }
 

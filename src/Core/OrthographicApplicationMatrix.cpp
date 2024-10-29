@@ -1,7 +1,6 @@
-#include "Chess_pch.h"
 #include "OrthographicApplicationMatrix.h"
 
-Chess_Game::OrthoViewportHandler::OrthoViewportHandler(const Viewport viewport_dimensions):
+Chess_Game::OrthoViewportHandler::OrthoViewportHandler(const Viewport& viewport_dimensions):
     m_ViewportDimension(viewport_dimensions)
 {
     UpdateViewport(viewport_dimensions);

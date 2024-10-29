@@ -25,9 +25,6 @@ void Chess_Game::MouseInput::FlushInputPoll()
      * to the previous suggestion. Flushing the input poll might be the easiest fix for now, as it ensures that a state like
      * "press" is registered only once per frame.
      * 
-     */
-
-    /**
      * One consideration could be that you can create a array to hold all of the 'InputAction' states and iterate
      * then instead. To improve cache locality but this is a pre-mature optimization.
      */

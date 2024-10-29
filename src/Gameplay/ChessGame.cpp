@@ -1,7 +1,6 @@
 #include "ChessBoard.h"
 #include "Logging/Logger.h"
 #include "ChessGame.h"
-#include <thread>
 
 Chess_Game::ChessGame::ChessGame(const std::shared_ptr<ChessPlayer>& white_player,
     const std::shared_ptr<ChessPlayer>& black_player,
@@ -20,7 +19,7 @@ bool Chess_Game::ChessGame::CanMove(BoardPosition new_position, std::shared_ptr<
         return false;
     }
 
-    if (m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPieceImortal)
+    if (m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPieceImmortal)
     {
         CHESS_LOG_INFO("You can't capture the king.");
         return false;
@@ -57,7 +56,7 @@ void Chess_Game::ChessGame::MoveCurrentPlayerSelectedPiece(BoardPosition new_pos
 
         BoardPosition current_piece_position = selected_piece->GetPiecePosition();
 
-        BoardPositionFlags_ new_position_flag = BoardPositionFlags_kIsPositionOcupied;
+        BoardPositionFlags_ new_position_flag = BoardPositionFlags_kIsPositionOccupied;
 
         BoardPositionFlags_ current_position_flag_piece_team =
             m_ChessBoardData.GetChessboardPositionFlag(current_piece_position)
@@ -66,7 +65,7 @@ void Chess_Game::ChessGame::MoveCurrentPlayerSelectedPiece(BoardPosition new_pos
 
         ChessPieceType_ selected_piece_type = selected_piece->GetChessPieceType();
 
-        if (m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied)
+        if (m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOccupied)
         {
             CapturePiece(new_position);
         }
@@ -74,7 +73,7 @@ void Chess_Game::ChessGame::MoveCurrentPlayerSelectedPiece(BoardPosition new_pos
         m_ActivePlayer->MoveSelectedPiece(new_position);
 
         new_position_flag = selected_piece_type == ChessPieceType_kKing ?
-            static_cast<BoardPositionFlags_>(new_position_flag | BoardPositionFlags_kIsPieceImortal | current_position_flag_piece_team)
+            static_cast<BoardPositionFlags_>(new_position_flag | BoardPositionFlags_kIsPieceImmortal | current_position_flag_piece_team)
             : static_cast<BoardPositionFlags_>(new_position_flag | current_position_flag_piece_team);
 
         m_ChessBoardData.SetChessboardPositionFlag(current_piece_position, static_cast<BoardPositionFlags_>(0));
@@ -167,7 +166,7 @@ bool Chess_Game::ChessGame::IsKingSafeAfterMove(BoardPosition new_position,
         for (const auto& piece : opposite_player->GetPlayerPieces())
         {
             if (piece->GetPiecePosition() == new_position &&
-                !(m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPieceImortal))
+                !(m_ChessBoardData.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPieceImmortal))
             {
                 continue;
             }
@@ -200,9 +199,9 @@ void Chess_Game::ChessGame::SetupChessBoardBitMask(std::shared_ptr<ChessPlayer> 
     std::shared_ptr<ChessPlayer> black_team_player)
 {
     BoardPositionFlags_ white_team_flags = static_cast<BoardPositionFlags_>(
-        BoardPositionFlags_kIsPositionOcupied | BoardPositionFlags_kIsPieceFromWhiteTeam);
+        BoardPositionFlags_kIsPositionOccupied | BoardPositionFlags_kIsPieceFromWhiteTeam);
     BoardPositionFlags_ black_team_flags = static_cast<BoardPositionFlags_>(
-        BoardPositionFlags_kIsPositionOcupied | BoardPositionFlags_kIsPieceFromBlackTeam);
+        BoardPositionFlags_kIsPositionOccupied | BoardPositionFlags_kIsPieceFromBlackTeam);
 
 
     for (const auto& piece : white_team_player->GetPlayerPieces())
@@ -215,9 +214,9 @@ void Chess_Game::ChessGame::SetupChessBoardBitMask(std::shared_ptr<ChessPlayer> 
     }
 
     m_ChessBoardData.SetChessboardPositionFlag(white_team_player->GetPlayerKing().GetPiecePosition(),
-        static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPieceImortal | white_team_flags));
+        static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPieceImmortal | white_team_flags));
     m_ChessBoardData.SetChessboardPositionFlag(black_team_player->GetPlayerKing().GetPiecePosition(),
-        static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPieceImortal | black_team_flags));
+        static_cast<BoardPositionFlags_>(BoardPositionFlags_kIsPieceImmortal | black_team_flags));
 
 }
 
@@ -292,8 +291,8 @@ bool Chess_Game::ChessGame::CanKingResolveTheCheck(std::shared_ptr<ChessPlayer> 
     {
         BoardPosition new_position = king_board_position;
 
-        new_position.VerticalPosition += offset.VerticalPosition;
-        new_position.horizontalPosition += offset.horizontalPosition;
+        new_position.vertical_position += offset.vertical_position;
+        new_position.horizontal_position += offset.horizontal_position;
 
         if (!ChessBoard::IsNewPositionInBounds(new_position))
         {
@@ -330,15 +329,15 @@ bool Chess_Game::ChessGame::CanOtherPiecesResolveTheCheck(std::shared_ptr<ChessP
 
         BoardPosition direction = king_board_position - start_pos;
 
-        size_t length = std::max(abs(direction.VerticalPosition),abs(direction.horizontalPosition));
+        size_t length = std::max(abs(direction.vertical_position),abs(direction.horizontal_position));
 
         direction = BoardPosition::Normalize(direction);
 
         for (size_t i = 0; i < length; i++)
         {
             BoardPosition new_position{};
-            new_position.VerticalPosition = start_pos.VerticalPosition + (direction.VerticalPosition * i);
-            new_position.horizontalPosition = start_pos.horizontalPosition + (direction.horizontalPosition * i);
+            new_position.vertical_position = start_pos.vertical_position + (direction.vertical_position * i);
+            new_position.horizontal_position = start_pos.horizontal_position + (direction.horizontal_position * i);
 
             check_line_points.push_back(new_position);
         }

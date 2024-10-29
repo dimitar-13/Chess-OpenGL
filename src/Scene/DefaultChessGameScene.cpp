@@ -3,9 +3,6 @@
 #include "Logging/Logger.h"
 #include "Scene/MainMenuScene.h"
 #include "Core/DrawableCreator.h"
-#include <functional>
-#include <chrono>
-#include <thread>
 #include "Core/TextFont.h"
 #include "UI/TextUI.h"
 
@@ -45,10 +42,10 @@ void Chess_Game::DefaultChessScene::InitScene()
         m_PauseMenuUIHelper = std::make_unique<PauseMenuUIHelper>(application);
 
         m_PawnPromotionUIManager = 
-            std::make_unique<PawnPromotionSelectionUI>(application->UIManagerSharedPtrTest());
+            std::make_unique<PawnPromotionSelectionUI>(application->GetApplicationUIManager());
 
         m_PositionHelper =
-            std::make_shared<ScreenPositionHelper>(application->GetApplicationProjection().GetProjectionSize());
+            std::make_shared<ScreenPositionHelper>(application->GetApplicationProjection().GetOrthographicProjectionSize());
 
         application->AddEventListener(shared_from_this());
 
@@ -302,7 +299,7 @@ void Chess_Game::DefaultChessScene::DrawScene(std::shared_ptr<BatchRenderer> app
 
         }
 
-        application_batch_renderer->DrawTextureQuadBatch(application->GetApplicationProjection().GetMatrix());
+        application_batch_renderer->DrawTextureQuadBatch(application->GetApplicationProjection().GetOrthographicMatrix());
 
         for (auto board_pos : m_SelectedPiecePossiblePositions)
         {
@@ -310,7 +307,7 @@ void Chess_Game::DefaultChessScene::DrawScene(std::shared_ptr<BatchRenderer> app
                 glm::vec3(m_PositionHelper->BoardToProjectionSpace(board_pos), kPossibleMoveVisualDepth);
             application_batch_renderer->PushCircle(to_screen_pos, glm::vec2{15}, glm::vec3(0,0,1));
         }
-        application_batch_renderer->DrawCircleBatch(application->GetApplicationProjection().GetMatrix());
+        application_batch_renderer->DrawCircleBatch(application->GetApplicationProjection().GetOrthographicMatrix());
 
     }
 }
@@ -365,7 +362,7 @@ void Chess_Game::DefaultChessScene::OnEvent(const Event& e)
     if (e.GetEventType() == EventType_kWindowResize)
     {
         if(auto app = m_Application.lock())
-            m_PositionHelper->UpdateProjectionBorder(app->GetApplicationProjection().GetProjectionSize());
+            m_PositionHelper->UpdateProjectionBorder(app->GetApplicationProjection().GetOrthographicProjectionSize());
 
         for (const auto& chess_board_piece : m_ChessGameController->GetAllBoardPieces())
         {

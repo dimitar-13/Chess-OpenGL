@@ -32,12 +32,15 @@ void Chess_Game::TextureBatcher::Flush()
 size_t Chess_Game::TextureBatcher::PushTextureForRendering(GLuint texture_to_push)
 {
     if (static_cast<size_t>(m_CurrentFreeTextureSlotIndex + 1) >= kShaderSamplerArrayBaseSize)
+    {
+        assert(true && "No more space in the batch renderer.");
         return 0;
+    }
 
     if (m_TextureToBindingArrayIndexHash.find(texture_to_push) != m_TextureToBindingArrayIndexHash.end())
         return m_TextureToBindingArrayIndexHash.at(texture_to_push);
 
-    BindingPointArrayIndex binding_point = m_CurrentFreeTextureSlotIndex;
+    size_t binding_point = m_CurrentFreeTextureSlotIndex;
 
     m_TextureToBindingArrayIndexHash.emplace(texture_to_push, m_CurrentFreeTextureSlotIndex);
 

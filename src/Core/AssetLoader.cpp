@@ -112,6 +112,7 @@ Chess_Game::TextureReadData Chess_Game::AssetLoader::ReadTexture(const char* tex
             break;
         }
         };
+
     stbi_uc* texture_data_ptr = stbi_load(texture_path, &x, &y, &component, 0);
     result.is_texture_valid = texture_data_ptr != nullptr;
 

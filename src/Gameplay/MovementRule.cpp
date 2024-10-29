@@ -7,23 +7,23 @@ bool Chess_Game::RookMovementRule::CanMove(BoardPosition current_position, Board
 {
     BoardPosition position_delta = new_position - current_position;
 
-    return (position_delta.VerticalPosition != 0 && position_delta.horizontalPosition == 0) ||
-        (position_delta.VerticalPosition == 0 && position_delta.horizontalPosition != 0);
+    return (position_delta.vertical_position != 0 && position_delta.horizontal_position == 0) ||
+        (position_delta.vertical_position == 0 && position_delta.horizontal_position != 0);
 }
 
 bool Chess_Game::BishopMovementRule::CanMove(BoardPosition current_position, BoardPosition new_position) const
 {
     BoardPosition position_delta = new_position - current_position;
 
-    return abs(position_delta.VerticalPosition) == abs(position_delta.horizontalPosition);
+    return abs(position_delta.vertical_position) == abs(position_delta.horizontal_position);
 }
 
 bool Chess_Game::KnightMovementRule::CanMove(BoardPosition current_position, BoardPosition new_position) const
 {
     BoardPosition position_delta = new_position - current_position;
 
-    return (abs(position_delta.VerticalPosition) == 2 && abs(position_delta.horizontalPosition) == 1) ||
-        (abs(position_delta.VerticalPosition) == 1 && abs(position_delta.horizontalPosition) == 2);
+    return (abs(position_delta.vertical_position) == 2 && abs(position_delta.horizontal_position) == 1) ||
+        (abs(position_delta.vertical_position) == 1 && abs(position_delta.horizontal_position) == 2);
 }
 
 bool Chess_Game::BlockableBoardSpecificMovementRule::CanMove(BoardPosition current_position,
@@ -35,17 +35,17 @@ bool Chess_Game::BlockableBoardSpecificMovementRule::CanMove(BoardPosition curre
     move_direction = BoardPosition::Normalize(position_delta);
     
     unsigned char movement_count =
-        std::max(abs(position_delta.VerticalPosition), abs(position_delta.horizontalPosition));
+        std::max(abs(position_delta.vertical_position), abs(position_delta.horizontal_position));
     
     BoardPosition next_position = current_position;
     
     for (unsigned char i = 0; i < movement_count - 1; i++)
     {
     
-        next_position.VerticalPosition += move_direction.VerticalPosition;
-        next_position.horizontalPosition += move_direction.horizontalPosition;
+        next_position.vertical_position += move_direction.vertical_position;
+        next_position.horizontal_position += move_direction.horizontal_position;
     
-        if (board.GetChessboardPositionFlag(next_position) & BoardPositionFlags_kIsPositionOcupied)
+        if (board.GetChessboardPositionFlag(next_position) & BoardPositionFlags_kIsPositionOccupied)
             return false;
     }
     
@@ -55,7 +55,7 @@ bool Chess_Game::BlockableBoardSpecificMovementRule::CanMove(BoardPosition curre
 bool Chess_Game::CanMoveToTarget::CanMove(BoardPosition current_position,
     BoardPosition new_position, ChessBoard& board) const
 {    
-    if (!(board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied))
+    if (!(board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOccupied))
     {
         return true;
     }
@@ -73,9 +73,9 @@ bool Chess_Game::PawnCaptureBoardSpecificMovementRule::CanMove(BoardPosition cur
     BoardPosition position_delta = new_position - current_position;
 
     bool is_new_position_taken = 
-        board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOcupied;
+        board.GetChessboardPositionFlag(new_position) & BoardPositionFlags_kIsPositionOccupied;
 
-    if (abs(position_delta.VerticalPosition) == abs(position_delta.horizontalPosition))
+    if (abs(position_delta.vertical_position) == abs(position_delta.horizontal_position))
     {
         BoardPositionFlags_ current_piece_flags = board.GetChessboardPositionFlag(current_position);
         BoardPositionFlags_ new_position_flags = board.GetChessboardPositionFlag(new_position);
@@ -92,9 +92,9 @@ bool Chess_Game::PawnStartingMovementRule::CanMove(BoardPosition current_positio
 {
     BoardPosition position_delta = new_position - current_position;
 
-    if (position_delta.horizontalPosition != 0)
+    if (position_delta.horizontal_position != 0)
         return false;
-    if (abs(position_delta.VerticalPosition) != 2)
+    if (abs(position_delta.vertical_position) != 2)
         return false;
 
     return true;
@@ -104,25 +104,25 @@ bool Chess_Game::PawnSidewayCaptureRule::CanMove(BoardPosition current_position,
 {
     BoardPosition position_delta = new_position - current_position;
 
-    return abs(position_delta.VerticalPosition) == 1 && abs(position_delta.horizontalPosition) == 1;
+    return abs(position_delta.vertical_position) == 1 && abs(position_delta.horizontal_position) == 1;
 }
 
 bool Chess_Game::SingleForwardMovementRule::CanMove(BoardPosition current_position, BoardPosition new_position) const
 {
     BoardPosition position_delta = new_position - current_position;
 
-    return position_delta.horizontalPosition == 0 && abs(position_delta.VerticalPosition) == 1;
+    return position_delta.horizontal_position == 0 && abs(position_delta.vertical_position) == 1;
 }
 
 bool Chess_Game::KingMovement::CanMove(BoardPosition current_position, BoardPosition new_position) const
 {
     BoardPosition position_delta = new_position - current_position;
 
-    if (abs(position_delta.VerticalPosition) > 1 || abs(position_delta.horizontalPosition) > 1)
+    if (abs(position_delta.vertical_position) > 1 || abs(position_delta.horizontal_position) > 1)
         return false;
 
-    return abs(position_delta.VerticalPosition) + abs(position_delta.horizontalPosition) == 1 ||
-        abs(position_delta.VerticalPosition) + abs(position_delta.horizontalPosition) == 2;
+    return abs(position_delta.vertical_position) + abs(position_delta.horizontal_position) == 1 ||
+        abs(position_delta.vertical_position) + abs(position_delta.horizontal_position) == 2;
 }
 
 bool Chess_Game::PawnTeamMovementRule::CanMove(BoardPosition current_position,
@@ -132,6 +132,6 @@ bool Chess_Game::PawnTeamMovementRule::CanMove(BoardPosition current_position,
     
     bool is_pawn_from_white_team = board.GetChessboardPositionFlag(current_position) & BoardPositionFlags_kIsPieceFromWhiteTeam;
     
-    return (position_delta.VerticalPosition >= 1 && is_pawn_from_white_team) ||
-        (position_delta.VerticalPosition <= -1 && !is_pawn_from_white_team);
+    return (position_delta.vertical_position >= 1 && is_pawn_from_white_team) ||
+        (position_delta.vertical_position <= -1 && !is_pawn_from_white_team);
 }

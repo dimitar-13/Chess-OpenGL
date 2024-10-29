@@ -1,4 +1,5 @@
 #pragma once
+#include "Pch/Chess_pch.h"
 #include "Core/SceneObject.h"
 #include "Gameplay/ChessGame.h"
 #include "Gameplay/GameControllers/ChessGameController.h"
@@ -8,7 +9,6 @@
 #include "UI/UI_Image.h"
 #include "Gameplay/GameControllers/PawnPromotionUIManager.h"
 #include "Helpers/PausseMenuUIHelper.h"
-#include <future>
 namespace Chess_Game
 {
     class DefaultChessScene : public SceneObject, public Listener

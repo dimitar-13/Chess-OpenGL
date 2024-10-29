@@ -1,21 +1,16 @@
-#include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "UIElement.h"
 #include "UIManager.h"
 #include "Panel.h"
 
 Chess_Game::Element::Element(std::weak_ptr<UIManager> ui_manager_ref,
     std::shared_ptr<DrawableCreator> drawable_creator,
-    const glm::vec2& position,const glm::vec2& element_size):
-    m_ElementRelativePos(position),
+    const glm::vec2& relative_offset,const glm::vec2& element_size):
+    m_ElementRelativePos(relative_offset),
     m_UIManager(ui_manager_ref)
 {
     m_WidgetDrawable = drawable_creator->CreateDrawable();
 
     m_WidgetDrawable->m_Scale = element_size;
-
-    
-    //m_UIDrawable = drawable_creator.CreateDrawable();
-    //m_UIDrawable->SetColor(glm::vec3(1));
 }
 
 void Chess_Game::Element::ResizeElement(const glm::vec2& new_size)
@@ -30,12 +25,11 @@ void Chess_Game::Element::SetElementDepth(float depth_layer_value)
     this->OnElementChanged();
 }
 
-
-glm::vec2 Chess_Game::Element::GetPivotPos(PositionPivot_ pivot)const
+glm::vec2 Chess_Game::Element::GetParentPivotPos(PositionPivot_ pivot)const
 {
     glm::vec2 parent_pos{};
     if (m_Parent)
-        parent_pos = m_Parent->GetPivotPos(m_ParentPosPivot);
+        parent_pos = m_Parent->GetParentPivotPos(m_ParentPosPivot);
 
     switch (pivot)
     {
@@ -66,7 +60,7 @@ glm::vec2 Chess_Game::Element::GetScreenPos()
     if(!m_Parent)
         return m_ElementRelativePos;
 
-    glm::vec2 result = m_Parent->GetPivotPos(m_ParentPosPivot) + m_ElementRelativePos;
+    glm::vec2 result = m_Parent->GetParentPivotPos(m_ParentPosPivot) + m_ElementRelativePos;
     return result;
 }
 
@@ -108,12 +102,12 @@ Chess_Game::Element::~Element()
 }
 
 void Chess_Game::Element::CalculateElementBoundingBox(
-    glm::vec2 screen_pos, glm::vec2 size)
+    const glm::vec2& screen_pos, const glm::vec2& element_size)
 {
-    m_BoundingBox.x = screen_pos.x - size.x;
-    m_BoundingBox.y = screen_pos.y - size.y;
-    m_BoundingBox.width = screen_pos.x + size.x;
-    m_BoundingBox.height = screen_pos.y + size.y;
+    m_BoundingBox.x = screen_pos.x - element_size.x;
+    m_BoundingBox.y = screen_pos.y - element_size.y;
+    m_BoundingBox.width = screen_pos.x + element_size.x;
+    m_BoundingBox.height = screen_pos.y + element_size.y;
 }
 
 void Chess_Game::Element::Draw(BatchRenderer& batch_renderer)

@@ -1,4 +1,3 @@
-#include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "MainMenuScene.h"
 #include "Core/Application.h"
 #include "Scene/DefaultChessGameScene.h"
@@ -51,7 +50,7 @@ void Chess_Game::MainMenuScene::InitScene()
                 }
            };
        
-       m_StartButton->SetButtonCallback(test_callback);
+       m_StartButton->SetButtonOnClickCallback(test_callback);
 
        
     }

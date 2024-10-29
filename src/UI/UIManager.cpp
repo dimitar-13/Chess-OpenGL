@@ -1,7 +1,6 @@
-#include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "UIManager.h"
 
-glm::vec2 Chess_Game::UIManager::ConvertScreenToRootWindowPos(glm::vec2 screen_pos)
+glm::vec2 Chess_Game::UIManager::ConvertScreenToRootWindowPos(const glm::vec2& screen_pos)
 {
     glm::vec2 screen_to_root_window_pos(screen_pos.x, screen_pos.y);
     glm::vec2 half_window_size(m_CurrentWindowSize.width, m_CurrentWindowSize.height);
@@ -15,15 +14,18 @@ glm::vec2 Chess_Game::UIManager::ConvertScreenToRootWindowPos(glm::vec2 screen_p
 Chess_Game::UIManager::UIManager(Size2D window_size, std::shared_ptr<DrawableCreator>& drawable_creator):
     m_CurrentWindowSize(window_size),m_ApplicationDrawableCreator(drawable_creator)
 {
+    const char* kApplicationFontPath = "D:/c++/OpenGl/Chess-OpenGL/resources/fonts/arial.ttf";
+    const size_t kPreAllocationCount = 15;
 
     glm::vec2 half_win_size = { window_size.width, window_size.height };
     half_win_size /= 2.0f;
 
-    m_ToNDCMatrix = glm::ortho<float>(-half_win_size.x, half_win_size.x,
+    m_RootWindowOrthographicMatrix = glm::ortho<float>(-half_win_size.x, half_win_size.x,
         -half_win_size.y, half_win_size.y);
 
+    m_DrawableIDHash.reserve(kPreAllocationCount);
 
-    m_DefaultTextFont =std::make_shared<TextFont>();
+    m_DefaultTextFont =std::make_shared<TextFont>(kApplicationFontPath);
 }
 
 void Chess_Game::UIManager::CreateRootPanel()
@@ -58,8 +60,7 @@ void Chess_Game::UIManager::RemoveWidget(size_t widget_drawable_id)
 
 }
 
-void Chess_Game::UIManager::DrawUI(std::shared_ptr<BatchRenderer> application_batch_renderer,
-    AssetLoader& application_asset_loader)
+void Chess_Game::UIManager::DrawUI(std::shared_ptr<BatchRenderer> application_batch_renderer)
 {
     for (auto [key,weak_element]:m_DrawableIDHash)
     {
@@ -68,8 +69,8 @@ void Chess_Game::UIManager::DrawUI(std::shared_ptr<BatchRenderer> application_ba
             element->Draw(*application_batch_renderer);
         }
     }
-    application_batch_renderer->DrawTextureQuadBatch(m_ToNDCMatrix,true);
-    application_batch_renderer->DrawTextBatch(m_ToNDCMatrix);
+    application_batch_renderer->DrawTextureQuadBatch(m_RootWindowOrthographicMatrix,true);
+    application_batch_renderer->DrawTextBatch(m_RootWindowOrthographicMatrix);
 
 }
 
@@ -109,7 +110,7 @@ void Chess_Game::UIManager::OnWindowSizeChanged(const WindowResizeEvent& e)
     m_CurrentWindowSize = e.GetWindowSize();
     glm::vec2 half_win_size = { m_CurrentWindowSize.width, m_CurrentWindowSize.height };
     half_win_size /= 2.0f;
-    m_ToNDCMatrix = glm::ortho<float>(-half_win_size.x, half_win_size.x,
+    m_RootWindowOrthographicMatrix = glm::ortho<float>(-half_win_size.x, half_win_size.x,
                                       -half_win_size.y, half_win_size.y);
 
     m_RootWindowPanel->ResizeElement(half_win_size);

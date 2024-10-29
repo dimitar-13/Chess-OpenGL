@@ -12,14 +12,11 @@ Chess_Game::Application::Application():
     m_ApplicationProjection({ Viewport{0,0, kStartWindowWidth, kStartWindowHeight} })
 {
     const char* kWindowTittle = "Chess";
-
-    Chess_Game::WindowCreateInfo window_create_info{};
-    window_create_info.windowHeight = kStartWindowHeight;
-    window_create_info.windowWidth = kStartWindowWidth;
-    window_create_info.windowTittle = kWindowTittle;
-    window_create_info.windowOnEventCallback = std::bind(&Application::OnEvent, this, std::placeholders::_1);
+    constexpr Size2D kDefaultWindowSize = { kStartWindowWidth,kStartWindowHeight };
+    std::function<void(const Event&)>windowOnEventCallback = 
+        std::bind(&Application::OnEvent, this, std::placeholders::_1);
    
-    m_ApplicationWindow = std::make_unique<Window>(window_create_info);
+    m_ApplicationWindow = std::make_unique<Window>(kDefaultWindowSize, kWindowTittle, windowOnEventCallback);
 
     if (!m_ApplicationWindow->IsWindowValid())
         return;
@@ -55,7 +52,7 @@ void Chess_Game::Application::StartRenderLoop()
         m_ApplicationBatchRenderer->FlushTextureBatch();
 
 
-        m_ApplicationUIManager->DrawUI(m_ApplicationBatchRenderer,*m_TextureAssetLoader);
+        m_ApplicationUIManager->DrawUI(m_ApplicationBatchRenderer);
         m_ApplicationUIManager->PollUIInput(m_ApplicationMouseInput, m_ApplicationBatchRenderer,m_ApplicationProjection);
 
         m_ApplicationMouseInput.FlushInputPoll();
@@ -83,7 +80,6 @@ void Chess_Game::Application::InitAppResource()
     m_ApplicationDrawableCreator = std::make_shared<DrawableCreator>();
     m_ApplicationUIManager = std::make_shared<UIManager>(current_window_size, m_ApplicationDrawableCreator);
 
-
     m_TextureAssetLoader = std::make_shared<AssetLoader>();
     m_ApplicationBatchRenderer = std::make_shared<BatchRenderer>(current_window_size, m_TextureAssetLoader);
 
@@ -103,7 +99,7 @@ void Chess_Game::Application::OnEvent(const Event& e)
   
     dynamic_cast<Listener&>(m_ApplicationMouseInput).OnEvent(e);
 
-    for (const auto& weak_listener : m_ActiveEventListeners)
+    for (const auto& weak_listener : m_RegisteredEventListeners)
     {
         if (auto& listener = weak_listener.lock())
         {

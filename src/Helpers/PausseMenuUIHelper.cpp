@@ -1,4 +1,3 @@
-#include "D:/c++/OpenGl/Chess-OpenGL/build/CMakeFiles/Chess.dir/Debug/cmake_pch.hxx"
 #include "PausseMenuUIHelper.h"
 #include "Scene/DefaultChessGameScene.h"
 #include "Scene/MainMenuScene.h"
@@ -26,7 +25,7 @@ Chess_Game::PauseMenuUIHelper::PauseMenuUIHelper(std::shared_ptr<Application> ap
         };
 
     m_PauseButton = ui_manager.CreateUIElement<Button>(glm::vec2(-70), glm::vec2(50));
-    m_PauseButton->SetButtonCallback(invert_visibility);
+    m_PauseButton->SetButtonOnClickCallback(invert_visibility);
     m_PauseButton->SetButtonCustomTexture(TextureName_kPauseButton);
     m_PauseButton->SetPositionPivot(PositionPivot_kTopRight);
 
@@ -37,7 +36,7 @@ Chess_Game::PauseMenuUIHelper::PauseMenuUIHelper(std::shared_ptr<Application> ap
     m_PauseMenuGroup->SetElementDepth(.6);
 
     m_ResetButton = ui_manager.CreateUIElement<Button>(glm::vec2(0), kMenuButtonSize);
-    m_ResetButton->SetButtonCallback(button_reset_callback_test);
+    m_ResetButton->SetButtonOnClickCallback(button_reset_callback_test);
     m_ResetButton->SetButtonCustomTexture(TextureName_kButton);
     m_ResetButton->SetElementDepth(.7);
     m_PauseMenuGroup->AddChildElement(m_ResetButton);
@@ -48,7 +47,7 @@ Chess_Game::PauseMenuUIHelper::PauseMenuUIHelper(std::shared_ptr<Application> ap
     m_PauseMenuGroup->AddChildElement(m_ResetText);
 
     m_MainMenuButton = ui_manager.CreateUIElement<Button>(glm::vec2(0, -200.0f), kMenuButtonSize);
-    m_MainMenuButton->SetButtonCallback(to_main_menu_button_callback);
+    m_MainMenuButton->SetButtonOnClickCallback(to_main_menu_button_callback);
     m_MainMenuButton->SetElementDepth(.6);
     m_MainMenuButton->SetButtonCustomTexture(TextureName_kButton);
     m_PauseMenuGroup->AddChildElement(m_MainMenuButton);
@@ -59,15 +58,15 @@ Chess_Game::PauseMenuUIHelper::PauseMenuUIHelper(std::shared_ptr<Application> ap
     m_PauseMenuGroup->AddChildElement(m_PauseText);
 
     m_ResumeButton = ui_manager.CreateUIElement<Button>(glm::vec2(0, 200.0f), kMenuButtonSize);
-    m_ResumeButton->SetButtonCallback(invert_visibility);
+    m_ResumeButton->SetButtonOnClickCallback(invert_visibility);
     m_ResumeButton->SetButtonCustomTexture(TextureName_kButton);
     m_ResumeButton->SetElementDepth(.6);
     m_PauseMenuGroup->AddChildElement(m_ResumeButton);
 
-    m_ToMainMenu = ui_manager.CreateUIElement<TextUI>(glm::vec2(-115.0f, -205.0f), glm::vec3(1));
-    m_ToMainMenu->SetText("Main menu");
-    m_ToMainMenu->SetElementDepth(.7);
-    m_PauseMenuGroup->AddChildElement(m_ToMainMenu);
+    m_MainMenuText = ui_manager.CreateUIElement<TextUI>(glm::vec2(-115.0f, -205.0f), glm::vec3(1));
+    m_MainMenuText->SetText("Main menu");
+    m_MainMenuText->SetElementDepth(.7);
+    m_PauseMenuGroup->AddChildElement(m_MainMenuText);
 
 }
 
