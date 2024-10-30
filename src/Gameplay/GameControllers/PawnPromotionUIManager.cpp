@@ -33,42 +33,44 @@ Chess_Game::PawnPromotionSelectionUI::PawnPromotionSelectionUI(
     
     m_QueenSelectionButton =  m_UIManager->CreateUIElement<Button>(
             glm::vec2(110.0f, 0), glm::vec2(piece_selection_size));
-    m_QueenSelectionButton->SetButtonCustomTexture(TextureName_kQueen);
     m_QueenSelectionButton->SetButtonOnClickCallback(queen_callback_bind);
+    m_QueenSelectionButton->SetElementDepth(.1f);
     m_PawnPromotionPanel->AddChildElement(m_QueenSelectionButton);
-
 
     m_RookSelectionButton = m_UIManager->CreateUIElement<Button>(
             glm::vec2(45.0f, 0), glm::vec2(piece_selection_size));  
-    m_RookSelectionButton->SetButtonCustomTexture(TextureName_kRook);
     m_RookSelectionButton->SetButtonOnClickCallback(rook_callback_bind);
+    m_RookSelectionButton->SetElementDepth(.1f);
     m_PawnPromotionPanel->AddChildElement(m_RookSelectionButton);
 
     m_BishopSelectionButton = m_UIManager->CreateUIElement<Button>(
             glm::vec2(-30.0f , 0), glm::vec2(piece_selection_size));  
-    m_BishopSelectionButton->SetButtonCustomTexture(TextureName_kBishop);
     m_BishopSelectionButton->SetButtonOnClickCallback(bishop_callback_bind);
+    m_BishopSelectionButton->SetElementDepth(.1f);
     m_PawnPromotionPanel->AddChildElement(m_BishopSelectionButton);
     
     m_KnightSelectionButton = m_UIManager->CreateUIElement<Button>(
             glm::vec2((piece_selection_size - 140.0f), 0), glm::vec2(piece_selection_size));
-    m_KnightSelectionButton->SetButtonCustomTexture(TextureName_kKnight);
     m_KnightSelectionButton->SetButtonOnClickCallback(knight_callback_bind);
+    m_KnightSelectionButton->SetElementDepth(.1f);
     m_PawnPromotionPanel->AddChildElement(m_KnightSelectionButton);
 }
 
 
-void Chess_Game::PawnPromotionSelectionUI::TogglePawnPromotionUI(bool is_enabled)
+void Chess_Game::PawnPromotionSelectionUI::TogglePawnPromotionUI(bool is_enabled, bool is_white_team)
 {
+    m_QueenSelectionButton->SetButtonCustomTexture(is_white_team ? "chess_game_queen_w.png":
+                                                                   "chess_game_queen_b.png");
+
+    m_RookSelectionButton->SetButtonCustomTexture(is_white_team ? "chess_game_rook_w.png":
+                                                                  "chess_game_rook_b.png");
+
+    m_BishopSelectionButton->SetButtonCustomTexture(is_white_team ? "chess_game_bishop_w.png":
+                                                                    "chess_game_bishop_b.png");
+
+    m_KnightSelectionButton->SetButtonCustomTexture(is_white_team ? "chess_game_knight_w.png":
+                                                                    "chess_game_knight_b.png");
+
     m_PawnPromotionPanel->EnableElement(is_enabled);
-}
 
-void Chess_Game::PawnPromotionSelectionUI::SwitchPromotionPieceTeamCol(bool is_white_team)
-{
-    glm::vec3 current_team_col = is_white_team ? glm::vec3(1) : glm::vec3(0);
-
-    //m_QueenSelectionButton->GetDrawable()->SetColor(current_team_col);
-    //m_BishopSelectionButton->GetDrawable()->SetColor(current_team_col);
-    //m_RookSelectionButton->GetDrawable()->SetColor(current_team_col);
-    //m_KnightSelectionButton->GetDrawable()->SetColor(current_team_col);
 }

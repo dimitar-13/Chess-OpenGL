@@ -34,6 +34,6 @@ namespace Chess_Game
          *
          * @param name_of_texture Texture enum, of type 'TextureName_', of the new texture to use.
          */
-        void SetImageTexture(TextureName_ name_of_texture) { m_WidgetDrawable->m_TextureName = name_of_texture; }
+        void SetImageTexture(const std::string& name_of_texture) { m_WidgetDrawable->m_TextureName = name_of_texture; }
     };
 }

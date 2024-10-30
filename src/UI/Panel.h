@@ -33,7 +33,7 @@ namespace Chess_Game
          * @note If the base class(Element) member variable m_WidgetDrawable->m_IsEnabled is false then the background wont be visible.
          * @param name_of_texture Enum value of type 'TextureName_'.
          */
-        void SetPanelCustomTexture(TextureName_ name_of_texture) { m_WidgetDrawable->m_TextureName = name_of_texture; }
+        void SetPanelCustomTexture(const std::string& name_of_texture) { m_WidgetDrawable->m_TextureName = name_of_texture; }
         /**
          * @brief Adds a child element to the panel.
          *

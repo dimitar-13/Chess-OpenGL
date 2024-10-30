@@ -42,6 +42,7 @@ add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/glm"  "${PROJECT_DEPENDENCY_FOLDE
 add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/glew/glew/glew-2.2.0/build/cmake" "${PROJECT_DEPENDENCY_FOLDER}/glew/glew/glew-2.2.0/build/cmake/build")
 add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/spdlog" "${PROJECT_DEPENDENCY_FOLDER}/spdlog/build")
 add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/freeType/freetype" "${PROJECT_DEPENDENCY_FOLDER}/freetype/build")
+add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/nlohmann_json/json" "${PROJECT_DEPENDENCY_FOLDER}/nlohmann_json/build")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/Logging")
 add_subdirectory("${PROJECT_SOURCE_DIR}/Core")
@@ -83,6 +84,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}")
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/spdlog/include")
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/stbi_image")
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/freeType/freetype/include")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/nlohmann_json/json/include")
 
 target_link_directories(${PROJECT_NAME} PUBLIC
     "$<$<CONFIG:Debug>:${GLEW_DEBUG}>"
@@ -109,4 +111,4 @@ target_link_libraries(${PROJECT_NAME}
 
 )
 
-add_dependencies(${PROJECT_NAME} glfw glew_s glm freetype)
+add_dependencies(${PROJECT_NAME} glfw glew_s glm freetype nlohmann_json::nlohmann_json)
