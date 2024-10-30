@@ -38,15 +38,9 @@ namespace Chess_Game
          *
          * @param is_enabled A boolean value indicating whether the promotion UI
          * should be enabled (visible) or disabled (hidden).
+         * @param is_white_team If set to true the promotion will use white team pieces.
          */
-        void TogglePawnPromotionUI(bool is_enabled);
-        /**
-         * @brief Switches the team color of the promotion pieces.
-         *
-         * @param is_white_team A boolean value indicating whether the promotion
-         *                      pieces should represent the white team (true) or the black team(false).                 
-         */
-        void SwitchPromotionPieceTeamCol(bool is_white_team);
+        void TogglePawnPromotionUI(bool is_enabled,bool is_white_team);
         /**
          * @brief Sets a new position for the pawn promotion panel.
          *

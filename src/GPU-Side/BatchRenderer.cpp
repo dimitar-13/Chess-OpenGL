@@ -45,12 +45,12 @@ void Chess_Game::BatchRenderer::PushCircle(const glm::vec3& position, const glm:
 
 void Chess_Game::BatchRenderer::PushTexturedQuad(size_t object_id,
     const glm::vec3& position, const glm::vec2& scale, 
-    const glm::vec3& object_color, TextureName_ texture_name)
+    const glm::vec3& object_color, const std::string& texture_name)
 {
     std::array<Vertex, kBaseQuadVertexData.size()>quad_vertex_data_copy{};
 
-    size_t texture_binding_point = m_TextureBatcher.PushTextureForRendering(
-       m_ApplicationAssetLoader->GetTextureAsset(texture_name));
+    const Texture& texture_data = m_ApplicationAssetLoader->GetTextureAsset(texture_name);
+    size_t texture_binding_point = m_TextureBatcher.PushTextureForRendering(texture_data.texture_handle);
 
     std::copy(std::begin(kBaseQuadVertexData), std::end(kBaseQuadVertexData), std::begin(quad_vertex_data_copy));
 
@@ -62,7 +62,13 @@ void Chess_Game::BatchRenderer::PushTexturedQuad(size_t object_id,
         vertex.color = object_color;
         vertex.texture_sampler_index = static_cast<float>(texture_binding_point);
     }
-
+    if (texture_data.is_texture_atlas)
+    {
+        quad_vertex_data_copy[0].uv = { texture_data.texture_region.start.x,texture_data.texture_region.end.y };
+        quad_vertex_data_copy[1].uv = texture_data.texture_region.start;
+        quad_vertex_data_copy[2].uv = { texture_data.texture_region.end.x,texture_data.texture_region.start.y };
+        quad_vertex_data_copy[3].uv = texture_data.texture_region.end;
+    }
     m_TexturedQuadBatch.PushToBatch(quad_vertex_data_copy);
 
 }

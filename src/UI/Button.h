@@ -47,7 +47,7 @@ namespace Chess_Game
          *
          * @param name_of_texture Texture enum, of type 'TextureName_', of the new texture to use.
          */
-        void SetButtonCustomTexture(TextureName_ name_of_texture) { m_WidgetDrawable->m_TextureName = name_of_texture; }
+        void SetButtonCustomTexture(const std::string& name_of_texture) { m_WidgetDrawable->m_TextureName = name_of_texture; }
         /**
          * @brief Sets the button on click callback.
          *

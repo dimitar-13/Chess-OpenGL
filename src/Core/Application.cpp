@@ -33,11 +33,12 @@ Chess_Game::Application::Application():
 
 void Chess_Game::Application::StartRenderLoop()
 {
+    glm::vec4 background_col = glm::vec4(0.824, 0.651, 0.475, 1.0);
+
     m_CurrentApplicationScene = std::make_shared<MainMenuScene>(this->weak_from_this());
     m_CurrentApplicationScene->InitScene();
 
     glEnable(GL_BLEND);  
-    //glEnable(GL_DEPTH_TEST);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
@@ -45,7 +46,7 @@ void Chess_Game::Application::StartRenderLoop()
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glClearColor(1.f, 0.f, 0.f, 0.0f);
+        glClearColor(background_col.r, background_col.g, background_col.b, background_col.a);
 
         m_CurrentApplicationScene->OnUpdate();
         m_CurrentApplicationScene->DrawScene(m_ApplicationBatchRenderer);

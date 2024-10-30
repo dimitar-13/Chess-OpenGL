@@ -23,9 +23,11 @@ namespace Chess_Game
     };
     struct TexturePathNamePair
     {
-        const char* texture_path{};
-        TextureName_ texture_name{};
+        std::string texture_path{};
+        const char* texture_file_name;
+        bool is_texture_atlas = false;
     };
+
 
     /**
      * @brief Handles the loading and management of textures for the project.
@@ -63,7 +65,13 @@ namespace Chess_Game
          * 
          * @returns Returns non zero(valid) texture handle based on the provided 'TextureName_' enum.
          */
-        GLuint GetTextureAsset(TextureName_ name_of_texture);
+        const Texture& GetTextureAsset(const std::string& name_of_texture);
+        /**
+         * @brief Retrieves the name of the white texture asset.
+         *
+         * @returns Returns the name of the white texture asset.
+         */
+        static const std::string& GetWhiteTextureAssetName() { return s_WhiteTextureName; }
     private:
         /**
          * @brief Reads texture from path and extract the texture information.
@@ -76,9 +84,12 @@ namespace Chess_Game
          * 
          * @returns Returns 'TextureReadData' info struct of the texture from the specified path.
          */
-        TextureReadData ReadTexture(const char* texture_path);
+        TextureReadData ReadTexture(const std::string& texture_path);
+        void UnpackTextureAtlas(GLuint texture_index, const glm::vec2& texture_size,
+            std::string atlas_file_path);
     private:
-        std::unordered_map<TextureName_, GLuint> m_AssetTextureHash{}; ///< Map of texture enum and GPU texture handle pairs.
+        std::unordered_map<std::string, Texture> m_AssetTextureHash{}; ///< Map of texture enum and GPU texture handle pairs.
         std::vector<GLuint> m_AssetTextureArray{};                     ///< GPU texture handles array.
+        static std::string s_WhiteTextureName;                         ///< White texture asset name.
     };
 }

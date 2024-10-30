@@ -10,3 +10,6 @@
 [submodule "dependencies/freeType/freetype"]
 	path = dependencies/freeType/freetype
 	url = https://github.com/freetype/freetype.git
+[submodule "dependencies/nlohmann_json/json"]
+	path = dependencies/nlohmann_json/json
+	url = https://github.com/nlohmann/json.git

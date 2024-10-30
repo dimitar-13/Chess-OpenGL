@@ -14,28 +14,40 @@ void Chess_Game::MainMenuScene::InitScene()
        
        m_StartMenuPanel->SetElementDepth(-.5);
        m_StartMenuPanel->SetVisibility(true);
-       m_StartMenuPanel->SetPanelCustomTexture(TextureName_kUIGroupBackground);
+       m_StartMenuPanel->SetPanelCustomTexture("chess_game_panel_background.png");
        
        m_StartButton = application->GetUIManager().
-           CreateUIElement<Button>(glm::vec2(0,-200.0f),glm::vec2(200,55.));   
-       m_StartButton->SetButtonCustomTexture(TextureName_kButton);    
-       m_StartButton->SetElementDepth(0.);
+           CreateUIElement<Button>(glm::vec2(0,-140.0f),glm::vec2(200,55.));   
+       m_StartButton->SetButtonCustomTexture("chess_game_button_background.png");
+       m_StartButton->SetElementDepth(0.1);
        m_StartMenuPanel->AddChildElement(m_StartButton);
        
        m_StartText = application->GetUIManager().
-           CreateUIElement<TextUI>(glm::vec2(-50.0f, -206.0f), glm::vec3(1));
+           CreateUIElement<TextUI>(glm::vec2(-50.0f, -146.0f), glm::vec3(1));
        m_StartText->SetText("Start");
        m_StartText->SetElementDepth(0.1);
        m_StartMenuPanel->AddChildElement(m_StartText);
 
+       m_CreditsButton = application->GetUIManager().
+           CreateUIElement<Button>(glm::vec2(0, -240.0f), glm::vec2(180, 40.));
+       m_CreditsButton->SetButtonCustomTexture("chess_game_button_background.png");
+       m_CreditsButton->SetElementDepth(0.1);
+       m_StartMenuPanel->AddChildElement(m_CreditsButton);
+
+       m_CreditsText = application->GetUIManager().
+           CreateUIElement<TextUI>(glm::vec2(-65.0f, -246.0f), glm::vec3(.8));
+       m_CreditsText->SetText("Credits");
+       m_CreditsText->SetElementDepth(0.1);
+       m_StartMenuPanel->AddChildElement(m_CreditsText);
+
        m_GameLogoImage = application->GetUIManager().CreateUIElement<Image>
-           (glm::vec2(0, 40.0f), glm::vec2(300));       
-       m_GameLogoImage->SetImageTexture(TextureName_kGameLogo);
+           (glm::vec2(0, 60.0f), glm::vec2(200));       
+       m_GameLogoImage->SetImageTexture("chess_game_logo.png");
        m_GameLogoImage->SetElementDepth(0.);
        m_StartMenuPanel->AddChildElement(m_GameLogoImage);
        
        m_GameNameUIText = application->GetUIManager().CreateUIElement<TextUI>
-           (glm::vec2(-200.0f, -80.0f), glm::vec2(1.5f));
+           (glm::vec2(-200.0f, -60.0f), glm::vec2(1.5f));
        m_GameNameUIText->SetElementDepth(.1);
        m_GameNameUIText->SetText("Chess Game");
        m_StartMenuPanel->AddChildElement(m_GameNameUIText);

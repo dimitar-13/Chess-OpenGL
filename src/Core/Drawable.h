@@ -2,6 +2,7 @@
 #include "Pch/Chess_pch.h"
 #include "TextureEnum.h"
 #include "Logging/Logger.h"
+#include "Core/AssetLoader.h"
 namespace Chess_Game
 {
     class DrawableCreator;
@@ -50,7 +51,7 @@ namespace Chess_Game
          * @brief The enum of the texture to use.
          * To fetch the actual texture index use 'AssetLoader'.
          */
-        TextureName_ m_TextureName = TextureName_kWhiteTexture;
+        std::string m_TextureName = AssetLoader::GetWhiteTextureAssetName();
         bool m_IsEnabled = true; ///< True if this object will be drawn.
     private:
         size_t m_DrawableID{}; ///< The index of the object asigned by the 'DrawableCreator'.

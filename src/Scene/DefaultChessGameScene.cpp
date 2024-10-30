@@ -13,24 +13,24 @@ static constexpr float kPossibleMoveVisualDepth = 1.f;
 
 void Chess_Game::DefaultChessScene::InitScene()
 {
-    auto GetTextureNameByPieceType = [](ChessPieceType_ type_of_piece)
+    auto GetTextureNameByPieceType = [](ChessPieceType_ type_of_piece,bool is_white_team)
         {
             switch (type_of_piece)
             {       
             case Chess_Game::ChessPieceType_kPawn:
-                return TextureName_kPawn;
+                return is_white_team ? "chess_game_pawn_w.png" : "chess_game_pawn_b.png";
             case Chess_Game::ChessPieceType_kBishop:
-                return TextureName_kBishop;
+                return is_white_team ? "chess_game_bishop_w.png" : "chess_game_bishop_b.png";
             case Chess_Game::ChessPieceType_kRook:
-                return TextureName_kRook;
+                return is_white_team ? "chess_game_rook_w.png" : "chess_game_rook_b.png";
             case Chess_Game::ChessPieceType_kKnight:
-                return TextureName_kKnight;
+                return is_white_team ? "chess_game_knight_w.png" : "chess_game_knight_b.png";
             case Chess_Game::ChessPieceType_kQueen:
-                return TextureName_kQueen;
+                return is_white_team ? "chess_game_queen_w.png" : "chess_game_queen_b.png";
             case Chess_Game::ChessPieceType_kKing:
-                return TextureName_kKing;
+                return is_white_team ? "chess_game_king_w.png" : "chess_game_king_b.png";
             default:
-                return TextureName_kPawn;
+                return AssetLoader::GetWhiteTextureAssetName().data();
             }
         };
 
@@ -89,7 +89,7 @@ void Chess_Game::DefaultChessScene::InitScene()
         
             piece_drawable->m_Position = piece_position;
             piece_drawable->m_Color = glm::vec3(1);
-            piece_drawable->m_TextureName = GetTextureNameByPieceType(piece->GetChessPieceType());
+            piece_drawable->m_TextureName = GetTextureNameByPieceType(piece->GetChessPieceType(),true);
         
         }
         
@@ -130,8 +130,7 @@ void Chess_Game::DefaultChessScene::InitScene()
             m_SceneObjects.push_back(piece_drawable);
         
             piece_drawable->m_Position = piece_position;
-            piece_drawable->m_Color = glm::vec3(0);
-            piece_drawable->m_TextureName = GetTextureNameByPieceType(piece->GetChessPieceType());
+            piece_drawable->m_TextureName = GetTextureNameByPieceType(piece->GetChessPieceType(),false);
         
         }
         auto black_team_player = std::make_shared<ChessPlayer>(black_team_vector);
@@ -154,10 +153,8 @@ void Chess_Game::DefaultChessScene::InitScene()
         m_ChessBoard = main_drawable_creator->CreateDrawable();
 
         m_ChessBoard->m_Position = glm::vec3(0.0f, 0.0f, kBoardDepth);
-        m_ChessBoard->m_TextureName = TextureName_kBoard;
+        m_ChessBoard->m_TextureName = "chess_game_board.jpg";
         m_ChessBoard->m_Scale = m_PositionHelper->GetBoardSize();
-        m_ChessBoard->m_Color = glm::vec3(1);
-
 
         m_SceneObjects.push_back(m_ChessBoard);
 
@@ -199,7 +196,7 @@ std::shared_ptr<Chess_Game::ChessPiece> Chess_Game::DefaultChessScene::OnPawnPro
     constexpr glm::vec2 kOffset = glm::vec2(0,10.0f);
     std::condition_variable pawn_promotion_selection_condition_var;
     std::mutex pawn_promotion_mutex;
-    TextureName_ texture_of_new_pice = TextureName_kWhiteTexture;
+    std::string texture_of_new_piece = AssetLoader::GetWhiteTextureAssetName();
     ChessPieceType_ selected_type = ChessPieceType_kUnknown;
 
 
@@ -213,8 +210,7 @@ std::shared_ptr<Chess_Game::ChessPiece> Chess_Game::DefaultChessScene::OnPawnPro
         screen_to_root_win_pos += kOffset;
 
         m_PawnPromotionUIManager->SetPosition(screen_to_root_win_pos);
-        m_PawnPromotionUIManager->SwitchPromotionPieceTeamCol(is_white_team_pawn);
-        m_PawnPromotionUIManager->TogglePawnPromotionUI(true);
+        m_PawnPromotionUIManager->TogglePawnPromotionUI(true, is_white_team_pawn);
 
         auto onPieceSelectionCallback = [&pawn_promotion_selection_condition_var, &pawn_promotion_mutex,&selected_type](ChessPieceType_ user_selected_type)
             {
@@ -240,19 +236,23 @@ std::shared_ptr<Chess_Game::ChessPiece> Chess_Game::DefaultChessScene::OnPawnPro
 ;        switch (selected_type)
         {
         case ChessPieceType_kQueen:
-            texture_of_new_pice = TextureName_kQueen;
+            texture_of_new_piece = is_white_team_pawn ? "chess_game_queen_w.png":
+                                                        "chess_game_queen_b.png";
             result = std::make_shared<Queen>(new_pawn_pos, main_drawable_creator->CreateDrawable());
             break;
         case ChessPieceType_kBishop:
-            texture_of_new_pice = TextureName_kBishop;
+            texture_of_new_piece = is_white_team_pawn ? "chess_game_bishop_w.png":
+                                                        "chess_game_bishop_b.png";
             result = std::make_shared<Bishop>(new_pawn_pos, main_drawable_creator->CreateDrawable());
             break;
         case ChessPieceType_kKnight:
-            texture_of_new_pice = TextureName_kKnight;
+            texture_of_new_piece = is_white_team_pawn ? "chess_game_knight_w.png":
+                                                        "chess_game_knight_b.png";
             result = std::make_shared<Knight>(new_pawn_pos, main_drawable_creator->CreateDrawable());
             break;
         case ChessPieceType_kRook:
-            texture_of_new_pice = TextureName_kRook;
+            texture_of_new_piece = is_white_team_pawn ? "chess_game_rook_w.png":
+                                                        "chess_game_rook_b.png";
             result = std::make_shared<Rook>(new_pawn_pos, main_drawable_creator->CreateDrawable());
             break;
         default:
@@ -263,10 +263,9 @@ std::shared_ptr<Chess_Game::ChessPiece> Chess_Game::DefaultChessScene::OnPawnPro
         m_SceneObjects.push_back(piece_drawable);
 
         piece_drawable->m_Position = piece_position;
-        piece_drawable->m_Color = is_white_team_pawn ? glm::vec3(1) : glm::vec3(0);
-        piece_drawable->m_TextureName = texture_of_new_pice;
+        piece_drawable->m_TextureName = texture_of_new_piece;
 
-        m_PawnPromotionUIManager->TogglePawnPromotionUI(false);
+        m_PawnPromotionUIManager->TogglePawnPromotionUI(false, is_white_team_pawn);
     }
     return result;
 

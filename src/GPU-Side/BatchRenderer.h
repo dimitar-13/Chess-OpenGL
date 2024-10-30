@@ -46,10 +46,10 @@ namespace Chess_Game
          * @param position Quad orthographic matrix position.
          * @param scale Size of the quad.
          * @param object_color Quad color.
-         * @param texture_name Texture to use enum default is 'TextureName_kWhiteTexture'.
+         * @param texture_name Texture to use default is 'TextureName_kWhiteTexture'.
          */
         void PushTexturedQuad(size_t object_id, const glm::vec3& position, const glm::vec2& scale,
-            const glm::vec3& object_color, TextureName_ texture_name = TextureName_kWhiteTexture);
+            const glm::vec3& object_color, const std::string& texture_name =AssetLoader::GetWhiteTextureAssetName());
         /**
          * @brief Pushes the string to the text batch data.
          *
