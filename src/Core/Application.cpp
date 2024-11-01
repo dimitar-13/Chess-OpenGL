@@ -39,12 +39,14 @@ void Chess_Game::Application::StartRenderLoop()
     m_CurrentApplicationScene->InitScene();
 
     glEnable(GL_BLEND);  
+    glEnable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+    glDepthFunc(GL_LEQUAL);
 
     while (m_isApplicationRunning) {
 
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glClearColor(background_col.r, background_col.g, background_col.b, background_col.a);
 
@@ -52,7 +54,7 @@ void Chess_Game::Application::StartRenderLoop()
         m_CurrentApplicationScene->DrawScene(m_ApplicationBatchRenderer);
         m_ApplicationBatchRenderer->FlushTextureBatch();
 
-
+        glClear(GL_DEPTH_BUFFER_BIT); ///< UI should be always on top to do that we can just clear the depth buffer.
         m_ApplicationUIManager->DrawUI(m_ApplicationBatchRenderer);
         m_ApplicationUIManager->PollUIInput(m_ApplicationMouseInput, m_ApplicationBatchRenderer,m_ApplicationProjection);
 

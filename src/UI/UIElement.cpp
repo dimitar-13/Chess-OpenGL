@@ -115,23 +115,24 @@ void Chess_Game::Element::Draw(BatchRenderer& batch_renderer)
     if (!(m_WidgetDrawable->m_IsEnabled && m_IsElementEnabled))
         return;
 
-    glm::vec3 final_widget_pos = glm::vec3(this->GetScreenPos(),m_DepthLayer);
-    m_WidgetDrawable->m_Position = final_widget_pos;
+    //glm::vec3 final_widget_pos = glm::vec3(this->GetScreenPos(),m_DepthLayer);
+    //m_WidgetDrawable->m_Position = final_widget_pos;
 
-    batch_renderer.PushTexturedQuad(m_WidgetDrawable->GetDrawableID(), final_widget_pos, m_WidgetDrawable->m_Scale,
+    batch_renderer.PushTexturedQuad(
+        m_WidgetDrawable->GetDrawableID(), m_WidgetDrawable->m_Position, m_WidgetDrawable->m_Scale,
         glm::vec3(1), m_WidgetDrawable->m_TextureName);
 }
 
 void Chess_Game::Element::UpdateElement()
 {
-    float absolute_depth_value = m_DepthLayer;
+    float accumulated_depth = m_DepthLayer;
     if (m_Parent)
     {
-        absolute_depth_value += m_Parent->GetElementDepth();
+        accumulated_depth += m_Parent->GetElementDepth();
         this->m_WidgetDrawable->m_IsEnabled = m_Parent->IsElementEnabled();
     }
-    
     glm::vec2 element_screen_pos = GetScreenPos();
+    m_WidgetDrawable->m_Position = glm::vec3(element_screen_pos, accumulated_depth);
     CalculateElementBoundingBox(element_screen_pos, m_WidgetDrawable->m_Scale);
 
 }

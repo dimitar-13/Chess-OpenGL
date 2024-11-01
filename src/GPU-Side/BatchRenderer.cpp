@@ -57,7 +57,7 @@ void Chess_Game::BatchRenderer::PushTexturedQuad(size_t object_id,
     for (auto& vertex : quad_vertex_data_copy)
     {
         vertex.object_index = object_id;
-        vertex.world_position *= glm::vec3(scale.x, scale.y, 1.0f);
+        vertex.world_position *= glm::vec3(scale.x, scale.y, 0.0f);
         vertex.world_position += position;
         vertex.color = object_color;
         vertex.texture_sampler_index = static_cast<float>(texture_binding_point);
@@ -184,6 +184,7 @@ void Chess_Game::BatchRenderer::DrawTextureQuadBatch(const glm::mat4& projection
 
     if (output_drawable_id)
     {
+        glDisable(GL_DEPTH_TEST);
         m_MousePickingFramebuffer->BindFramebuffer();
 
         m_MousePickingShader->UseProgram();
@@ -192,7 +193,10 @@ void Chess_Game::BatchRenderer::DrawTextureQuadBatch(const glm::mat4& projection
             m_TextureBatcher.GetBoundTexturesSlots().data(), m_TextureBatcher.GetBoundTexturesCount());
 
         m_TexturedQuadBatch.Draw();
+
+        glEnable(GL_DEPTH_TEST);
     }
+
     IntFramebuffer::BindDefaultFramebuffer();
 
 
@@ -206,5 +210,6 @@ void Chess_Game::BatchRenderer::DrawTextureQuadBatch(const glm::mat4& projection
     m_TexturedQuadBatch.FlushBatch();
 
 }
+
 
 
