@@ -29,7 +29,8 @@ namespace Chess_Game
         std::shared_ptr<ChessPiece>OnPawnPromotion(bool is_white_team_pawn,BoardPosition new_pawn_pos);
     private:
         std::unique_ptr<ChessGameController> m_ChessGameController;
-        std::shared_ptr<Drawable> m_ChessBoard{};
+        std::shared_ptr<Drawable> m_ChessBoardBackground{};
+        std::shared_ptr<Drawable> m_ChessBoardLetters{};
         std::shared_ptr<Drawable> m_SelectedPieceVisualIndicatorDrawable{};
         std::weak_ptr<Drawable> m_SelectedPieceDrawable{};
         std::shared_ptr<ScreenPositionHelper> m_PositionHelper;

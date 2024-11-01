@@ -107,9 +107,9 @@ namespace Chess_Game
          */
         ~BatchPipeline();
         ShaderClass& GetPipelineShader() { return *m_BatchShader; }
+        std::vector<std::array<Vertex, 4>> m_QuadVector;    ///< STL pipeline quad buffer used for pushing quads and sorting them.
     private:
         BatchGpuData m_GPU_Data{};                          ///< The GPU resources data struct.
-        std::vector<std::array<Vertex, 4>> m_QuadVector;    ///< STL pipeline quad buffer used for pushing quads and sorting them.
         std::unique_ptr<ShaderClass> m_BatchShader{};       ///< The pipeline shader used for drawing.
     };
     template<size_t _QuadCount>

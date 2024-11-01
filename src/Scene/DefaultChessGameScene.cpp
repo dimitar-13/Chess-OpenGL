@@ -9,7 +9,8 @@
 static constexpr float kBoardDepth = -.5f;
 static constexpr float kChessPieceVisualSelectionDepth = .0f;
 static constexpr float kChessPieceDepth = .5f;
-static constexpr float kPossibleMoveVisualDepth = 1.f;
+static constexpr float kPossibleMoveVisualDepth = .6f;
+static constexpr float kChessBoardLettersDepth = .2f;
 
 void Chess_Game::DefaultChessScene::InitScene()
 {
@@ -150,13 +151,20 @@ void Chess_Game::DefaultChessScene::InitScene()
                 return this->OnPawnPromotion(is_white_team, piece_position);
             };
 
-        m_ChessBoard = main_drawable_creator->CreateDrawable();
+        m_ChessBoardBackground = main_drawable_creator->CreateDrawable();
 
-        m_ChessBoard->m_Position = glm::vec3(0.0f, 0.0f, kBoardDepth);
-        m_ChessBoard->m_TextureName = "chess_game_board.jpg";
-        m_ChessBoard->m_Scale = m_PositionHelper->GetBoardSize();
+        m_ChessBoardBackground->m_Position = glm::vec3(0.0f, 0.0f, kBoardDepth);
+        m_ChessBoardBackground->m_TextureName = "chess_game_board.png";
+        m_ChessBoardBackground->m_Scale = m_PositionHelper->GetBoardSize();
 
-        m_SceneObjects.push_back(m_ChessBoard);
+        m_ChessBoardLetters = main_drawable_creator->CreateDrawable();
+
+        m_ChessBoardLetters->m_Position = glm::vec3(0.0f, 0.0f, kChessBoardLettersDepth);
+        m_ChessBoardLetters->m_TextureName = "chess_game_board_letters.png";
+        m_ChessBoardLetters->m_Scale = m_PositionHelper->GetBoardSize();
+
+        m_SceneObjects.push_back(m_ChessBoardBackground);
+        m_SceneObjects.push_back(m_ChessBoardLetters);
 
 
         m_ChessGameController = 
@@ -377,8 +385,12 @@ void Chess_Game::DefaultChessScene::OnEvent(const Event& e)
 
         glm::vec3 board_position = glm::vec3(0.0f, 0.0f, kBoardDepth);
 
-        m_ChessBoard->m_Position = board_position;
-        m_ChessBoard->m_Scale = m_PositionHelper->GetBoardSize();
+        m_ChessBoardBackground->m_Position = board_position;
+        m_ChessBoardBackground->m_Scale = m_PositionHelper->GetBoardSize();
+
+        m_ChessBoardLetters->m_Position = board_position;
+        m_ChessBoardLetters->m_Position.z = kChessBoardLettersDepth;
+        m_ChessBoardLetters->m_Scale = m_PositionHelper->GetBoardSize();
     }
 }
 

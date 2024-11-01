@@ -32,7 +32,7 @@ void Chess_Game::MainMenuScene::InitScene()
        m_StartText = application->GetUIManager().
            CreateUIElement<TextUI>(glm::vec2(-50.0f, -146.0f), glm::vec3(1));
        m_StartText->SetText("Start");
-       m_StartText->SetElementDepth(0.1);
+       m_StartText->SetElementDepth(0.3);
        m_StartMenuPanel->AddChildElement(m_StartText);
 
        m_CreditsButton = application->GetUIManager().
@@ -45,7 +45,7 @@ void Chess_Game::MainMenuScene::InitScene()
        m_CreditsText = application->GetUIManager().
            CreateUIElement<TextUI>(glm::vec2(-65.0f, -246.0f), glm::vec3(.8));
        m_CreditsText->SetText("Credits");
-       m_CreditsText->SetElementDepth(0.1);
+       m_CreditsText->SetElementDepth(0.3);
        m_StartMenuPanel->AddChildElement(m_CreditsText);
 
        m_GameLogoImage = application->GetUIManager().CreateUIElement<Image>

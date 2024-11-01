@@ -35,7 +35,6 @@ void main()
 {
 	int index_to_sample = int(TextureSamplerID);
 	float font_sampled = texture(u_Textures[index_to_sample],FragUV).r;
-	if(font_sampled == .0f)
-		discard;
+
 	FragColor = vec4(vec3(1),font_sampled);
 }

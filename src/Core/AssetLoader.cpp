@@ -23,7 +23,8 @@ Chess_Game::AssetLoader::AssetLoader()
         {relative_resources_path + "/UI/tinyrpg/Application UI/chess_game_pause_button.png","chess_game_pause_button.png",false },
         {relative_resources_path + "/UI/tinyrpg/Application UI/chess_game_pause_button.png","chess_game_pause_button.png",false },
         {relative_resources_path + "/UI/tinyrpg/Application UI/chess_game_close_button.png","chess_game_close_button.png",false },
-
+        {relative_resources_path + "/chess/chess_boards/chess_board_no_letters.png","chess_game_board.png",false},
+        {relative_resources_path + "/chess/chess_boards/chess_board_letters.png","chess_game_board_letters.png",false},
         {"D:/c++/OpenGl/Chess-OpenGL/resources/chess/ChessPieces/chess_regular_set/chess_regular_set_texture_atlas.png",
         "chess_regular_set_texture_atlas",true}
         //{"D:/c++/OpenGl/Chess-OpenGL/resources/chess/ChessPieces/chess_brownish_set/chess_brownish_set_texture_atlas.png",

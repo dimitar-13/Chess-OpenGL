@@ -11,13 +11,13 @@ Chess_Game::UICreditsHelper::UICreditsHelper(std::shared_ptr<UIManager> ui_manag
     m_GameUICredit = ui_manager->CreateUIElement<TextUI>(glm::vec2(70.0f,-200.0), glm::vec3(.7));
     m_GameUICredit->SetText("UI textures\n Author: tiopalada \n OpenGameArt name: Tiny RPG - Dragon Regalia GUI");
     m_GameUICredit->SetPositionPivot(PositionPivot_kTopLeft);
-    m_GameUICredit->SetElementDepth(0.1);
+    m_GameUICredit->SetElementDepth(0.5);
     m_CreditUIPanel->AddChildElement(m_GameUICredit);
      
     m_GameChessPiecesCredit = ui_manager->CreateUIElement<TextUI>(glm::vec2(70.0f, -350.0), glm::vec3(.7));
     m_GameChessPiecesCredit->SetText("Chess pieces textures\n Author: drummyfish \n OpenGameArt name: Chess pieces and a board");
     m_GameChessPiecesCredit->SetPositionPivot(PositionPivot_kTopLeft);
-    m_GameChessPiecesCredit->SetElementDepth(0.1);
+    m_GameChessPiecesCredit->SetElementDepth(0.5);
     m_CreditUIPanel->AddChildElement(m_GameChessPiecesCredit);
 
     m_CloseButton = ui_manager->CreateUIElement<Button>(glm::vec2(-130,-160), glm::vec2(40));
