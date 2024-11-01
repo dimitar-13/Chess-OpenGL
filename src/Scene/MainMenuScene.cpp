@@ -2,6 +2,13 @@
 #include "Core/Application.h"
 #include "Scene/DefaultChessGameScene.h"
 #include "Logging/Logger.h"
+#include "Core/Application.h"
+
+Chess_Game::MainMenuScene::MainMenuScene(std::weak_ptr<Application> main_application):
+    m_UICreditHelper(main_application.lock()->GetApplicationUIManager()),
+    SceneObject(main_application)
+{}
+
 
 void Chess_Game::MainMenuScene::InitScene()
 {
@@ -12,7 +19,7 @@ void Chess_Game::MainMenuScene::InitScene()
        m_StartMenuPanel = application->GetUIManager().CreateUIElement<Panel>(
                glm::vec2(0), glm::vec2(400));
        
-       m_StartMenuPanel->SetElementDepth(-.5);
+       m_StartMenuPanel->SetElementDepth(.1);
        m_StartMenuPanel->SetVisibility(true);
        m_StartMenuPanel->SetPanelCustomTexture("chess_game_panel_background.png");
        
@@ -32,6 +39,7 @@ void Chess_Game::MainMenuScene::InitScene()
            CreateUIElement<Button>(glm::vec2(0, -240.0f), glm::vec2(180, 40.));
        m_CreditsButton->SetButtonCustomTexture("chess_game_button_background.png");
        m_CreditsButton->SetElementDepth(0.1);
+       m_CreditsButton->SetButtonOnClickCallback([this] { m_UICreditHelper.EnableUICreditUI(true); });
        m_StartMenuPanel->AddChildElement(m_CreditsButton);
 
        m_CreditsText = application->GetUIManager().
@@ -48,7 +56,7 @@ void Chess_Game::MainMenuScene::InitScene()
        
        m_GameNameUIText = application->GetUIManager().CreateUIElement<TextUI>
            (glm::vec2(-200.0f, -60.0f), glm::vec2(1.5f));
-       m_GameNameUIText->SetElementDepth(.1);
+       m_GameNameUIText->SetElementDepth(0.1);
        m_GameNameUIText->SetText("Chess Game");
        m_StartMenuPanel->AddChildElement(m_GameNameUIText);
 

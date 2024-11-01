@@ -22,6 +22,7 @@ Chess_Game::AssetLoader::AssetLoader()
         {relative_resources_path + "/UI/tinyrpg/Application UI/chess_game_panel_background.png", "chess_game_panel_background.png",false},
         {relative_resources_path + "/UI/tinyrpg/Application UI/chess_game_pause_button.png","chess_game_pause_button.png",false },
         {relative_resources_path + "/UI/tinyrpg/Application UI/chess_game_pause_button.png","chess_game_pause_button.png",false },
+        {relative_resources_path + "/UI/tinyrpg/Application UI/chess_game_close_button.png","chess_game_close_button.png",false },
 
         {"D:/c++/OpenGl/Chess-OpenGL/resources/chess/ChessPieces/chess_regular_set/chess_regular_set_texture_atlas.png",
         "chess_regular_set_texture_atlas",true}

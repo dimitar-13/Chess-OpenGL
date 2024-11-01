@@ -1,12 +1,14 @@
 set(INPUT_SOURCES
 	PositionHelper.cpp
 	PausseMenuUIHelper.cpp
+	UICreditsHelper.cpp
 )
 
 
 set(INPUT_HEADERS
 	PositionHelper.h
 	PausseMenuUIHelper.h
+	UICreditsHelper.h
 )
 
 target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})

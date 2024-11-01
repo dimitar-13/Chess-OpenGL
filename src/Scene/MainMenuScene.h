@@ -4,14 +4,14 @@
 #include "UI/Button.h"
 #include "UI/UI_Image.h"
 #include "UI/TextUI.h"
+#include "Helpers/UICreditsHelper.h"
+#
 namespace Chess_Game
 {
     class MainMenuScene : public SceneObject
     {
     public:
-        MainMenuScene(std::weak_ptr<Application> main_application):
-            SceneObject(main_application)
-        {}
+        MainMenuScene(std::weak_ptr<Application> main_application);
     private:
         // Inherited via SceneObject
         void InitScene() override;
@@ -26,5 +26,6 @@ namespace Chess_Game
         std::shared_ptr<Image> m_GameLogoImage{};
         std::shared_ptr<Panel> m_StartMenuPanel{};
         std::shared_ptr<TextUI> m_GameNameUIText{};
+        UICreditsHelper m_UICreditHelper;
     };
 }

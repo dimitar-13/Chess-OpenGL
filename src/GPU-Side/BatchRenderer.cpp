@@ -57,7 +57,7 @@ void Chess_Game::BatchRenderer::PushTexturedQuad(size_t object_id,
     for (auto& vertex : quad_vertex_data_copy)
     {
         vertex.object_index = object_id;
-        vertex.world_position *= glm::vec3(scale.x, scale.y, 1.0f);
+        vertex.world_position *= glm::vec3(scale.x, scale.y, 0.0f);
         vertex.world_position += position;
         vertex.color = object_color;
         vertex.texture_sampler_index = static_cast<float>(texture_binding_point);

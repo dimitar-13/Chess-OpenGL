@@ -36,6 +36,7 @@ void main()
 	int index_to_sample = int(TextureSamplerID);
 
 	vec4 sampled_pixel = texture(u_Textures[index_to_sample],FragUV);
-
+	if(sampled_pixel.a == .0f)
+		discard;
 	FragColor = vec4(sampled_pixel.xyz* VertexColor,sampled_pixel.a);
 }
