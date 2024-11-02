@@ -1,0 +1,10 @@
+set(INPUT_SOURCES
+	DefaultChessGameScene.cpp
+	MainMenuScene.cpp
+)
+
+set(INPUT_HEADERS
+	DefaultChessGameScene.h
+	MainMenuScene.h
+)
+target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})

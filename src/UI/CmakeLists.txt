@@ -1,0 +1,17 @@
+set(INPUT_SOURCES
+	UIElement.cpp
+	UIManager.cpp
+	TextUI.cpp
+	Panel.cpp
+)
+
+
+set(INPUT_HEADERS
+	UIManager.h
+	Button.h
+	UI_Image.h
+	UIElement.h
+	TextUI.h
+	Panel.h
+)
+target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})

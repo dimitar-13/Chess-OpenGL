@@ -1,0 +1,126 @@
+cmake_minimum_required(VERSION 3.28.1) 
+project(Chess)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)
+if (MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /GL")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")
+endif()
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -flto")
+endif()
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -flto")
+endif()
+add_executable(${PROJECT_NAME} "EntryPoint.cpp")
+
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/bin/Debug")
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/bin/Release")
+
+
+#Project gloabal settings.
+set_target_properties(${PROJECT_NAME}  PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin/Debug")
+set_target_properties(${PROJECT_NAME}  PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin/Release")
+
+  set_target_properties(${PROJECT_NAME}  PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/Debug")
+set_target_properties(${PROJECT_NAME}  PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/Release")
+
+set(PROJECT_DEPENDENCY_FOLDER "${PROJECT_SOURCE_DIR}/../dependencies")
+
+set(GLEW_RELEASE "${CMAKE_BINARY_DIR}/lib/Release")
+set(GLEW_DEBUG   "${CMAKE_BINARY_DIR}/lib/Debug")
+
+set(GLFW_RELEASE "${PROJECT_DEPENDENCY_FOLDER}/glfw/build/src/Release")
+set(GLFW_DEBUG   "${PROJECT_DEPENDENCY_FOLDER}/glfw/build/src/Debug")
+
+
+set(FREETYPE_RELEASE "${PROJECT_DEPENDENCY_FOLDER}/freeType/build/Release")
+set(FREETYPE_DEBUG  "${PROJECT_DEPENDENCY_FOLDER}/freeType/build/Debug")
+
+
+
+
+add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/glfw"  "${PROJECT_DEPENDENCY_FOLDER}/glfw/build")
+add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/glm"  "${PROJECT_DEPENDENCY_FOLDER}/glm/build")
+add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/glew/glew/glew-2.2.0/build/cmake" "${PROJECT_DEPENDENCY_FOLDER}/glew/glew/glew-2.2.0/build/cmake/build")
+add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/spdlog" "${PROJECT_DEPENDENCY_FOLDER}/spdlog/build")
+add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/freeType/freetype" "${PROJECT_DEPENDENCY_FOLDER}/freetype/build")
+add_subdirectory("${PROJECT_DEPENDENCY_FOLDER}/nlohmann_json/json" "${PROJECT_DEPENDENCY_FOLDER}/nlohmann_json/build")
+
+add_subdirectory("${PROJECT_SOURCE_DIR}/Logging")
+add_subdirectory("${PROJECT_SOURCE_DIR}/Core")
+add_subdirectory("${PROJECT_SOURCE_DIR}/GPU-Side")
+add_subdirectory("${PROJECT_SOURCE_DIR}/Gameplay")
+add_subdirectory("${PROJECT_SOURCE_DIR}/Scene")
+add_subdirectory("${PROJECT_SOURCE_DIR}/Helpers")
+add_subdirectory("${PROJECT_SOURCE_DIR}/UI")
+add_subdirectory("${PROJECT_SOURCE_DIR}/Pch")
+
+
+target_precompile_headers(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/Pch/Chess_pch.h")
+
+#target_sources(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/Pch/Chess_pch.h")
+#
+#if (MSVC)
+#    target_compile_options(${PROJECT_NAME} PRIVATE /Yc"${PROJECT_SOURCE_DIR}/Pch/Chess_pch.cpp")
+#    target_compile_options(${PROJECT_NAME} PRIVATE /Yu"${PROJECT_SOURCE_DIR}/Pch/Chess_pch.h")
+#elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+#    target_compile_options(${PROJECT_NAME} PRIVATE -include "${PROJECT_SOURCE_DIR}/Pch/Chess_pch.h")
+#endif()
+
+
+file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_LIST_DIR}/*.cpp" "${CMAKE_CURRENT_LIST_DIR}/*.h" )
+source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${SOURCES})
+
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+
+   "$<$<CONFIG:Release>:CHESS_RELEASE>"
+   "$<$<CONFIG:Debug>:CHESS_DEBUG>"
+
+	 GLEW_STATIC)
+
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/glfw/include")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/glew/glew/glew-2.2.0/include")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/glm")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/spdlog/include")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/stbi_image")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/freeType/freetype/include")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_DEPENDENCY_FOLDER}/nlohmann_json/json/include")
+
+target_link_directories(${PROJECT_NAME} PUBLIC
+    "$<$<CONFIG:Debug>:${GLEW_DEBUG}>"
+    "$<$<CONFIG:Release>:${GLEW_RELEASE}>"
+    "$<$<CONFIG:Debug>:${GLFW_DEBUG}>"
+    "$<$<CONFIG:Release>:${GLFW_RELEASE}>"
+	"$<$<CONFIG:Debug>:${FREETYPE_DEBUG}>"
+    "$<$<CONFIG:Release>:${FREETYPE_RELEASE}>"
+
+)
+
+
+
+target_link_libraries(${PROJECT_NAME}
+	PUBLIC opengl32
+   "$<$<CONFIG:Release>:glfw3.lib>"
+   "$<$<CONFIG:Debug>:glfw3.lib>"
+	
+   "$<$<CONFIG:Release>:libglew32.lib>"
+   "$<$<CONFIG:Debug>:libglew32d.lib>"
+
+    "$<$<CONFIG:Release>:freetype.lib>"
+   "$<$<CONFIG:Debug>:freetyped.lib>"
+
+)
+
+add_dependencies(${PROJECT_NAME} glfw glew_s glm freetype nlohmann_json::nlohmann_json)

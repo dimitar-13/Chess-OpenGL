@@ -1,0 +1,26 @@
+set(INPUT_SOURCES
+ChessBoard.cpp
+ChessGame.cpp
+ChessPlayer.cpp
+MovementRule.cpp
+BaseChessPiece.cpp
+GameControllers/ChessGameController.cpp
+GameControllers/PawnPromotionUIManager.cpp
+)
+
+
+
+
+set(INPUT_HEADERS
+BoardPosition.h
+ChessBoard.h
+ChessGame.h
+ChessPlayer.h
+MovementRule.h
+BaseChessPiece.h
+GameControllers/ChessGameController.h
+GameControllers/CurrentPlayerController.h
+GameControllers/PawnPromotionUIManager.h
+)	
+
+target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})

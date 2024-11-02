@@ -1,0 +1,30 @@
+set(INPUT_SOURCES
+    Window.cpp
+    Application.cpp
+	OrthographicApplicationMatrix.cpp
+	Input.cpp
+	AssetLoader.cpp
+	Drawable.cpp
+	DrawableCreator.cpp
+	TextFont.cpp
+)
+
+
+set(INPUT_HEADERS
+	Application.h
+	ApplicationData.h
+	Drawable.h
+	SceneObject.h
+	Window.h
+	Event/MouseEvents.h
+	Event/Event.h
+	EventListener.h
+	OrthographicApplicationMatrix.h
+	Input.h
+	AssetLoader.h
+	DrawableCreator.h
+	MemoryPool.h
+	TextFont.h
+)
+
+target_sources(${PROJECT_NAME} PRIVATE ${INPUT_SOURCES} ${INPUT_HEADERS})
