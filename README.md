@@ -1,9 +1,6 @@
 # Chess-OpenGL
 
-
-
 ## About the game
-
 A simple chess game using OpenGL. The game is 2 players only for now and it supports the
 following features:
  - **Pawn promotion.**
@@ -17,9 +14,32 @@ Features to add:
  - **Stalemate logic.**
  - **Switching chess piece skins.**
 
+## Some screenshots
+![Main menu screen](/git_images/git_image_main_menu.png?raw=true)
+![Project wireframe rendering image](/git_images/git_image_chessboard.png?raw=true)
+![Pawn promotion](/git_images/git_image_pawn_promotion.png?raw=true)
+![Possible movement](/git_images/git_image_piece_move.png?raw=true)
+![Game over screen](/git_images/git_image_game_over_screen.png?raw=true)
+
+## How to build ?
+First clone the project using the following command:
+```git
+git clone https://github.com/dimitar-13/Chess-OpenGL.git --recursive
+```
+The command will recursively clone the project and all the dependencies the project have(GLFW ,assimp etc.)
+
+To build the project you will need to have Cmake(I don't recement the GUI version because the cmd input is only 1 command).
+Then you open cmd in the cloned project folder (where the `src` folder is) and use this command:
+```
+cmake -S src/ -B build/
+```
+This will create a `build` folder where the Visual Studio project will be generated.
+
+
+## Things I learned
 The main goal of the project was to learn how games using only OpenGL are made. I've learned a lot
 more then that.
-## Things I learned
+
 - I learned how to make the code more reusable using composition to implement the 
 `ChessPiece` movement logic.
 - I learned something about making UI system. While the one I did could merely be called UI system 
@@ -28,12 +48,6 @@ more then that.
 	main thread.
 - I leaned to optimize the allocation using a MemoryPool to pre-allocate a big chunk of memory.
 
-## Some screenshots
-![Main menu screen](/git_images/git_image_main_menu.png?raw=true)
-![Project wireframe rendering image](/git_images/git_image_chessboard.png?raw=true)
-![Pawn promotion](/git_images/git_image_pawn_promotion.png?raw=true)
-![Possible movement](/git_images/git_image_piece_move.png?raw=true)
-![Game over screen](/git_images/git_image_game_over_screen.png?raw=true)
 
 ## About the game(technical level)
 
@@ -116,19 +130,6 @@ between responsiveness and ease of use.
 ## Project drawing logic
 The project uses a batch rendering technique to draw everything from 2D sprites to UI to text.
 
-## How to build ?
-First clone the project using the following command:
-```git
-git clone https://github.com/dimitar-13/Chess-OpenGL.git --recursive
-```
-The command will recursively clone the project and all the dependencies the project have(GLFW ,assimp etc.)
-
-To build the project you will need to have Cmake(I don't recement the GUI version because the cmd input is only 1 command).
-Then you open cmd in the cloned project folder (where the `src` folder is) and use this command:
-```
-cmake -S src/ -B build/
-```
-This will create a `build` folder where the Visual Studio project will be generated.
 
 ## Art credits
 - **Chess pieces**

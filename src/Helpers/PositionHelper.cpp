@@ -11,7 +11,6 @@ const glm::vec2& Chess_Game::ScreenPositionHelper::BoardToProjectionSpace(BoardP
     glm::vec2 offset = { board_position.horizontal_position - 'a',board_position.vertical_position - 1};
     glm::vec2 square_to_center_offset = m_SingleSquareSize / 2.0f;
     glm::vec2 result = m_BoardStart + square_to_center_offset + (m_SingleSquareSize * offset);
-
     return result;
 }
 
@@ -26,7 +25,7 @@ Chess_Game::BoardPosition Chess_Game::ScreenPositionHelper::ScreenPositionToBoar
 
     glm::vec2 offset = (orthographic_coordinates - m_BoardStart)/m_SingleSquareSize;
 
-    BoardPosition result = { offset.x + 'a', 9 - offset.y};
+    BoardPosition result = { offset.x + 'a', 9.0f - offset.y};
     return result;
 }
 

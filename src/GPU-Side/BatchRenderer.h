@@ -101,9 +101,9 @@ namespace Chess_Game
         void FlushTextureBatch() { m_TextureBatcher.Flush(); }
     private:
         std::shared_ptr<AssetLoader> m_ApplicationAssetLoader{};    ///< Ref to the asset loader.
-        BatchPipeline<200> m_TexturedQuadBatch;                    ///< Texture quad batch.
-        BatchPipeline<100> m_CircleQuadBatch;                      ///< Circle quad batch.
-        BatchPipeline<500> m_TextQuadBatch;                        ///< Text quad batch.
+        std::unique_ptr<BatchPipeline<200>> m_TexturedQuadBatch;                    ///< Texture quad batch.
+        std::unique_ptr<BatchPipeline<100>> m_CircleQuadBatch;                      ///< Circle quad batch.
+        std::unique_ptr<BatchPipeline<500>> m_TextQuadBatch;                        ///< Text quad batch.
         TextureBatcher m_TextureBatcher{};                          ///< Texture batcher class.
         std::unique_ptr<ShaderClass> m_MousePickingShader{};        ///< Mouse picking shader.
         std::shared_ptr<IntFramebuffer> m_MousePickingFramebuffer;  ///< Integer framebuffer for outputting drawable ID.

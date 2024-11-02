@@ -21,11 +21,11 @@ namespace Chess_Game
         Size2D texture_size{};                      ///< The size of the texture.
         GLenum texture_format{};                    ///< The pixel data format.
     };
-    struct TexturePathNamePair
+    struct TextureResourceData
     {
-        std::string texture_path{};
-        const char* texture_file_name;
-        bool is_texture_atlas = false;
+        std::string texture_path{};     ///< Path to the texture resource starting from the resource folder.
+        const char* texture_file_name;  ///< File name or name of the resource.
+        bool is_texture_atlas = false;  ///< Is the resource to be understood as texture atlas. 
     };
 
 
