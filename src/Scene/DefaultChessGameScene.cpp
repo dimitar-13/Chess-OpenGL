@@ -170,21 +170,6 @@ void Chess_Game::DefaultChessScene::InitScene()
         m_ChessGameController = 
             std::make_unique<ChessGameController>(white_team_player, black_team_player,
                 Bind_OnSelectedPieceChanged, Bind_OnSelectedPieceMoved, Bind_OnPawnPromotion);
-
-        
-       // static std::shared_ptr<TextUI> test_player_1_score =
-       //     application->GetUIManager().CreateUIElement<TextUI>(
-       //         glm::vec2(0,-50), glm::vec2(1.));
-       // 
-       // test_player_1_score->SetPositionPivot(PositionPivot_kTopLeft);
-       // test_player_1_score->SetText("Player 1 Score:0");
-       // 
-       // static std::shared_ptr<TextUI> test_player_2_score =
-       //     application->GetUIManager().CreateUIElement<TextUI>(
-       //         glm::vec2(0,-100), glm::vec2(1.));
-       // 
-       // test_player_2_score->SetPositionPivot(PositionPivot_kTopLeft);
-       // test_player_2_score->SetText("Player 2 Score:0");
     }
 }
 

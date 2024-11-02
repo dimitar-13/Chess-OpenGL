@@ -13,16 +13,25 @@ static const std::array<Chess_Game::Vertex,4> kBaseQuadVertexData = {
 
 
 Chess_Game::BatchRenderer::BatchRenderer(Size2D window_size, std::shared_ptr<AssetLoader> application_asset_loader)
-    :m_ApplicationAssetLoader(application_asset_loader),
-    m_TexturedQuadBatch("D:/c++/OpenGl/Chess-OpenGL/Shaders/TextureShader.glsl"),
-    m_TextQuadBatch("D:/c++/OpenGl/Chess-OpenGL/Shaders/FontRenderingShader.glsl"),
-    m_CircleQuadBatch("D:/c++/OpenGl/Chess-OpenGL/Shaders/CircleShader.glsl")
+    :m_ApplicationAssetLoader(application_asset_loader)
 {
+    namespace fs = std::filesystem;
+    fs::path currentPath;
+    #if defined(CHESS_DEBUG)
+        currentPath = fs::current_path() / ".." / "Shaders";
+    #else
+        currentPath = fs::current_path() / "Shaders";
+    #endif
+    std::string relative_resources_path = fs::canonical(currentPath).string();
+
+    m_TexturedQuadBatch = std::make_unique<BatchPipeline<200>>((relative_resources_path + "/TextureShader.glsl").c_str());
+    m_TextQuadBatch = std::make_unique<BatchPipeline<500>>((relative_resources_path + "/FontRenderingShader.glsl").c_str());
+    m_CircleQuadBatch = std::make_unique<BatchPipeline<100>>((relative_resources_path + "/CircleShader.glsl").c_str());
 
     m_MousePickingFramebuffer = std::make_shared<IntFramebuffer>(window_size);
 
     m_MousePickingShader =
-        std::make_unique<ShaderClass>("D:/c++/OpenGl/Chess-OpenGL/Shaders/MousePickingShader.glsl");
+        std::make_unique<ShaderClass>((relative_resources_path + "/MousePickingShader.glsl").c_str());
 
  }
 
@@ -39,7 +48,7 @@ void Chess_Game::BatchRenderer::PushCircle(const glm::vec3& position, const glm:
         vertex.world_position += position;
         vertex.color = object_color;
     }
-    m_CircleQuadBatch.PushToBatch(quad_vertex_data_copy);
+    m_CircleQuadBatch->PushToBatch(quad_vertex_data_copy);
 
 }
 
@@ -69,7 +78,7 @@ void Chess_Game::BatchRenderer::PushTexturedQuad(size_t object_id,
         quad_vertex_data_copy[2].uv = { texture_data.texture_region.end.x,texture_data.texture_region.start.y };
         quad_vertex_data_copy[3].uv = texture_data.texture_region.end;
     }
-    m_TexturedQuadBatch.PushToBatch(quad_vertex_data_copy);
+    m_TexturedQuadBatch->PushToBatch(quad_vertex_data_copy);
 
 }
 
@@ -138,7 +147,7 @@ void Chess_Game::BatchRenderer::PushText(const std::string& text_to_draw,
         quad_vertex_data_copy[2].uv = { glyph_text.texture_region.end.x,glyph_text.texture_region.start.y };
         quad_vertex_data_copy[3].uv = glyph_text.texture_region.end;
 
-        m_TextQuadBatch.PushToBatch(quad_vertex_data_copy);
+        m_TextQuadBatch->PushToBatch(quad_vertex_data_copy);
 
         origin.x += (character_metrics.Advance >> 6) * scale.x;
     }
@@ -148,12 +157,12 @@ void Chess_Game::BatchRenderer::DrawCircleBatch(const glm::mat4& projection)
 {
    const char* projection_uniform_name = "orthographicProjection";
   
-   m_CircleQuadBatch.GetPipelineShader().UseProgram();
-   m_CircleQuadBatch.GetPipelineShader().SetUniform4x4Matrix(projection_uniform_name, projection);
+   m_CircleQuadBatch->GetPipelineShader().UseProgram();
+   m_CircleQuadBatch->GetPipelineShader().SetUniform4x4Matrix(projection_uniform_name, projection);
 
-   m_CircleQuadBatch.Draw();
+   m_CircleQuadBatch->Draw();
 
-   m_CircleQuadBatch.FlushBatch();
+   m_CircleQuadBatch->FlushBatch();
 
 }
 
@@ -164,14 +173,14 @@ void Chess_Game::BatchRenderer::DrawTextBatch(const glm::mat4& projection)
 
     m_TextureBatcher.BindTextures();
 
-    m_TextQuadBatch.GetPipelineShader().UseProgram();
-    m_TextQuadBatch.GetPipelineShader().SetUniform4x4Matrix(projection_uniform_name, projection);
-    m_TextQuadBatch.GetPipelineShader().SetSampler2DArray(sampler_array_uniform_name,
+    m_TextQuadBatch->GetPipelineShader().UseProgram();
+    m_TextQuadBatch->GetPipelineShader().SetUniform4x4Matrix(projection_uniform_name, projection);
+    m_TextQuadBatch->GetPipelineShader().SetSampler2DArray(sampler_array_uniform_name,
         m_TextureBatcher.GetBoundTexturesSlots().data(), m_TextureBatcher.GetBoundTexturesCount());
 
-    m_TextQuadBatch.Draw();
+    m_TextQuadBatch->Draw();
 
-    m_TextQuadBatch.FlushBatch();
+    m_TextQuadBatch->FlushBatch();
 }
 
 
@@ -192,7 +201,7 @@ void Chess_Game::BatchRenderer::DrawTextureQuadBatch(const glm::mat4& projection
         m_MousePickingShader->SetSampler2DArray(sampler_array_uniform_name,
             m_TextureBatcher.GetBoundTexturesSlots().data(), m_TextureBatcher.GetBoundTexturesCount());
 
-        m_TexturedQuadBatch.Draw();
+        m_TexturedQuadBatch->Draw();
 
         glEnable(GL_DEPTH_TEST);
     }
@@ -200,14 +209,14 @@ void Chess_Game::BatchRenderer::DrawTextureQuadBatch(const glm::mat4& projection
     IntFramebuffer::BindDefaultFramebuffer();
 
 
-    m_TexturedQuadBatch.GetPipelineShader().UseProgram();
-    m_TexturedQuadBatch.GetPipelineShader().SetUniform4x4Matrix(projection_uniform_name, projection);
-    m_TexturedQuadBatch.GetPipelineShader().SetSampler2DArray(sampler_array_uniform_name,
+    m_TexturedQuadBatch->GetPipelineShader().UseProgram();
+    m_TexturedQuadBatch->GetPipelineShader().SetUniform4x4Matrix(projection_uniform_name, projection);
+    m_TexturedQuadBatch->GetPipelineShader().SetSampler2DArray(sampler_array_uniform_name,
         m_TextureBatcher.GetBoundTexturesSlots().data(),m_TextureBatcher.GetBoundTexturesCount());
 
-    m_TexturedQuadBatch.Draw();
+    m_TexturedQuadBatch->Draw();
 
-    m_TexturedQuadBatch.FlushBatch();
+    m_TexturedQuadBatch->FlushBatch();
 
 }
 

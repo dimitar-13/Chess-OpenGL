@@ -82,7 +82,7 @@ void Chess_Game::PauseMenuUIHelper::OnGameOverScreen(std::shared_ptr<Application
     m_GameOverText =
         application->GetUIManager().CreateUIElement<TextUI>(glm::vec2(-230.0f, 180.0f), glm::vec2(2.0));
     m_GameOverText->SetText("Game over");
-    m_GameOverText->SetElementDepth(.6);
+    m_GameOverText->SetElementDepth(.9);
     m_PauseMenuGroup->AddChildElement(m_GameOverText);
 
     m_PauseMenuGroup->EnableElement(true);

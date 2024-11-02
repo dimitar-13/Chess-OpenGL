@@ -3,20 +3,24 @@
 #include <stb_image.h>
 #include "Logging/Logger.h"
 #include <nlohmann/json.hpp>
-#include <filesystem>
 std::string Chess_Game::AssetLoader::s_WhiteTextureName = "WhiteTexture";
 
 Chess_Game::AssetLoader::AssetLoader()
 {
     namespace fs = std::filesystem;
+    fs::path currentPath;
+#if defined(CHESS_DEBUG)
+    currentPath = fs::current_path() / ".." / "resources/";
+#else
+    currentPath = fs::current_path() / "resources/";
+#endif
 
-    fs::path currentPath = fs::current_path() / ".." / "resources/";
+     
     std::string relative_resources_path = fs::canonical(currentPath).string();
 
-    const TexturePathNamePair texture_paths [] =
+    const TextureResourceData texture_paths [] =
     {
         {"",s_WhiteTextureName.c_str(),false},
-        {relative_resources_path + "/chess/chess_boards/ches_game_borwnish_chess_board.png","chess_game_board.jpg",false},
         {relative_resources_path + "/UI/tinyrpg/Application UI/chess_game_button_background.png","chess_game_button_background.png",false},
         {relative_resources_path + "/UI/chess_game_logo.png","chess_game_logo.png",false},
         {relative_resources_path + "/UI/tinyrpg/Application UI/chess_game_panel_background.png", "chess_game_panel_background.png",false},
@@ -25,14 +29,7 @@ Chess_Game::AssetLoader::AssetLoader()
         {relative_resources_path + "/UI/tinyrpg/Application UI/chess_game_close_button.png","chess_game_close_button.png",false },
         {relative_resources_path + "/chess/chess_boards/chess_board_no_letters.png","chess_game_board.png",false},
         {relative_resources_path + "/chess/chess_boards/chess_board_letters.png","chess_game_board_letters.png",false},
-        {"D:/c++/OpenGl/Chess-OpenGL/resources/chess/ChessPieces/chess_regular_set/chess_regular_set_texture_atlas.png",
-        "chess_regular_set_texture_atlas",true}
-        //{"D:/c++/OpenGl/Chess-OpenGL/resources/chess/ChessPieces/chess_brownish_set/chess_brownish_set_texture_atlas.png",
-        //"chess_brownish_set_texture_atlas",true}
-        //        
-        //{"D:/c++/OpenGl/Chess-OpenGL/resources/chess/ChessPieces/chess_set/chess_set.png",
-        //"chess_set",true}
-
+        {relative_resources_path + "/chess/ChessPieces/chess_regular_set/chess_regular_set_texture_atlas.png","chess_regular_set_texture_atlas",true}
     };
     size_t loaded_asset_count = sizeof(texture_paths)/ sizeof(texture_paths[0]);
 
